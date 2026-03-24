@@ -61,10 +61,20 @@ export async function POST(request) {
     }
 
     // ── Build personalized system prompt ─────────────────────────────────────
+    // Requirement 7: Optional Mode Detection
+    let activeMode = 'Teaching';
+    const lowerMessage = message.toLowerCase();
+    if (lowerMessage.includes('quiz')) {
+      activeMode = 'Quiz';
+    } else if (lowerMessage.includes('summary')) {
+      activeMode = 'Revision';
+    }
+
     const systemPrompt = buildSystemPrompt(user.mindsetProfile, {
       userName: user.name,
       weakAreas: user.weakAreas,
       currentTopic: chat.topic || '',
+      mode: activeMode,
     });
 
     // ── Prepare message history for OpenAI ──────────────────────────────────
@@ -140,23 +150,38 @@ export async function POST(request) {
 
           await user.save();
 
-          // Topic detection (fire-and-forget in background)
-          if (!chat.topic && fullResponse) {
-            generateCompletion(buildTopicDetectionPrompt(), [
-              { role: 'user', content: `User question: "${message}"\nAI response: "${fullResponse.slice(0, 300)}"` },
-            ])
-              .then(async (topic) => {
-                if (topic && topic.length < 60) {
-                  await Chat.findOneAndUpdate(
-                    { userId, sessionId: sid },
-                    { topic, title: topic }
-                  );
-                  if (!user.topicsExplored.includes(topic)) {
+          // ── Advanced Mindset Analysis (Topic & Weak Area Detection) ──────────
+          if (fullResponse) {
+            // Topic detection (if not already set)
+            if (!chat.topic) {
+              generateCompletion(buildTopicDetectionPrompt(), [
+                { role: 'user', content: `User: "${message}"\nAI: "${fullResponse.slice(0, 300)}"` },
+              ])
+                .then(async (topic) => {
+                  if (topic && topic.length < 60) {
+                    await Chat.findOneAndUpdate({ userId, sessionId: sid }, { topic, title: topic });
                     await User.findByIdAndUpdate(userId, { $addToSet: { topicsExplored: topic } });
                   }
-                }
-              })
-              .catch(() => {});
+                })
+                .catch(() => {});
+            }
+
+            // Weak area detection (Every few messages or based on heuristics)
+            // For "World-Class" feel, we check periodically
+            if (chat.messages.length % 3 === 0) {
+              generateCompletion(buildWeakAreaPrompt(), [
+                { role: 'user', content: `Analyze this interaction for learning gaps:\nUser: "${message}"\nAI: "${fullResponse.slice(0, 400)}"` },
+              ])
+                .then(async (result) => {
+                  try {
+                    const parsed = JSON.parse(result);
+                    if (parsed.weakArea && parsed.confidence > 0.6) {
+                      await User.findByIdAndUpdate(userId, { $addToSet: { weakAreas: parsed.weakArea } });
+                    }
+                  } catch (e) {}
+                })
+                .catch(() => {});
+            }
           }
         } catch (saveErr) {
           console.error('[Chat route] Error saving chat:', saveErr);

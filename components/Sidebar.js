@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ProgressBar from './ProgressBar';
+import { getProfileLabel } from '../lib/userProfile';
 
 const navItems = [
   { href: '/dashboard', icon: '🏠', label: 'Dashboard' },
@@ -34,7 +35,12 @@ export default function Sidebar({ user }) {
             />
             <div className="min-w-0">
               <p className="font-bold text-surface-900 truncate text-sm">{user.name}</p>
-              <div className="flex items-center gap-2 mt-0.5">
+              {user.mindsetProfile && (
+                <p className="text-[10px] font-semibold text-brand-500 truncate mt-0.5">
+                  ✨ {getProfileLabel(user.mindsetProfile)}
+                </p>
+              )}
+              <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs font-bold text-accent-600">⚡ {user.au} AU</span>
                 {user.streak > 0 && (
                   <span className="text-xs font-bold text-coral-500">🔥 {user.streak}</span>
