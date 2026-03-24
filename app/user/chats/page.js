@@ -22,7 +22,7 @@ export default function ChatHistoryPage() {
         ]);
 
         if (profileRes.status === 401) {
-          router.push('/auth/login?callbackUrl=/chats');
+          router.push('/auth/login?callbackUrl=/user/chats');
           return;
         }
 
@@ -68,12 +68,12 @@ export default function ChatHistoryPage() {
                   Your historical learning sessions
                 </p>
                 <span className="text-surface-300">•</span>
-                <Link href="/transactions" className="text-[10px] font-black uppercase text-brand-600 hover:text-brand-700 hover:underline tracking-widest flex items-center gap-1">
+                <Link href="/user/transactions" className="text-[10px] font-black uppercase text-brand-600 hover:text-brand-700 hover:underline tracking-widest flex items-center gap-1">
                   <span>📜</span> Transaction History
                 </Link>
               </div>
             </div>
-            <Link href="/chat">
+            <Link href="/user/chat">
               <button className="px-6 py-3 bg-brand-500 text-white rounded-xl font-black shadow-lg shadow-brand-500/20 hover:scale-105 transition-all text-sm">
                 + Start New Chat
               </button>
@@ -85,7 +85,7 @@ export default function ChatHistoryPage() {
               <div className="text-5xl mb-4 grayscale opacity-50">🦉</div>
               <h3 className="text-xl font-black text-surface-900 mb-2">No Chat History Found</h3>
               <p className="text-surface-500 font-medium mb-8">Ready to start your first session?</p>
-              <Link href="/chat">
+              <Link href="/user/chat">
                 <button className="px-8 py-4 bg-brand-500 text-white rounded-xl font-black shadow-lg hover:shadow-xl transition-all">
                   Let's Begin 🚀
                 </button>
@@ -95,7 +95,7 @@ export default function ChatHistoryPage() {
             <div className="space-y-4">
               {chats.map((chat) => (
                 <Card key={chat.sessionId} padding="none" className="overflow-hidden group hover:border-brand-300 transition-all hover:translate-x-1 shadow-sm">
-                  <Link href={`/chat?sessionId=${chat.sessionId}`} className="flex items-stretch">
+                  <Link href={`/user/chat?sessionId=${chat.sessionId}`} className="flex items-stretch">
                     <div className="w-16 bg-surface-100 flex flex-col items-center justify-center border-r border-surface-200 group-hover:bg-brand-50 group-hover:border-brand-200 transition-colors">
                       <span className="text-2xl mb-1">🦉</span>
                       <span className="text-[10px] font-black text-surface-400 group-hover:text-brand-500">{chat.messageCount}</span>

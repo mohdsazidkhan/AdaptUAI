@@ -73,7 +73,7 @@ export default function ProfilePage() {
 
       setTimeout(() => {
         // Redirect to dashboard to start fresh
-        window.location.href = '/dashboard';
+        window.location.href = '/user/dashboard';
       }, 2000);
     } catch (err) {
       console.error('Failed to reset history:', err);

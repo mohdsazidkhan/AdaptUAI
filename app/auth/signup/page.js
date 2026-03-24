@@ -35,7 +35,7 @@ export default function SignupPage() {
         throw new Error(data.error || 'Signup failed');
       }
 
-      router.push('/dashboard');
+      router.push('/user/dashboard');
       router.refresh();
     } catch (err) {
       setError(err.message);

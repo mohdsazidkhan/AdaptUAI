@@ -43,12 +43,12 @@ export default function Navbar({ user }) {
   }
 
   const navLinks = [
-    { href: '/dashboard', label: 'Dashboard', icon: '🏠', authRequired: true, hideOnDesktop: true },
-    { href: '/chat', label: 'Learn', icon: '🦉', authRequired: true, hideOnDesktop: true },
-    { href: '/chats', label: 'Sessions', icon: '💬', authRequired: true, hideOnDesktop: true },
-    { href: '/wallet', label: 'Wallet', icon: '🪙', authRequired: true, hideOnDesktop: true },
-    { href: '/transactions', label: 'History', icon: '📜', authRequired: true, hideOnDesktop: true },
-    { href: '/profile', label: 'Profile', icon: '👤', authRequired: true, hideOnDesktop: true },
+    { href: '/user/dashboard', label: 'Dashboard', icon: '🏠', authRequired: true, hideOnDesktop: true },
+    { href: '/user/chat', label: 'Learn', icon: '🦉', authRequired: true, hideOnDesktop: true },
+    { href: '/user/chats', label: 'Sessions', icon: '💬', authRequired: true, hideOnDesktop: true },
+    { href: '/user/wallet', label: 'Wallet', icon: '🪙', authRequired: true, hideOnDesktop: true },
+    { href: '/user/transactions', label: 'History', icon: '📜', authRequired: true, hideOnDesktop: true },
+    { href: '/user/profile', label: 'Profile', icon: '👤', authRequired: true, hideOnDesktop: true },
     { href: '/auth/login', label: 'Log In', icon: '🔑', authRequired: false, hideOnDesktop: true },
     { href: '/auth/signup', label: 'Get Started', icon: '🚀', authRequired: false, hideOnDesktop: true },
   ];
@@ -68,7 +68,7 @@ export default function Navbar({ user }) {
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href={user ? '/dashboard' : '/'} className="flex items-center gap-2 group">
+            <Link href={user ? '/user/dashboard' : '/'} className="flex items-center gap-2 group">
               <span className="text-2xl group-hover:animate-bounce-slow transition-all">🦉</span>
               <span className="text-xl font-black">
                 <span className="text-surface-900">AdaptU</span>
@@ -137,14 +137,14 @@ export default function Navbar({ user }) {
                           <p className="text-xs text-surface-500 truncate">{user.email}</p>
                         </div>
                         <Link
-                          href="/profile"
+                          href="/user/profile"
                           onClick={() => setUserDropdownOpen(false)}
                           className="flex items-center gap-2 px-4 py-2.5 text-sm text-surface-700 hover:bg-surface-50 font-medium"
                         >
                           👤 View Profile
                         </Link>
                         <Link
-                          href="/dashboard"
+                          href="/user/dashboard"
                           onClick={() => setUserDropdownOpen(false) || setMobileMenuOpen(false)}
                           className="flex items-center gap-2 px-4 py-2.5 text-sm text-surface-700 hover:bg-surface-50 font-medium"
                         >
@@ -213,7 +213,7 @@ export default function Navbar({ user }) {
           <div className="h-full flex flex-col bg-surface-50">
             {/* Header Area */}
             <div className="p-6 border-b border-surface-200 flex items-center justify-between bg-surface-50">
-              <Link href={user ? '/dashboard' : '/'} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
+              <Link href={user ? '/user/dashboard' : '/'} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
                 <span className="text-2xl">🦉</span>
                 <span className="text-xl font-black text-surface-900 leading-none">AdaptUAI</span>
               </Link>

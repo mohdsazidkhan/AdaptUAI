@@ -50,7 +50,7 @@ export default function DashboardPage() {
                 You&apos;re doing great! Keep up the momentum.
               </p>
             </div>
-            <Link href="/chat">
+            <Link href="/user/chat">
               <Button size="lg" className="px-8 py-4 shadow-glow w-full lg:w-auto">
                 🚀 Start Learning
               </Button>
@@ -100,7 +100,7 @@ export default function DashboardPage() {
                       <p className="text-[10px] text-brand-700 font-bold uppercase tracking-wider">Recharge anytime in Profile Settings</p>
                     </div>
                   </div>
-                  <Link href="/profile" className="text-xs font-black text-brand-600 hover:text-brand-700 underline">
+                  <Link href="/user/profile" className="text-xs font-black text-brand-600 hover:text-brand-700 underline">
                     View Wallet →
                   </Link>
                 </div>
@@ -110,7 +110,7 @@ export default function DashboardPage() {
               <Card padding="lg">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-black text-surface-900">Recent Chats</h2>
-                  <Link href="/chat" className="text-sm font-bold text-brand-600 hover:underline">
+                  <Link href="/user/chats" className="text-sm font-bold text-brand-600 hover:underline">
                     View all →
                   </Link>
                 </div>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
                     recentChats.map((chat) => (
                       <Link
                         key={chat.sessionId}
-                        href={`/chat?sessionId=${chat.sessionId}`}
+                        href={`/user/chat?sessionId=${chat.sessionId}`}
                         className="flex items-center justify-between p-4 bg-surface-100 border border-surface-200 rounded-xl hover:border-brand-500 hover:bg-brand-50 transition-all group"
                       >
                         <div className="flex items-center gap-3 overflow-hidden">
@@ -145,7 +145,7 @@ export default function DashboardPage() {
                     <div className="text-center py-8">
                       <p className="text-4xl mb-3">🦉</p>
                       <p className="text-surface-500 font-semibold mb-4">No learning sessions yet.</p>
-                      <Link href="/chat">
+                      <Link href="/user/chat">
                         <Button variant="outline" size="sm">Start your first lesson</Button>
                       </Link>
                     </div>
@@ -232,7 +232,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <Button variant="ghost" fullWidth className="mt-6 text-xs" onClick={() => (window.location.href = '/profile')}>
+                <Button variant="ghost" fullWidth className="mt-6 text-xs" onClick={() => (window.location.href = '/user/profile')}>
                   Personalize Profile →
                 </Button>
               </Card>

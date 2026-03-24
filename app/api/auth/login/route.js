@@ -19,6 +19,39 @@ export async function POST(request) {
       );
     }
 
+    // ── Admin Check ───────────────────────────────────────────────────────────
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (adminEmail && adminPassword && 
+        email.toLowerCase().trim() === adminEmail.toLowerCase().trim() && 
+        password === adminPassword) {
+      
+      const token = await signToken({
+        userId: 'admin',
+        email: adminEmail,
+        name: 'System Admin',
+        role: 'admin'
+      });
+
+      const response = NextResponse.json({
+        success: true,
+        user: {
+          id: 'admin',
+          name: 'System Admin',
+          email: adminEmail,
+          role: 'admin',
+          au: 99999,
+          level: 'MOD',
+          streak: 999,
+          avatarUrl: 'https://ui-avatars.com/api/?name=Admin&background=ef4444&color=fff',
+        },
+      });
+
+      response.headers.set('Set-Cookie', createAuthCookieHeader(token));
+      return response;
+    }
+
     // ── Find user (include password field explicitly) ──────────────────────────
     const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
     if (!user) {
@@ -39,6 +72,7 @@ export async function POST(request) {
       userId: user._id.toString(),
       email: user.email,
       name: user.name,
+      role: 'user', // Default role
     });
 
     // ── Set cookie and respond ────────────────────────────────────────────────
@@ -48,10 +82,12 @@ export async function POST(request) {
         id: user._id.toString(),
         name: user.name,
         email: user.email,
+        role: 'user',
         au: user.au,
         level: user.level,
         streak: user.streak,
         avatarUrl: user.avatarUrl,
+        redirect: '/user/dashboard',
       },
     });
 

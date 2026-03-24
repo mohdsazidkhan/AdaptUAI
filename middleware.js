@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
 // Routes that require authentication
-const PROTECTED_ROUTES = ['/dashboard', '/chat', '/chats', '/profile', '/transactions', '/wallet'];
+const PROTECTED_ROUTES = ['/user', '/admin'];
 // Routes that should redirect to dashboard if already logged in
 const AUTH_ROUTES = ['/auth/login', '/auth/signup'];
 
@@ -18,6 +18,8 @@ export async function middleware(request) {
 
   const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
+  const isAdminRoute = pathname.startsWith('/admin');
+  const isUserRoute = pathname.startsWith('/user');
 
   // Redirect unauthenticated users away from protected routes
   if (isProtected && !user) {
@@ -26,9 +28,23 @@ export async function middleware(request) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Handle root / redirect
+  if (pathname === '/') {
+    if (user) {
+      const destination = user.role === 'admin' ? '/admin/dashboard' : '/user/dashboard';
+      return NextResponse.redirect(new URL(destination, request.url));
+    }
+  }
+
+  // Enforce Admin role for /admin routes
+  if (isAdminRoute && user?.role !== 'admin') {
+    return NextResponse.redirect(new URL('/user/dashboard', request.url));
+  }
+
   // Redirect authenticated users away from auth pages
   if (isAuthRoute && user) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    const destination = user.role === 'admin' ? '/admin/dashboard' : '/user/dashboard';
+    return NextResponse.redirect(new URL(destination, request.url));
   }
 
   return NextResponse.next();
@@ -36,14 +52,9 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
-    '/dashboard',
-    '/dashboard/:path*',
-    '/chat',
-    '/chat/:path*',
-    '/profile',
-    '/profile/:path*',
-    '/transactions',
-    '/transactions/:path*',
+    '/',
+    '/user/:path*',
+    '/admin/:path*',
     '/auth/login',
     '/auth/signup',
   ],

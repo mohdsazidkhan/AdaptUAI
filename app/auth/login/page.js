@@ -10,7 +10,7 @@ import { PageLoader } from '@/components/Loader';
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const callbackUrl = searchParams.get('callbackUrl') || '/user/dashboard';
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -38,7 +38,7 @@ function LoginContent() {
         throw new Error(data.error || 'Login failed');
       }
 
-      router.push(callbackUrl);
+      router.push(data.user?.redirect || callbackUrl);
       router.refresh();
     } catch (err) {
       setError(err.message);

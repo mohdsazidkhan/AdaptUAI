@@ -58,7 +58,7 @@ export default function WalletPage() {
                     <span className="text-2xl font-black">{data?.au}</span>
                     <span className="ml-2 text-xs font-bold uppercase">AU Tokens</span>
                   </div>
-                  <Link href="/transactions" className="text-[10px] font-black uppercase text-brand-600 hover:text-brand-700 hover:underline tracking-widest flex items-center gap-1">
+                  <Link href="/user/transactions" className="text-[10px] font-black uppercase text-brand-600 hover:text-brand-700 hover:underline tracking-widest flex items-center gap-1">
                     <span>📜</span> View Transaction History
                   </Link>
                 </div>

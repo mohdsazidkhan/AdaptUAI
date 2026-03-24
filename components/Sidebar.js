@@ -6,12 +6,12 @@ import ProgressBar from './ProgressBar';
 import { getProfileLabel } from '../lib/userProfile';
 
 const navItems = [
-  { href: '/dashboard', icon: '🏠', label: 'Dashboard' },
-  { href: '/chat', icon: '🦉', label: 'AI Tutor' },
-  { href: '/chats', icon: '💬', label: 'Sessions' },
-  { href: '/wallet', icon: '🪙', label: 'Wallet' },
-  { href: '/transactions', icon: '📜', label: 'History' },
-  { href: '/profile', icon: '👤', label: 'Profile' },
+  { href: '/user/dashboard', icon: '🏠', label: 'Dashboard' },
+  { href: '/user/chat', icon: '🦉', label: 'AI Tutor' },
+  { href: '/user/chats', icon: '💬', label: 'Sessions' },
+  { href: '/user/wallet', icon: '🪙', label: 'Wallet' },
+  { href: '/user/transactions', icon: '📜', label: 'History' },
+  { href: '/user/profile', icon: '👤', label: 'Profile' },
 ];
 
 export default function Sidebar({ user }) {
@@ -51,7 +51,7 @@ export default function Sidebar({ user }) {
 
           {/* Wallet summary small */}
           <div className="mt-3 px-1">
-            <Link href="/wallet" className="block p-3 bg-brand-50 rounded-xl border border-brand-100 group hover:border-brand-200 transition-all">
+            <Link href="/user/wallet" className="block p-3 bg-brand-50 rounded-xl border border-brand-100 group hover:border-brand-200 transition-all">
               <div className="flex justify-between items-center text-[10px] font-black uppercase text-brand-600 mb-1">
                 <span>Wallet Status</span>
                 <span>Active</span>
