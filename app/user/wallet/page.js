@@ -36,7 +36,7 @@ export default function WalletPage() {
       <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8">
-            <h1 className="text-3xl font-black text-surface-900">AU Token Wallet</h1>
+            <h1 className="text-3xl font-black text-surface-900 dark:text-white">AU Token Wallet</h1>
             <p className="text-surface-500 font-semibold mt-1">
               Manage your tokens and recharge for more learning
             </p>

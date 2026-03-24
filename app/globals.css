@@ -58,16 +58,16 @@
     --background: 15 17 21;
     --foreground: 240 243 248;
 
-    --surface-50: 36 43 56;
-    --surface-100: 26 30 38;
+    --surface-50: 26 30 38;
+    --surface-100: 36 43 56;
     --surface-200: 51 61 79;
     --surface-300: 74 86 107;
     --surface-400: 115 115 115;
-    --surface-500: 163 163 163;
-    --surface-600: 212 212 212;
-    --surface-700: 229 229 229;
-    --surface-800: 245 245 245;
-    --surface-900: 15 17 21;
+    --surface-500: 140 140 140;
+    --surface-600: 180 180 180;
+    --surface-700: 212 212 212;
+    --surface-800: 240 240 240;
+    --surface-900: 255 255 255;
 
     --brand-50: 5 46 22;
     --brand-100: 6 78 59;

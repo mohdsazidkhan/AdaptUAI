@@ -43,7 +43,7 @@ export default function DashboardPage() {
           {/* Welcome Header */}
           <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-black text-surface-900">
+              <h1 className="text-3xl font-black text-surface-900 dark:text-white">
                 Hi, {user?.name?.split(' ')[0]}! 👋
               </h1>
               <p className="text-surface-500 font-semibold mt-1">

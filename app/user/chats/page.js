@@ -62,7 +62,7 @@ export default function ChatHistoryPage() {
         <div className="animate-fade-in">
           <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-black text-surface-900">Recent Chats</h1>
+              <h1 className="text-3xl font-black text-surface-900 dark:text-white">Recent Chats</h1>
               <div className="flex items-center gap-3 mt-1">
                 <p className="text-surface-500 font-semibold">
                   Your historical learning sessions

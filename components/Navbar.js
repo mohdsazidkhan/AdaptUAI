@@ -62,7 +62,7 @@ export default function Navbar({ user }) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-surface-200 dark:border-surface-800 ${scrolled ? 'bg-surface-50/95 dark:bg-surface-900/95 backdrop-blur-md shadow-md' : 'bg-surface-50/90 dark:bg-surface-900/90 backdrop-blur-sm'
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-surface-200 dark:border-surface-100/10 ${scrolled ? 'bg-surface-50/95 dark:bg-surface-50/95 backdrop-blur-md shadow-md' : 'bg-surface-50/90 dark:bg-surface-50/90 backdrop-blur-sm'
           }`}
       >
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
@@ -131,7 +131,7 @@ export default function Navbar({ user }) {
                     </button>
 
                     {userDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-52 bg-surface-50 dark:bg-surface-900 rounded-xl shadow-xl border border-surface-200 dark:border-surface-800 py-1 animate-scale-in z-50">
+                      <div className="absolute right-0 mt-2 w-52 bg-surface-50 dark:bg-surface-50 rounded-xl shadow-xl border border-surface-200 dark:border-surface-100/10 py-1 animate-scale-in z-50">
                         <div className="px-4 py-3 border-b border-surface-100">
                           <p className="font-bold text-surface-900 truncate">{user.name}</p>
                           <p className="text-xs text-surface-500 truncate">{user.email}</p>
@@ -139,7 +139,7 @@ export default function Navbar({ user }) {
                         <Link
                           href="/user/profile"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 font-medium"
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-surface-700 dark:text-surface-900 hover:bg-surface-100 dark:hover:bg-surface-100 font-medium"
                         >
                           👤 View Profile
                         </Link>
@@ -147,7 +147,7 @@ export default function Navbar({ user }) {
                           <Link
                             href="/admin/dashboard"
                             onClick={() => setUserDropdownOpen(false)}
-                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-brand-600 dark:text-brand-400 hover:bg-surface-100 dark:hover:bg-surface-800 font-bold"
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-brand-600 dark:text-brand-400 hover:bg-surface-100 dark:hover:bg-surface-100 font-bold"
                           >
                             🛡️ Admin Panel
                           </Link>
@@ -155,14 +155,14 @@ export default function Navbar({ user }) {
                         <Link
                           href="/user/dashboard"
                           onClick={() => setUserDropdownOpen(false) || setMobileMenuOpen(false)}
-                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 font-medium"
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-surface-700 dark:text-surface-900 hover:bg-surface-100 dark:hover:bg-surface-100 font-medium"
                         >
                           🏠 Dashboard
                         </Link>
                         <hr className="my-1 border-surface-100" />
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-coral-600 hover:bg-coral-100 dark:hover:bg-coral-900/30 font-medium"
+                          className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-coral-600 hover:bg-coral-100 dark:hover:bg-coral-900/10 font-medium"
                         >
                           🚪 Sign Out
                         </button>
@@ -174,7 +174,7 @@ export default function Navbar({ user }) {
                 <div className="hidden xs:flex items-center gap-2">
                     <Link
                       href="/auth/login"
-                      className="px-4 py-2 text-sm font-semibold text-surface-700 dark:text-surface-200 hover:text-surface-900 dark:hover:text-white hover:bg-surface-100 dark:hover:bg-surface-800 rounded-xl transition-all"
+                      className="px-4 py-2 text-sm font-semibold text-surface-700 dark:text-surface-900 hover:text-surface-900 dark:hover:text-white hover:bg-surface-100 dark:hover:bg-surface-100 rounded-xl transition-all"
                     >
                     Log In
                   </Link>
@@ -216,10 +216,10 @@ export default function Navbar({ user }) {
 
         {/* Sidebar Drawer Container */}
         <div
-          className={`absolute inset-y-0 left-0 w-[280px] bg-surface-50 dark:bg-surface-900 shadow-2xl transition-transform duration-300 ease-out transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          className={`absolute inset-y-0 left-0 w-[280px] bg-surface-50 dark:bg-surface-50 shadow-2xl transition-transform duration-300 ease-out transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
         >
-          <div className="h-full flex flex-col bg-surface-50 dark:bg-surface-900">
+          <div className="h-full flex flex-col bg-surface-50 dark:bg-surface-50">
             {/* Header Area */}
             <div className="p-6 border-b border-surface-200 flex items-center justify-between bg-surface-50">
               <Link href={user ? '/user/dashboard' : '/'} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">

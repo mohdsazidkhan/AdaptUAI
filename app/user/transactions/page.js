@@ -46,7 +46,7 @@ export default function TransactionsPage() {
       <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8">
-            <h1 className="text-3xl font-black text-surface-900 flex items-center gap-3">
+            <h1 className="text-3xl font-black text-surface-900 dark:text-white flex items-center gap-3">
               <span>📜</span> Transaction History
             </h1>
             <p className="text-surface-500 font-semibold mt-1">

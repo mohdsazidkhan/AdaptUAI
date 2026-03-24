@@ -14,7 +14,7 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="w-64 bg-surface-900 text-white flex flex-col h-screen fixed left-0 top-0 z-50">
+    <div className="w-64 bg-surface-900 dark:bg-surface-50 text-white flex flex-col h-screen fixed left-0 top-0 z-50">
       <div className="p-6">
         <h1 className="text-xl font-black tracking-tighter flex items-center gap-2">
           <span className="text-brand-500">AdaptUAI</span>
