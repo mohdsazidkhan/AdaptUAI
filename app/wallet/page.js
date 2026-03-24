@@ -71,13 +71,13 @@ export default function WalletPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl bg-white border border-surface-200 shadow-sm">
+                <div className="p-5 rounded-2xl bg-surface-100 border border-surface-200 shadow-sm">
                   <p className="text-[10px] text-surface-400 font-black uppercase mb-1 tracking-widest">Consumption Rate</p>
                   <p className="text-lg font-black text-surface-800">
                     -{process.env.NEXT_PUBLIC_EACH_CHAT_AU_TOKEN || 10} AU <span className="text-xs font-bold text-surface-400">/ message</span>
                   </p>
                 </div>
-                <div className="p-5 rounded-2xl bg-white border border-surface-200 shadow-sm">
+                <div className="p-5 rounded-2xl bg-surface-100 border border-surface-200 shadow-sm">
                   <p className="text-[10px] text-surface-400 font-black uppercase mb-1 tracking-widest">Pricing Plan</p>
                   <p className="text-lg font-black text-brand-600">
                     ₹1 = {(Number(process.env.NEXT_PUBLIC_AU_PER_RUPEE) || 10)} AU Tokens
@@ -90,7 +90,7 @@ export default function WalletPage() {
             </Card>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="p-6 rounded-3xl bg-white border border-surface-200 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
+              <div className="p-6 rounded-3xl bg-surface-50 border border-surface-200 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-500 mb-4">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -110,7 +110,7 @@ export default function WalletPage() {
                 href={`https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_CONTACT || '+917678131912').replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-6 rounded-3xl bg-white border border-[#25D366]/30 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow group"
+                className="p-6 rounded-3xl bg-surface-50 border border-[#25D366]/30 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow group"
               >
                 <div className="w-16 h-16 bg-[#25D366]/10 rounded-2xl flex items-center justify-center text-[#25D366] mb-4 group-hover:scale-110 transition-transform">
                   <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
