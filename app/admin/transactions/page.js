@@ -7,34 +7,46 @@ import api from '@/lib/api';
 
 export default function AdminTransactions() {
   const [transactions, setTransactions] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchTransactions() {
-      try {
-        const response = await api.get('/admin/transactions');
-        setTransactions(response.transactions);
-      } catch (err) {
-        console.error('Failed to fetch admin transactions:', err);
-      } finally {
-        setLoading(false);
-      }
+  async function fetchTransactions(page = 1) {
+    setLoading(true);
+    try {
+      const response = await api.get(`/admin/transactions?page=${page}&limit=50`);
+      setTransactions(response.transactions);
+      setPagination(response.pagination);
+    } catch (err) {
+      console.error('Failed to fetch admin transactions:', err);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
     fetchTransactions();
   }, []);
 
-  if (loading) return <PageLoader />;
+  if (loading && transactions.length === 0) return <PageLoader />;
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <header className="mb-8">
-        <h1 className="text-3xl font-black text-surface-900 dark:text-white">Transaction History</h1>
-        <p className="text-surface-500 font-bold mt-2">Global log of all AU token credits and debits</p>
+      <header className="mb-8 flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-black text-surface-900 dark:text-white">Transaction History</h1>
+          <p className="text-surface-500 font-bold mt-2">Global log of all AU token credits and debits</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs font-black text-surface-400 uppercase">Total Records</p>
+          <p className="text-xl font-black text-brand-600">{pagination.total}</p>
+        </div>
       </header>
 
       <Card padding="none" className="overflow-hidden border-surface-200">
         <div className="overflow-x-auto">
+          {/* Table content as before... */}
           <table className="w-full text-left">
+            {/* Headers as before */}
             <thead className="bg-surface-50 dark:bg-surface-100/50 border-b border-surface-200 dark:border-surface-800">
               <tr>
                 <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">User</th>
@@ -77,6 +89,31 @@ export default function AdminTransactions() {
           </table>
         </div>
       </Card>
+
+      {/* Pagination Controls */}
+      {pagination.pages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <p className="text-sm text-surface-500">
+            Showing <span className="font-bold">{(pagination.page - 1) * 50 + 1}</span> to <span className="font-bold">{Math.min(pagination.page * 50, pagination.total)}</span> of <span className="font-bold">{pagination.total}</span>
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => fetchTransactions(pagination.page - 1)}
+              disabled={pagination.page <= 1}
+              className="px-4 py-2 bg-surface-100 hover:bg-surface-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-bold transition-all"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => fetchTransactions(pagination.page + 1)}
+              disabled={pagination.page >= pagination.pages}
+              className="px-4 py-2 bg-surface-100 hover:bg-surface-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-bold transition-all"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

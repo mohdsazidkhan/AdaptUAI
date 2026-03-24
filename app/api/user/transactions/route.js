@@ -14,6 +14,13 @@ export async function GET(request) {
 
     await dbConnect();
 
+    if (authUser.userId === 'admin') {
+      return NextResponse.json({
+        success: true,
+        transactions: [],
+      });
+    }
+
     const transactions = await Transaction.find({ userId: authUser.userId })
       .sort({ createdAt: -1 })
       .limit(50);

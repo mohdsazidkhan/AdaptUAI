@@ -14,6 +14,13 @@ export async function GET(request) {
 
     await dbConnect();
 
+    if (authUser.userId === 'admin') {
+      return NextResponse.json({
+        success: true,
+        chats: [],
+      });
+    }
+
     // Fetch previous chats for the user
     const chats = await Chat.find({ userId: authUser.userId })
       .select('sessionId title updatedAt messages')
