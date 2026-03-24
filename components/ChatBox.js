@@ -5,10 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 import MessageBubble from './MessageBubble';
 import { TypingIndicator } from './Loader';
 import { AUPopup } from './AUBadge';
+import api from '@/lib/api';
+import { toast } from 'react-toastify';
 
 const DEBOUNCE_MS = 300;
 
-export default function ChatBox({ user, initialSessionId = null }) {
+export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -39,25 +41,28 @@ export default function ChatBox({ user, initialSessionId = null }) {
   // Load history if sessionId exists
   useEffect(() => {
     if (!initialSessionId) {
-      setMessages([
-        {
-          role: 'assistant',
-          content: `Hi ${user?.name?.split(' ')[0] || 'there'}! 👋 I'm your AI tutor. What would you like to learn today?\n\nYou can ask me *anything* — from **coding** to **science**, **history** to **math**. Let's explore together! 🚀`,
-          timestamp: new Date(),
-        },
-      ]);
+      // Only set welcome message if messages are empty
+      setMessages((prev) => {
+        if (prev.length > 0) return prev;
+        return [
+          {
+            role: 'assistant',
+            content: `Hi ${user?.name?.split(' ')[0] || 'there'}! 👋 I'm your AI tutor. What would you like to learn today?\n\nYou can ask me *anything* — from **coding** to **science**, **history** to **math**. Let's explore together! 🚀`,
+            timestamp: new Date(),
+          },
+        ];
+      });
       return;
     }
 
     async function fetchHistory() {
       setIsHistoryLoading(true);
       try {
-        const res = await fetch(`/api/chat?sessionId=${initialSessionId}`);
-        const json = await res.json();
-        if (json.success && json.chat?.messages) {
-          setMessages(json.chat.messages);
+        const data = await api.get(`/chat?sessionId=${initialSessionId}`);
+        if (data.chat?.messages) {
+          setMessages(data.chat.messages);
           // Update metrics to reflect historical context
-          metricsRef.current.messageCount = json.chat.messages.length;
+          metricsRef.current.messageCount = data.chat.messages.length;
         } else {
           // Fallback if no history found
           setMessages([
@@ -150,7 +155,9 @@ export default function ChatBox({ user, initialSessionId = null }) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to get response');
+        const err = new Error(errorData.error || 'Failed to get response');
+        err.apiMessage = errorData.message;
+        throw err;
       }
 
       const newSessionId = response.headers.get('X-Session-Id');
@@ -162,24 +169,29 @@ export default function ChatBox({ user, initialSessionId = null }) {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let accumulatedText = '';
+      let buffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        
+        if (value) {
+          buffer += decoder.decode(value, { stream: !done });
+        }
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep the incomplete line in the buffer
 
         for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6).trim();
+          const trimmedLine = line.trim();
+          if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue;
+          
+          const data = trimmedLine.slice(6).trim();
           if (data === '[DONE]') continue;
 
           try {
             const parsed = JSON.parse(data);
             if (parsed.content) {
               accumulatedText += parsed.content;
-              // Update the placeholder message in real-time
               setMessages((prev) =>
                 prev.map((m) =>
                   m._streamingId === streamingId
@@ -192,8 +204,34 @@ export default function ChatBox({ user, initialSessionId = null }) {
               throw new Error(parsed.error);
             }
           } catch (parseErr) {
-            // skip malformed SSE lines
+            console.error('SSE Parse Error:', parseErr, 'Line:', line);
           }
+        }
+
+        if (done) {
+          // Final check for anything remaining in buffer
+          if (buffer.trim()) {
+            const trimmedLine = buffer.trim();
+            if (trimmedLine.startsWith('data: ')) {
+              const data = trimmedLine.slice(6).trim();
+              if (data !== '[DONE]') {
+                try {
+                  const parsed = JSON.parse(data);
+                  if (parsed.content) {
+                    accumulatedText += parsed.content;
+                    setMessages((prev) =>
+                      prev.map((m) =>
+                        m._streamingId === streamingId
+                          ? { ...m, content: accumulatedText }
+                          : m
+                      )
+                    );
+                  }
+                } catch (e) {}
+              }
+            }
+          }
+          break;
         }
       }
 
@@ -208,22 +246,66 @@ export default function ChatBox({ user, initialSessionId = null }) {
       const tokenCost = Number(process.env.NEXT_PUBLIC_EACH_CHAT_AU_TOKEN) || 10;
       setShowAUPopup(true);
       setTimeout(() => setShowAUPopup(false), 2500);
+
+      // Refresh user data (if callback provided)
+      if (onSuccess) onSuccess();
     } catch (err) {
       if (err.name === 'AbortError') return; // user cancelled
 
       const errorMsg = err.message || 'Something went wrong. Please try again.';
       setError(errorMsg);
 
+      if (errorMsg === 'INSUFFICIENT_AU') {
+        const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com';
+        const phone = process.env.NEXT_PUBLIC_WHATSAPP_CONTACT || '+917678131912';
+        const waLink = `https://wa.me/${phone.replace(/[^0-9]/g, '')}`;
+
+        toast.error(
+          <div className="flex flex-col gap-2">
+            <p className="font-bold">Your AdaptUAI AU wallet is empty! 🕳️</p>
+            <p className="text-[11px] leading-relaxed opacity-90 font-medium">
+              To continue, please contact our support to recharge your tokens.
+            </p>
+            <div className="flex gap-2 mt-1">
+              <a
+                href={`mailto:${email}`}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span>📧</span> Email
+              </a>
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span>💬</span> WhatsApp
+              </a>
+            </div>
+          </div>,
+          {
+            position: "top-center",
+            autoClose: 12000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
+      }
+
       // Replace placeholder with error message
       setMessages((prev) =>
         prev.map((m) =>
           m._streamingId === streamingId
             ? {
-                ...m,
-                content: `⚠️ ${errorMsg}`,
-                _streamingId: undefined,
-                isError: true,
-              }
+              ...m,
+              content: `⚠️ ${errorMsg}`,
+              _streamingId: undefined,
+              isError: true,
+            }
             : m
         )
       );
@@ -297,7 +379,7 @@ export default function ChatBox({ user, initialSessionId = null }) {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-50 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-100/50 dark:bg-background custom-scrollbar">
         {isHistoryLoading ? (
           <div className="flex items-center justify-center h-full">
             <TypingIndicator />
@@ -308,15 +390,6 @@ export default function ChatBox({ user, initialSessionId = null }) {
           ))
         )}
 
-        {/* Typing indicator — shows while waiting for first chars */}
-        {isStreaming && messages[messages.length - 1]?.content === '' && (
-          <div className="flex items-end gap-2 mb-4">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center shadow-sm flex-shrink-0">
-              <span className="text-base">🦉</span>
-            </div>
-            <TypingIndicator />
-          </div>
-        )}
 
         {/* Suggested topics */}
         {showSuggestions && (
@@ -348,7 +421,7 @@ export default function ChatBox({ user, initialSessionId = null }) {
           </div>
           {error === 'INSUFFICIENT_AU' && (
             <div className="mt-2 flex flex-wrap gap-2">
-              <a 
+              <a
                 href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com'}`}
                 className="px-3 py-1.5 bg-surface-50 border border-coral-200 rounded-xl text-[10px] font-black uppercase hover:bg-coral-100 transition-all flex items-center gap-1.5"
               >
@@ -357,7 +430,7 @@ export default function ChatBox({ user, initialSessionId = null }) {
                 </svg>
                 Email
               </a>
-              <a 
+              <a
                 href={`https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_CONTACT || '+917678131912').replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"

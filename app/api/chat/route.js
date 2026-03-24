@@ -45,7 +45,7 @@ export async function POST(request) {
         success: false, 
         error: 'INSUFFICIENT_AU',
         message: `Your AU wallet is empty. To continue, please contact our support via Email (${process.env.CONTACT_EMAIL || 'support@mohdsazidkhan.com'}) or WhatsApp (${process.env.WHATSAPP_CONTACT || '+917678131912'}) to recharge your tokens.` 
-      });
+      }, { status: 403 });
     }
 
     // ── Find or create chat session ──────────────────────────────────────────

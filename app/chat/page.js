@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import ChatBox from '@/components/ChatBox';
 import { PageLoader } from '@/components/Loader';
+import api from '@/lib/api';
 
 function ChatContent() {
   const router = useRouter();
@@ -13,24 +14,19 @@ function ChatContent() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await fetch('/api/user/profile');
-        if (res.status === 401) {
-          router.push('/auth/login?callbackUrl=/chat');
-          return;
-        }
-        const json = await res.json();
-        if (json.success) {
-          setUser(json.user);
-        }
-      } catch (err) {
-        console.error('Failed to fetch user for chat:', err);
-      } finally {
-        setLoading(false);
-      }
+  const fetchUser = async () => {
+    try {
+      const data = await api.get('/user/profile');
+      setUser(data.user);
+    } catch (err) {
+      console.error('Failed to fetch user for chat:', err);
+      // Global interceptor handles 401 redirect, so we only handle other errors
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchUser();
   }, []);
 
@@ -42,7 +38,7 @@ function ChatContent() {
 
       <main className="flex-1 lg:pl-0 h-screen pt-16 flex flex-col">
         <div className="flex-1 max-w-4xl mx-auto w-full h-full border-x border-surface-100 bg-surface-50">
-          <ChatBox user={user} initialSessionId={sessionId} />
+          <ChatBox user={user} initialSessionId={sessionId} onSuccess={fetchUser} />
         </div>
       </main>
     </div>

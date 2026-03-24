@@ -4,6 +4,8 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Navbar from '@/components/Navbar';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata = {
   title: {
@@ -78,6 +80,18 @@ export default async function RootLayout({ children }) {
           <main className="min-h-screen">
             {children}
           </main>
+          <ToastContainer 
+            position="top-center"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
         </ThemeProvider>
       </body>
     </html>

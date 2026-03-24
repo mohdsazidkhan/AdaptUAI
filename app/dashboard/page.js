@@ -9,6 +9,7 @@ import AUBadge from '@/components/AUBadge';
 import ProgressBar from '@/components/ProgressBar';
 import { PageLoader } from '@/components/Loader';
 import Button from '@/components/Button';
+import api from '@/lib/api';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -18,15 +19,8 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch('/api/user/profile');
-        if (res.status === 401) {
-          router.push('/auth/login?callbackUrl=/dashboard');
-          return;
-        }
-        const json = await res.json();
-        if (json.success) {
-          setData(json);
-        }
+        const data = await api.get('/user/profile');
+        setData(data);
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);
       } finally {

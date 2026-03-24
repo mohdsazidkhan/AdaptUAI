@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Card from '@/components/Card';
 import { PageLoader } from '@/components/Loader';
+import api from '@/lib/api';
 import { format } from 'date-fns';
 
 export default function TransactionsPage() {
@@ -16,25 +17,15 @@ export default function TransactionsPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [userRes, transRes] = await Promise.all([
-          fetch('/api/user/profile'),
-          fetch('/api/user/transactions')
+        const [userData, transData] = await Promise.all([
+          api.get('/user/profile'),
+          api.get('/user/transactions')
         ]);
         
-        if (userRes.status === 401) {
-          router.push('/auth/login?callbackUrl=/transactions');
-          return;
-        }
-        
-        const userData = await userRes.json();
-        const transData = await transRes.json();
-        
-        if (userData.success && transData.success) {
-          setData({
-            user: userData.user,
-            transactions: transData.transactions
-          });
-        }
+        setData({
+          user: userData.user,
+          transactions: transData.transactions
+        });
       } catch (err) {
         console.error('Failed to fetch transactions:', err);
       } finally {

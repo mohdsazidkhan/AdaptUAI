@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import Card from '@/components/Card';
 import { PageLoader } from '@/components/Loader';
+import api from '@/lib/api';
 
 export default function WalletPage() {
   const router = useRouter();
@@ -15,15 +16,8 @@ export default function WalletPage() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const res = await fetch('/api/user/profile');
-        if (res.status === 401) {
-          router.push('/auth/login?callbackUrl=/wallet');
-          return;
-        }
-        const json = await res.json();
-        if (json.success) {
-          setData(json.user);
-        }
+        const data = await api.get('/user/profile');
+        setData(data.user);
       } catch (err) {
         console.error('Failed to fetch wallet data:', err);
       } finally {

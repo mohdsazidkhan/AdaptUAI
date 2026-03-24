@@ -8,6 +8,8 @@ import Card from '@/components/Card';
 import Button from '@/components/Button';
 import ProgressBar from '@/components/ProgressBar';
 import { PageLoader } from '@/components/Loader';
+import api from '@/lib/api';
+import { toast } from 'react-toastify';
 
 const learningStyles = [
   { id: 'visual', label: 'Visual', icon: '🎨', desc: 'ASCII diagrams and metaphors' },
@@ -27,20 +29,12 @@ export default function ProfilePage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const res = await fetch('/api/user/profile');
-        if (res.status === 401) {
-          router.push('/auth/login?callbackUrl=/profile');
-          return;
-        }
-        const json = await res.json();
-        if (json.success) {
-          setData(json.user);
-        }
+        const data = await api.get('/user/profile');
+        setData(data.user);
       } catch (err) {
         console.error('Failed to fetch profile:', err);
       } finally {
@@ -54,20 +48,12 @@ export default function ProfilePage() {
     setSaving(true);
     setMessage('');
     try {
-      const res = await fetch('/api/user/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fields),
-      });
-      const json = await res.json();
-      if (json.success) {
-        setData(json.user);
-        setMessage('Settings saved successfully! ✨');
-        setTimeout(() => setMessage(''), 3000);
-      }
+      const data = await api.patch('/user/profile', fields);
+      setData(data.user);
+      toast.success('Settings saved successfully! ✨');
     } catch (err) {
       console.error('Failed to update profile:', err);
-      setMessage('⚠️ Failed to save settings.');
+      toast.error('⚠️ Failed to save settings.');
     } finally {
       setSaving(false);
     }
@@ -80,24 +66,19 @@ export default function ProfilePage() {
 
     setSaving(true);
     try {
-      const res = await fetch('/api/user/reset-chats', { method: 'DELETE' });
-      const json = await res.json();
-      if (json.success) {
-        setMessage('✨ History reset successfully. Starting fresh!');
-        // Refresh local data
-        const refreshRes = await fetch('/api/user/profile');
-        const refreshJson = await refreshRes.json();
-        if (refreshJson.success) setData(refreshJson.user);
+      const data = await api.delete('/user/reset-chats');
+      toast.success('✨ History reset successfully. Starting fresh!');
+      // Refresh local data
+      const profileData = await api.get('/user/profile');
+      setData(profileData.user);
 
         setTimeout(() => {
-          setMessage('');
           // Redirect to dashboard to start fresh
           window.location.href = '/dashboard';
         }, 2000);
-      }
     } catch (err) {
       console.error('Failed to reset history:', err);
-      setMessage('⚠️ Failed to reset history.');
+      toast.error('⚠️ Failed to reset history.');
     } finally {
       setSaving(false);
     }

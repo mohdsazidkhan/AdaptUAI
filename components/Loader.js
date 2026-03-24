@@ -55,7 +55,7 @@ export function SkeletonLine({ width = 'full', height = 4 }) {
  */
 export function TypingIndicator() {
   return (
-    <div className="flex items-center gap-1 px-4 py-3 bg-surface-100 rounded-2xl rounded-tl-sm w-fit">
+    <div className="flex items-center gap-1.5 py-1">
       {[0, 1, 2].map((i) => (
         <span
           key={i}

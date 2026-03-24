@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import Button from './Button';
 import { useTheme } from './ThemeProvider';
 import AUBadge from './AUBadge';
+import api from '@/lib/api';
 
 export default function Navbar({ user }) {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function Navbar({ user }) {
 
   async function handleLogout() {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await api.post('/auth/logout');
       router.push('/');
       router.refresh();
     } catch {
