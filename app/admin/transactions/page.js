@@ -28,14 +28,14 @@ export default function AdminTransactions() {
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <header className="mb-8">
-        <h1 className="text-3xl font-black text-surface-900">Transaction History</h1>
+        <h1 className="text-3xl font-black text-surface-900 dark:text-white">Transaction History</h1>
         <p className="text-surface-500 font-bold mt-2">Global log of all AU token credits and debits</p>
       </header>
 
       <Card padding="none" className="overflow-hidden border-surface-200">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-surface-50 border-b border-surface-200">
+            <thead className="bg-surface-50 dark:bg-surface-100/50 border-b border-surface-200 dark:border-surface-800">
               <tr>
                 <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">User</th>
                 <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">Type</th>
@@ -46,16 +46,18 @@ export default function AdminTransactions() {
             </thead>
             <tbody className="divide-y divide-surface-100">
               {transactions.map((t) => (
-                <tr key={t._id} className="hover:bg-surface-50 transition-colors">
+                <tr key={t._id} className="hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
                   <td className="px-6 py-4">
                     <div>
-                      <p className="font-bold text-surface-900">{t.userId?.name || 'Unknown'}</p>
-                      <p className="text-[10px] text-surface-400">{t.userId?.email || 'N/A'}</p>
+                      <p className="font-bold text-surface-900 dark:text-white">{t.userId?.name || 'Unknown'}</p>
+                      <p className="text-[10px] text-surface-400 dark:text-surface-500">{t.userId?.email || 'N/A'}</p>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
-                      t.type === 'RECHARGE' ? 'bg-green-100 text-green-700' : 'bg-coral-50 text-coral-600'
+                      t.type === 'RECHARGE' 
+                        ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/20' 
+                        : 'bg-coral-50 dark:bg-coral-900/20 text-coral-600 dark:text-coral-400 border border-coral-200 dark:border-coral-500/20'
                     }`}>
                       {t.type === 'RECHARGE' ? '⚡ Recharge' : '🪙 Spend'}
                     </span>

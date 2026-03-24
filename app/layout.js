@@ -28,18 +28,34 @@ export default async function RootLayout({ children }) {
   try {
     const authPayload = await getAuthUserFromCookies();
     if (authPayload?.userId) {
-      await dbConnect();
-      const dbUser = await User.findById(authPayload.userId).select('-password').lean();
-      if (dbUser) {
+      // ── Handle Admin Bypass ────────────────────────────────────────────────
+      if (authPayload.userId === 'admin') {
         user = {
-          id: dbUser._id.toString(),
-          name: dbUser.name,
-          email: dbUser.email,
-          au: dbUser.au || 0,
-          level: dbUser.level || 1,
-          streak: dbUser.streak || 0,
-          avatarUrl: `https://api.dicebear.com/8.x/fun-emoji/svg?seed=${encodeURIComponent(dbUser.name)}`,
+          id: 'admin',
+          name: authPayload.name || 'System Admin',
+          email: authPayload.email,
+          role: 'admin',
+          au: 99999,
+          level: 'MOD',
+          streak: 999,
+          avatarUrl: 'https://ui-avatars.com/api/?name=Admin&background=ef4444&color=fff',
         };
+      } else {
+        // ── Regular User ──────────────────────────────────────────────────────
+        await dbConnect();
+        const dbUser = await User.findById(authPayload.userId).select('-password').lean();
+        if (dbUser) {
+          user = {
+            id: dbUser._id.toString(),
+            name: dbUser.name,
+            email: dbUser.email,
+            role: authPayload.role || 'user',
+            au: dbUser.au || 0,
+            level: dbUser.level || 1,
+            streak: dbUser.streak || 0,
+            avatarUrl: dbUser.avatarUrl || `https://api.dicebear.com/8.x/fun-emoji/svg?seed=${encodeURIComponent(dbUser.name)}`,
+          };
+        }
       }
     }
   } catch {

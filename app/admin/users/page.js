@@ -39,14 +39,14 @@ export default function AdminUsers() {
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <header className="mb-8">
-        <h1 className="text-3xl font-black text-surface-900">User Management</h1>
+        <h1 className="text-3xl font-black text-surface-900 dark:text-white">User Management</h1>
         <p className="text-surface-500 font-bold mt-2">Manage all registered users and their balances</p>
       </header>
 
       <Card padding="none" className="overflow-hidden border-surface-200">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-surface-50 border-b border-surface-200">
+            <thead className="bg-surface-50 dark:bg-surface-100/50 border-b border-surface-200 dark:border-surface-800">
               <tr>
                 <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">User</th>
                 <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">AU Balance</th>
@@ -57,13 +57,13 @@ export default function AdminUsers() {
             </thead>
             <tbody className="divide-y divide-surface-100">
               {users.map((user) => (
-                <tr key={user._id} className="hover:bg-surface-50 transition-colors">
+                <tr key={user._id} className="hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <img src={user.avatarUrl} className="w-8 h-8 rounded-full border border-surface-200" alt="" />
                       <div>
-                        <p className="font-bold text-surface-900">{user.name}</p>
-                        <p className="text-xs text-surface-400">{user.email}</p>
+                        <p className="font-bold text-surface-900 dark:text-white">{user.name}</p>
+                        <p className="text-xs text-surface-400 dark:text-surface-500">{user.email}</p>
                       </div>
                     </div>
                   </td>
@@ -73,13 +73,13 @@ export default function AdminUsers() {
                         type="number" 
                         defaultValue={user.au}
                         onBlur={(e) => handleUpdateAU(user._id, parseInt(e.target.value))}
-                        className="w-20 px-2 py-1 bg-white border border-surface-200 rounded text-sm font-bold"
+                        className="w-20 px-2 py-1 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded text-sm font-bold dark:text-white"
                       />
                       <span className="text-[10px] font-black text-surface-400">AU</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="bg-brand-50 text-brand-700 px-2 py-0.5 rounded text-[10px] font-black border border-brand-100 uppercase">
+                    <span className="bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-400 px-2 py-0.5 rounded text-[10px] font-black border border-brand-100 dark:border-brand-500/20 uppercase">
                       Level {user.level}
                     </span>
                   </td>

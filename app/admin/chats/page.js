@@ -29,7 +29,7 @@ export default function AdminChats() {
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <header className="mb-8">
-        <h1 className="text-3xl font-black text-surface-900">Global Chat History</h1>
+        <h1 className="text-3xl font-black text-surface-900 dark:text-white">Global Chat History</h1>
         <p className="text-surface-500 font-bold mt-2">Monitor all AI teaching interactions across the system</p>
       </header>
 
@@ -40,18 +40,18 @@ export default function AdminChats() {
               <div className="flex items-start gap-4">
                 <div className="text-3xl">🤖</div>
                 <div>
-                  <h3 className="font-black text-surface-900 leading-tight mb-1">{chat.title}</h3>
+                  <h3 className="font-black text-surface-900 dark:text-white leading-tight mb-1">{chat.title}</h3>
                   <div className="flex items-center gap-3 text-xs">
-                    <span className="font-bold text-brand-600">User: {chat.userId?.name || 'Unknown'}</span>
-                    <span className="text-surface-400">({chat.userId?.email})</span>
-                    <span className="bg-surface-100 px-2 py-0.5 rounded text-surface-500">
+                    <span className="font-bold text-brand-600 dark:text-brand-400">User: {chat.userId?.name || 'Unknown'}</span>
+                    <span className="text-surface-400 dark:text-surface-500">({chat.userId?.email})</span>
+                    <span className="bg-surface-100 dark:bg-surface-800 px-2 py-0.5 rounded text-surface-500 dark:text-surface-400">
                       {new Date(chat.updatedAt).toLocaleString()}
                     </span>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <span className="text-[10px] font-black uppercase text-surface-400 px-2 py-1 bg-surface-100 rounded">
+                <span className="text-[10px] font-black uppercase text-surface-400 dark:text-surface-500 px-2 py-1 bg-surface-100 dark:bg-surface-800 rounded">
                   {chat.messages?.length || 0} Messages
                 </span>
                 <Link 
