@@ -37,7 +37,7 @@ function ChatContent() {
       <Sidebar user={user} />
 
       <main className="flex-1 lg:pl-0 h-screen pt-16 flex flex-col">
-        <div className="flex-1 max-w-4xl mx-auto w-full h-full border-x border-surface-100 bg-surface-50">
+        <div className="flex-1 container mx-auto w-full h-full border-x border-surface-100 bg-surface-50">
           <ChatBox user={user} initialSessionId={sessionId} onSuccess={fetchUser} />
         </div>
       </main>

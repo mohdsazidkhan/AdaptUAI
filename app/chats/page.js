@@ -58,7 +58,7 @@ export default function ChatHistoryPage() {
     <div className="flex bg-surface-50 min-h-screen">
       <Sidebar user={user} />
 
-      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -100,7 +100,7 @@ export default function ChatHistoryPage() {
                       <span className="text-2xl mb-1">🦉</span>
                       <span className="text-[10px] font-black text-surface-400 group-hover:text-brand-500">{chat.messageCount}</span>
                     </div>
-                    
+
                     <div className="flex-1 p-5">
                       <div className="flex justify-between items-start mb-1">
                         <h4 className="font-black text-surface-900 group-hover:text-brand-700 transition-colors">

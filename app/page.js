@@ -62,7 +62,7 @@ export default function LandingPage() {
     <div className="bg-hero min-h-screen text-surface-900 transition-colors duration-500">
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-full mx-auto">
-        <div className="text-center max-w-4xl mx-auto animate-fade-in">
+        <div className="text-center container mx-auto animate-fade-in">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-brand-100 text-brand-700 border border-brand-200 rounded-full px-4 py-1.5 text-sm font-bold mb-6">
             <span className="w-2 h-2 bg-brand-500 rounded-full animate-pulse" />
@@ -155,7 +155,7 @@ export default function LandingPage() {
 
       {/* ── Stats ─────────────────────────────────────────────────────────── */}
       <section className="py-12 border-y border-surface-200 bg-surface-50/60 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
               <div className="text-4xl font-black text-brand-600 mb-1">{s.value}</div>
@@ -205,7 +205,7 @@ export default function LandingPage() {
 
       {/* ── How it works ──────────────────────────────────────────────────── */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-surface-100/80 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto">
+        <div className="container mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-4xl font-black text-surface-900 mb-4">How it works</h2>
           </div>

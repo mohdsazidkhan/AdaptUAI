@@ -21,7 +21,7 @@ export default function TransactionsPage() {
           api.get('/user/profile'),
           api.get('/user/transactions')
         ]);
-        
+
         setData({
           user: userData.user,
           transactions: transData.transactions
@@ -43,7 +43,7 @@ export default function TransactionsPage() {
     <div className="flex bg-surface-50 min-h-screen">
       <Sidebar user={user} />
 
-      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8">
             <h1 className="text-3xl font-black text-surface-900 flex items-center gap-3">
@@ -70,11 +70,10 @@ export default function TransactionsPage() {
                     transactions.map((t) => (
                       <tr key={t._id} className="hover:bg-surface-50 transition-colors group">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight ${
-                            t.type === 'RECHARGE' 
-                              ? 'bg-green-100 text-green-700' 
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight ${t.type === 'RECHARGE'
+                              ? 'bg-green-100 text-green-700'
                               : 'bg-coral-50 text-coral-600'
-                          }`}>
+                            }`}>
                             {t.type === 'RECHARGE' ? '⚡ Recharge' : '🪙 Spend'}
                           </span>
                         </td>
@@ -87,9 +86,8 @@ export default function TransactionsPage() {
                           </p>
                         </td>
                         <td className="px-6 py-4 text-right whitespace-nowrap">
-                          <span className={`text-sm font-black ${
-                            t.type === 'RECHARGE' ? 'text-green-600' : 'text-surface-900'
-                          }`}>
+                          <span className={`text-sm font-black ${t.type === 'RECHARGE' ? 'text-green-600' : 'text-surface-900'
+                            }`}>
                             {t.type === 'RECHARGE' ? '+' : '-'}{t.amount} AU
                           </span>
                         </td>
@@ -111,10 +109,10 @@ export default function TransactionsPage() {
           </Card>
 
           <footer className="mt-8 text-center p-6 bg-brand-50 rounded-2xl border border-brand-100">
-             <p className="text-xs font-bold text-brand-900 mb-1">Need to top up your wallet?</p>
-             <p className="text-[10px] text-brand-600">
-               Contact support at <span className="font-black underline underline-offset-2">{process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com'}</span>
-             </p>
+            <p className="text-xs font-bold text-brand-900 mb-1">Need to top up your wallet?</p>
+            <p className="text-[10px] text-brand-600">
+              Contact support at <span className="font-black underline underline-offset-2">{process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com'}</span>
+            </p>
           </footer>
         </div>
       </main>

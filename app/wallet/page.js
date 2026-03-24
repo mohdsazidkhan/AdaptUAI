@@ -33,7 +33,7 @@ export default function WalletPage() {
     <div className="flex bg-surface-50 min-h-screen">
       <Sidebar user={data} />
 
-      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8">
             <h1 className="text-3xl font-black text-surface-900">AU Token Wallet</h1>
@@ -92,7 +92,7 @@ export default function WalletPage() {
                 </div>
                 <h4 className="text-lg font-black text-surface-900 mb-1">Email Support</h4>
                 <p className="text-sm text-surface-500 mb-6 px-4">Professional support for bulk recharges and business inquiries.</p>
-                <a 
+                <a
                   href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com'}`}
                   className="w-full py-3 bg-surface-100 hover:bg-surface-200 rounded-xl text-sm font-black text-surface-700 transition-colors"
                 >
@@ -100,7 +100,7 @@ export default function WalletPage() {
                 </a>
               </div>
 
-              <a 
+              <a
                 href={`https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_CONTACT || '+917678131912').replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"

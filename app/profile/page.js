@@ -71,10 +71,10 @@ export default function ProfilePage() {
       const profileData = await api.get('/user/profile');
       setData(profileData.user);
 
-        setTimeout(() => {
-          // Redirect to dashboard to start fresh
-          window.location.href = '/dashboard';
-        }, 2000);
+      setTimeout(() => {
+        // Redirect to dashboard to start fresh
+        window.location.href = '/dashboard';
+      }, 2000);
     } catch (err) {
       console.error('Failed to reset history:', err);
       toast.error('⚠️ Failed to reset history.');
@@ -89,7 +89,7 @@ export default function ProfilePage() {
     <div className="flex bg-surface-50 min-h-screen">
       <Sidebar user={data} />
 
-      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8">
             <h1 className="text-3xl font-black text-surface-900">My Profile</h1>
