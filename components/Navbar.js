@@ -104,7 +104,7 @@ export default function Navbar({ user }) {
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-2.5 rounded-2xl bg-surface-100 hover:bg-surface-200 text-surface-600 transition-all active:scale-95"
+                className="p-2.5 rounded-xl bg-surface-100 hover:bg-surface-200 text-surface-600 transition-all active:scale-95"
                 aria-label="Toggle Theme"
               >
                 {theme === 'light' ? '🌙' : '☀️'}
@@ -131,7 +131,7 @@ export default function Navbar({ user }) {
                     </button>
 
                     {userDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-52 bg-surface-50 rounded-2xl shadow-xl border border-surface-200 py-1 animate-scale-in z-50">
+                      <div className="absolute right-0 mt-2 w-52 bg-surface-50 rounded-xl shadow-xl border border-surface-200 py-1 animate-scale-in z-50">
                         <div className="px-4 py-3 border-b border-surface-100">
                           <p className="font-bold text-surface-900 truncate">{user.name}</p>
                           <p className="text-xs text-surface-500 truncate">{user.email}</p>
@@ -240,7 +240,7 @@ export default function Navbar({ user }) {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-4 px-3 lg:px-5 py-2 lg:py-4 rounded-xl lg:rounded-2xl font-bold text-base transition-all ${isActive
+                    className={`flex items-center gap-4 px-3 lg:px-5 py-2 lg:py-4 rounded-xl lg:rounded-xl font-bold text-base transition-all ${isActive
                       ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20 translate-x-1'
                       : 'text-surface-600 hover:bg-surface-100 hover:text-surface-900 border border-transparent hover:border-surface-200'
                       }`}
@@ -274,7 +274,7 @@ export default function Navbar({ user }) {
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 py-4 bg-coral-50 hover:bg-coral-100 text-coral-600 rounded-2xl font-black text-sm transition-all border border-coral-200/50"
+                  className="w-full flex items-center justify-center gap-2 py-4 bg-coral-50 hover:bg-coral-100 text-coral-600 rounded-xl font-black text-sm transition-all border border-coral-200/50"
                 >
                   Sign Out 🚪
                 </button>

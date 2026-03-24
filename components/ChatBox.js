@@ -173,7 +173,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
 
       while (true) {
         const { done, value } = await reader.read();
-        
+
         if (value) {
           buffer += decoder.decode(value, { stream: !done });
         }
@@ -184,7 +184,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
         for (const line of lines) {
           const trimmedLine = line.trim();
           if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue;
-          
+
           const data = trimmedLine.slice(6).trim();
           if (data === '[DONE]') continue;
 
@@ -227,7 +227,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
                       )
                     );
                   }
-                } catch (e) {}
+                } catch (e) { }
               }
             }
           }
@@ -400,7 +400,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
                 <button
                   key={topic}
                   onClick={() => sendMessage(topic)}
-                  className="text-left px-4 py-3 bg-surface-100 hover:bg-brand-50 border border-surface-200 hover:border-brand-300 rounded-2xl text-sm font-medium text-surface-700 hover:text-brand-700 transition-all shadow-sm"
+                  className="text-left px-4 py-3 bg-surface-100 hover:bg-brand-50 border border-surface-200 hover:border-brand-300 rounded-xl text-sm font-medium text-surface-700 hover:text-brand-700 transition-all shadow-sm"
                 >
                   {topic}
                 </button>
@@ -414,7 +414,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
 
       {/* Error banner */}
       {error && (
-        <div className="flex-shrink-0 mx-4 mb-2 px-4 py-3 bg-coral-50 border border-coral-200 rounded-2xl text-sm text-coral-700 font-medium animate-slide-up">
+        <div className="flex-shrink-0 mx-4 mb-2 px-4 py-3 bg-coral-50 border border-coral-200 rounded-xl text-sm text-coral-700 font-medium animate-slide-up">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-base">⚠️</span>
             <span>{error === 'INSUFFICIENT_AU' ? 'Insufficient AU balance' : error}</span>
@@ -457,7 +457,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
             placeholder="Ask anything... (Shift+Enter for new line)"
             rows={1}
             disabled={isStreaming}
-            className="flex-1 bg-surface-100 border-2 border-surface-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand-500 text-surface-900 placeholder:text-surface-400 font-medium transition-all max-h-36 disabled:opacity-60 leading-relaxed"
+            className="flex-1 bg-surface-100 border-2 border-surface-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-500 text-surface-900 placeholder:text-surface-400 font-medium transition-all max-h-36 disabled:opacity-60 leading-relaxed"
             style={{ minHeight: '48px' }}
             onInput={(e) => {
               e.target.style.height = 'auto';
@@ -467,7 +467,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           <button
             type="submit"
             disabled={!input.trim() || isStreaming}
-            className="flex-shrink-0 w-12 h-12 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl flex items-center justify-center shadow-button border-b-4 border-brand-700 active:translate-y-[2px] active:shadow-button-press transition-all"
+            className="flex-shrink-0 w-12 h-12 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center shadow-button border-b-4 border-brand-700 active:translate-y-[2px] active:shadow-button-press transition-all"
           >
             {isStreaming ? (
               <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">

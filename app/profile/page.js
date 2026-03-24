@@ -164,7 +164,7 @@ export default function ProfilePage() {
                     <button
                       key={style.id}
                       onClick={() => handleUpdate({ learningStyle: style.id })}
-                      className={`p-4 rounded-2xl border-2 text-left transition-all group ${data?.mindsetProfile?.learningStyle === style.id
+                      className={`p-4 rounded-xl border-2 text-left transition-all group ${data?.mindsetProfile?.learningStyle === style.id
                         ? 'border-brand-500 bg-brand-50 text-brand-700 shadow-sm'
                         : 'border-surface-200 bg-surface-100 text-surface-600 hover:border-surface-300'
                         }`}
@@ -186,7 +186,7 @@ export default function ProfilePage() {
                     <button
                       key={pref.id}
                       onClick={() => handleUpdate({ depthPreference: pref.id })}
-                      className={`text-center p-4 rounded-2xl border-2 transition-all ${data?.mindsetProfile?.depthPreference === pref.id
+                      className={`text-center p-4 rounded-xl border-2 transition-all ${data?.mindsetProfile?.depthPreference === pref.id
                         ? 'bg-ocean-50 border-ocean-500 shadow-sm text-ocean-700'
                         : 'bg-surface-100 border-surface-200 hover:border-ocean-200 text-surface-600'
                         }`}
@@ -211,7 +211,7 @@ export default function ProfilePage() {
                         onBlur={(e) => {
                           if (e.target.value !== data?.name) handleUpdate({ name: e.target.value });
                         }}
-                        className="flex-1 px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-2xl focus:border-brand-500 focus:outline-none transition-all font-bold text-surface-800 text-sm"
+                        className="flex-1 px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-xl focus:border-brand-500 focus:outline-none transition-all font-bold text-surface-800 text-sm"
                       />
                     </div>
                   </div>

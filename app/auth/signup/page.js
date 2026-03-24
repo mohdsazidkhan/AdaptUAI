@@ -53,7 +53,7 @@ export default function SignupPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-coral-50 border border-coral-200 text-coral-700 text-sm font-bold rounded-2xl animate-slide-up">
+          <div className="mb-6 p-4 bg-coral-50 border border-coral-200 text-coral-700 text-sm font-bold rounded-xl animate-slide-up">
             ⚠️ {error}
           </div>
         )}
@@ -71,7 +71,7 @@ export default function SignupPage() {
               value={formData.name}
               onChange={handleChange}
               placeholder="John Doe"
-              className="w-full px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-2xl focus:border-brand-500 focus:outline-none transition-all font-medium text-surface-900"
+              className="w-full px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-xl focus:border-brand-500 focus:outline-none transition-all font-medium text-surface-900"
             />
           </div>
 
@@ -87,7 +87,7 @@ export default function SignupPage() {
               value={formData.email}
               onChange={handleChange}
               placeholder="name@example.com"
-              className="w-full px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-2xl focus:border-brand-500 focus:outline-none transition-all font-medium text-surface-900"
+              className="w-full px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-xl focus:border-brand-500 focus:outline-none transition-all font-medium text-surface-900"
             />
           </div>
 
@@ -103,7 +103,7 @@ export default function SignupPage() {
               value={formData.password}
               onChange={handleChange}
               placeholder="••••••••"
-              className="w-full px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-2xl focus:border-brand-500 focus:outline-none transition-all font-medium text-surface-900"
+              className="w-full px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-xl focus:border-brand-500 focus:outline-none transition-all font-medium text-surface-900"
             />
           </div>
 

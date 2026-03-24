@@ -74,7 +74,7 @@ export default function ChatHistoryPage() {
               </div>
             </div>
             <Link href="/chat">
-              <button className="px-6 py-3 bg-brand-500 text-white rounded-2xl font-black shadow-lg shadow-brand-500/20 hover:scale-105 transition-all text-sm">
+              <button className="px-6 py-3 bg-brand-500 text-white rounded-xl font-black shadow-lg shadow-brand-500/20 hover:scale-105 transition-all text-sm">
                 + Start New Chat
               </button>
             </Link>
@@ -86,7 +86,7 @@ export default function ChatHistoryPage() {
               <h3 className="text-xl font-black text-surface-900 mb-2">No Chat History Found</h3>
               <p className="text-surface-500 font-medium mb-8">Ready to start your first session?</p>
               <Link href="/chat">
-                <button className="px-8 py-4 bg-brand-500 text-white rounded-2xl font-black shadow-lg hover:shadow-xl transition-all">
+                <button className="px-8 py-4 bg-brand-500 text-white rounded-xl font-black shadow-lg hover:shadow-xl transition-all">
                   Let's Begin 🚀
                 </button>
               </Link>

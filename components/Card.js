@@ -15,7 +15,7 @@ export default function Card({
     none: '',
     sm: 'p-4',
     md: 'p-6',
-    lg: 'p-8',
+    lg: 'p-4',
   };
 
   const variants = {
@@ -30,7 +30,7 @@ export default function Card({
     <div
       onClick={onClick}
       className={clsx(
-        'bg-surface-50 border-2 border-surface-200 rounded-[2rem] transition-all duration-200',
+        'bg-surface-50 border-2 border-surface-200 rounded-xl transition-all duration-200',
         paddings[padding],
         variants[variant],
         hover && 'cursor-pointer hover:shadow-card-hover hover:-translate-y-0.5',

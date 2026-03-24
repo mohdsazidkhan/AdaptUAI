@@ -27,11 +27,11 @@ export default function Sidebar({ user }) {
       {/* User Summary */}
       {user && (
         <div className="p-4 bg-surface-50 border-t border-surface-100">
-          <div className="flex items-center gap-3 p-3 bg-surface-100 border-2 border-surface-200 rounded-2xl overflow-hidden">
+          <div className="flex items-center gap-3 p-3 bg-surface-100 border-2 border-surface-200 rounded-xl overflow-hidden">
             <img
               src={user.avatarUrl || `https://api.dicebear.com/8.x/fun-emoji/svg?seed=${encodeURIComponent(user.name || 'user')}`}
               alt={user.name}
-              className="w-12 h-12 rounded-2xl bg-surface-100 border border-surface-200 flex items-center justify-center text-xl overflow-hidden"
+              className="w-12 h-12 rounded-xl bg-surface-100 border border-surface-200 flex items-center justify-center text-xl overflow-hidden"
             />
             <div className="min-w-0">
               <p className="font-bold text-surface-900 truncate text-sm">{user.name}</p>
@@ -73,9 +73,9 @@ export default function Sidebar({ user }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-150 group ${isActive
-                  ? 'bg-brand-500 text-white shadow-sm'
-                  : 'text-surface-700 hover:bg-surface-50 hover:text-surface-900'
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-150 group ${isActive
+                ? 'bg-brand-500 text-white shadow-sm'
+                : 'text-surface-700 hover:bg-surface-50 hover:text-surface-900'
                 }`}
             >
               <span className={`text-xl transition-transform ${isActive ? '' : 'group-hover:scale-110'}`}>
@@ -92,7 +92,7 @@ export default function Sidebar({ user }) {
 
       {/* Bottom tip */}
       <div className="px-5 mt-6">
-        <div className="bg-purple-50 border border-purple-100 rounded-2xl p-4">
+        <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
           <p className="text-xs font-bold text-purple-700 mb-1">💡 Daily Tip</p>
           <p className="text-xs text-purple-600 leading-relaxed">
             Consistent daily practice builds deeper understanding. Even 10 minutes a day helps!

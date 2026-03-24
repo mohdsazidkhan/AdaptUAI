@@ -17,9 +17,8 @@ export default function MessageBubble({ message, compact = false }) {
 
   return (
     <div
-      className={`flex items-end gap-2 mb-4 animate-fade-in ${
-        isUser ? 'flex-row-reverse' : 'flex-row'
-      }`}
+      className={`flex items-end gap-2 mb-4 animate-fade-in ${isUser ? 'flex-row-reverse' : 'flex-row'
+        }`}
     >
       {/* Avatar */}
       {!compact && (
@@ -39,11 +38,10 @@ export default function MessageBubble({ message, compact = false }) {
       {/* Bubble */}
       <div className={`max-w-[85%] md:max-w-[70%] ${isUser ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
         <div
-          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
-            isUser
+          className={`px-4 py-3 rounded-xl text-sm leading-relaxed shadow-sm ${isUser
               ? 'bg-brand-500 text-white rounded-tr-sm border-brand-600 shadow-md shadow-brand-500/20'
               : 'bg-surface-50 dark:bg-surface-100 text-surface-900 rounded-tl-sm border border-surface-200 dark:border-surface-200/20'
-          }`}
+            }`}
         >
           {isUser ? (
             <p className="whitespace-pre-wrap break-words font-medium">{message.content}</p>

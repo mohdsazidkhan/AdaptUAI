@@ -70,29 +70,29 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-                  <div className="bg-surface-100 rounded-2xl p-4 text-center border border-surface-200">
+                  <div className="bg-surface-100 rounded-xl p-4 text-center border border-surface-200">
                     <p className="text-2xl mb-1">🔥</p>
                     <p className="text-lg font-black text-surface-900">{user?.streak || 0}</p>
                     <p className="text-[10px] font-bold text-surface-400 uppercase tracking-tighter">Day Streak</p>
                   </div>
-                  <div className="bg-surface-100 rounded-2xl p-4 text-center border border-surface-200">
+                  <div className="bg-surface-100 rounded-xl p-4 text-center border border-surface-200">
                     <p className="text-2xl mb-1">🪙</p>
                     <p className="text-lg font-black text-surface-900">{user?.au || 0}</p>
                     <p className="text-[10px] font-bold text-surface-400 uppercase tracking-tighter">AU Tokens</p>
                   </div>
-                  <div className="bg-surface-100 rounded-2xl p-4 text-center border border-surface-200">
+                  <div className="bg-surface-100 rounded-xl p-4 text-center border border-surface-200">
                     <p className="text-2xl mb-1">🎓</p>
                     <p className="text-lg font-black text-surface-900">{stats?.totalSessions || 0}</p>
                     <p className="text-[10px] font-bold text-surface-400 uppercase tracking-tighter">Lessons</p>
                   </div>
-                  <div className="bg-surface-100 rounded-2xl p-4 text-center border border-surface-200">
+                  <div className="bg-surface-100 rounded-xl p-4 text-center border border-surface-200">
                     <p className="text-2xl mb-1">🌍</p>
                     <p className="text-lg font-black text-surface-900">{user?.topicsExplored?.length || 0}</p>
                     <p className="text-[10px] font-bold text-surface-400 uppercase tracking-tighter">Topics</p>
                   </div>
                 </div>
 
-                <div className="mt-8 flex items-center justify-between p-4 bg-brand-50 rounded-2xl border border-brand-100 animate-slide-up">
+                <div className="mt-8 flex items-center justify-between p-4 bg-brand-50 rounded-xl border border-brand-100 animate-slide-up">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">🛡️</span>
                     <div>
@@ -121,7 +121,7 @@ export default function DashboardPage() {
                       <Link
                         key={chat.sessionId}
                         href={`/chat?sessionId=${chat.sessionId}`}
-                        className="flex items-center justify-between p-4 bg-surface-100 border border-surface-200 rounded-2xl hover:border-brand-500 hover:bg-brand-50 transition-all group"
+                        className="flex items-center justify-between p-4 bg-surface-100 border border-surface-200 rounded-xl hover:border-brand-500 hover:bg-brand-50 transition-all group"
                       >
                         <div className="flex items-center gap-3 overflow-hidden">
                           <span className="text-2xl group-hover:scale-110 transition-transform">

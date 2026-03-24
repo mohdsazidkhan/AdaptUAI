@@ -71,8 +71,8 @@ export default function TransactionsPage() {
                       <tr key={t._id} className="hover:bg-surface-50 transition-colors group">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight ${t.type === 'RECHARGE'
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-coral-50 text-coral-600'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-coral-50 text-coral-600'
                             }`}>
                             {t.type === 'RECHARGE' ? '⚡ Recharge' : '🪙 Spend'}
                           </span>
@@ -108,7 +108,7 @@ export default function TransactionsPage() {
             </div>
           </Card>
 
-          <footer className="mt-8 text-center p-6 bg-brand-50 rounded-2xl border border-brand-100">
+          <footer className="mt-8 text-center p-6 bg-brand-50 rounded-xl border border-brand-100">
             <p className="text-xs font-bold text-brand-900 mb-1">Need to top up your wallet?</p>
             <p className="text-[10px] text-brand-600">
               Contact support at <span className="font-black underline underline-offset-2">{process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com'}</span>

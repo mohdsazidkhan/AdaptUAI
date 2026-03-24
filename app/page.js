@@ -91,13 +91,13 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/auth/signup"
-              className="px-8 py-4 bg-brand-500 hover:bg-brand-600 text-white font-black text-lg rounded-2xl shadow-button border-b-4 border-brand-700 hover:border-brand-700 active:translate-y-[2px] active:shadow-button-press transition-all"
+              className="px-8 py-4 bg-brand-500 hover:bg-brand-600 text-white font-black text-lg rounded-xl shadow-button border-b-4 border-brand-700 hover:border-brand-700 active:translate-y-[2px] active:shadow-button-press transition-all"
             >
               🚀 Start Learning Free
             </Link>
             <Link
               href="/auth/login"
-              className="px-8 py-4 bg-surface-50 hover:bg-surface-100 text-surface-700 font-bold text-lg rounded-2xl border-2 border-surface-200 hover:border-surface-300 transition-all shadow-sm"
+              className="px-8 py-4 bg-surface-50 hover:bg-surface-100 text-surface-700 font-bold text-lg rounded-xl border-2 border-surface-200 hover:border-surface-300 transition-all shadow-sm"
             >
               Log in →
             </Link>
@@ -192,7 +192,7 @@ export default function LandingPage() {
                 key={f.title}
                 className={`p-6 rounded-3xl border bg-gradient-to-br ${colorMap[f.color]} hover:-translate-y-1 hover:shadow-card-hover transition-all duration-200 group`}
               >
-                <div className={`w-12 h-12 ${f.iconBg} rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform`}>
+                <div className={`w-12 h-12 ${f.iconBg} rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform`}>
                   {f.icon}
                 </div>
                 <h3 className="text-lg font-black text-surface-900 mb-2">{f.title}</h3>

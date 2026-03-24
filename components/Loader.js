@@ -29,7 +29,7 @@ export default function Loader({ size = 'md', text = '' }) {
 export function PageLoader() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-50/80 backdrop-blur-sm">
-      <div className="flex flex-col items-center justify-center p-8 bg-surface-50/50 backdrop-blur-sm rounded-[2.5rem] border-2 border-surface-200 shadow-2xl animate-fade-in transition-colors">
+      <div className="flex flex-col items-center justify-center p-4 bg-surface-50/50 backdrop-blur-sm rounded-[2.5rem] border-2 border-surface-200 shadow-2xl animate-fade-in transition-colors">
         {/* Owl mascot */}
         <div className="text-6xl animate-float">🦉</div>
         <Loader size="lg" />
