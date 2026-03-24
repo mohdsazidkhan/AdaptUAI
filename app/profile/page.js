@@ -46,7 +46,6 @@ export default function ProfilePage() {
 
   const handleUpdate = async (fields) => {
     setSaving(true);
-    setMessage('');
     try {
       const data = await api.patch('/user/profile', fields);
       setData(data.user);
@@ -248,11 +247,6 @@ export default function ProfilePage() {
         </div>
       </main>
 
-      {message && (
-        <div className="fixed bottom-8 right-8 z-50 bg-brand-500 text-white px-6 py-4 rounded-2xl shadow-2xl font-black animate-xp-pop flex items-center gap-3 shadow-card-hover">
-          {message}
-        </div>
-      )}
     </div>
   );
 }

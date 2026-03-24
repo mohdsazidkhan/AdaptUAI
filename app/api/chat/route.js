@@ -41,10 +41,10 @@ export async function POST(request) {
 
     // ── Check AU Balance (Tokens) ──────────────────────────────────────────
     if (user.au < tokenCost) {
-      return NextResponse.json({ 
-        success: false, 
+      return NextResponse.json({
+        success: false,
         error: 'INSUFFICIENT_AU',
-        message: `Your AU wallet is empty. To continue, please contact our support via Email (${process.env.CONTACT_EMAIL || 'support@mohdsazidkhan.com'}) or WhatsApp (${process.env.WHATSAPP_CONTACT || '+917678131912'}) to recharge your tokens.` 
+        message: `Your AU wallet is empty. To continue, please contact our support via Email (${process.env.CONTACT_EMAIL || 'support@mohdsazidkhan.com'}) or WhatsApp (${process.env.WHATSAPP_CONTACT || '+917678131912'}) to recharge your tokens.`
       }, { status: 403 });
     }
 
@@ -111,7 +111,7 @@ export async function POST(request) {
             try {
               const parsed = JSON.parse(data);
               if (parsed.content) fullResponse += parsed.content;
-            } catch {}
+            } catch { }
           }
         }
         controller.enqueue(chunk);
@@ -130,7 +130,7 @@ export async function POST(request) {
             userId: user._id,
             type: 'SPEND',
             amount: tokenCost,
-            description: `Chat interaction: ${chat.title.slice(0, 40)}${chat.title.length > 40 ? '...' : ''}`
+            description: `Chat: ${chat.title.slice(0, 40)}${chat.title.length > 40 ? '...' : ''}`
           });
 
           // Track in chat session (tokens spent)
@@ -163,7 +163,7 @@ export async function POST(request) {
                     await User.findByIdAndUpdate(userId, { $addToSet: { topicsExplored: topic } });
                   }
                 })
-                .catch(() => {});
+                .catch(() => { });
             }
 
             // Weak area detection (Every few messages or based on heuristics)
@@ -178,9 +178,9 @@ export async function POST(request) {
                     if (parsed.weakArea && parsed.confidence > 0.6) {
                       await User.findByIdAndUpdate(userId, { $addToSet: { weakAreas: parsed.weakArea } });
                     }
-                  } catch (e) {}
+                  } catch (e) { }
                 })
-                .catch(() => {});
+                .catch(() => { });
             }
           }
         } catch (saveErr) {
