@@ -32,7 +32,30 @@ export async function POST(request) {
     const userId = authUser.userId;
 
     // ── Load user ────────────────────────────────────────────────────────────
-    const user = await User.findById(userId);
+    let user;
+    if (userId === 'admin') {
+      user = {
+        _id: 'admin',
+        name: 'System Admin',
+        email: authUser.email,
+        au: 99999,
+        mindsetProfile: {
+          learningStyle: 'Analytical',
+          depthPreference: 'Deep',
+          patience: 0.9,
+          confidence: 0.8,
+          engagementScore: 0.95,
+          challengeSeeker: 0.85
+        },
+        weakAreas: [],
+        // Mock methods to prevent crashes
+        spendAU: async () => { },
+        save: async () => { },
+      };
+    } else {
+      user = await User.findById(userId);
+    }
+
     if (!user) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });
     }
@@ -119,36 +142,38 @@ export async function POST(request) {
       async flush() {
         // Save the complete response to DB
         try {
-          chat.addMessage('assistant', fullResponse || '(no response)');
+          if (userId !== 'admin') {
+            chat.addMessage('assistant', fullResponse || '(no response)');
 
-          // Deduct AU (Consumption Mode)
-          const tokenCost = Number(process.env.EACH_CHAT_AU_TOKEN) || 10;
-          await user.spendAU(tokenCost);
+            // Deduct AU (Consumption Mode)
+            const tokenCost = Number(process.env.EACH_CHAT_AU_TOKEN) || 10;
+            await user.spendAU(tokenCost);
 
-          // Record Transaction History
-          await Transaction.create({
-            userId: user._id,
-            type: 'SPEND',
-            amount: tokenCost,
-            description: `Chat: ${chat.title.slice(0, 40)}${chat.title.length > 40 ? '...' : ''}`
-          });
-
-          // Track in chat session (tokens spent)
-          chat.auEarned = (chat.auEarned || 0) + tokenCost;
-          await chat.save();
-
-          // Update mindset profile if behavioral metrics provided
-          if (behaviorMetrics) {
-            const sessionMetrics = summarizeMetrics({
-              messageCount: chat.sessionMetrics.messageCount,
-              totalLength: chat.sessionMetrics.totalLength || 0,
-              retryCount: chat.sessionMetrics.retryCount,
-              responseTimes: behaviorMetrics.responseTimes || [],
+            // Record Transaction History
+            await Transaction.create({
+              userId: user._id,
+              type: 'SPEND',
+              amount: tokenCost,
+              description: `Chat: ${chat.title.slice(0, 40)}${chat.title.length > 40 ? '...' : ''}`
             });
-            user.mindsetProfile = calculateProfile(user.mindsetProfile, sessionMetrics);
-          }
 
-          await user.save();
+            // Track in chat session (tokens spent)
+            chat.auEarned = (chat.auEarned || 0) + tokenCost;
+            await chat.save();
+
+            // Update mindset profile if behavioral metrics provided
+            if (behaviorMetrics) {
+              const sessionMetrics = summarizeMetrics({
+                messageCount: chat.sessionMetrics.messageCount,
+                totalLength: chat.sessionMetrics.totalLength || 0,
+                retryCount: chat.sessionMetrics.retryCount,
+                responseTimes: behaviorMetrics.responseTimes || [],
+              });
+              user.mindsetProfile = calculateProfile(user.mindsetProfile, sessionMetrics);
+            }
+
+            await user.save();
+          }
 
           // ── Advanced Mindset Analysis (Topic & Weak Area Detection) ──────────
           if (fullResponse) {

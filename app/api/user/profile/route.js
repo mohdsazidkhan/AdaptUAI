@@ -41,7 +41,11 @@ export async function GET(request) {
           preferences: {},
           mindsetProfile: {
             learningStyle: 'Analytical',
-            depthPreference: 'High'
+            depthPreference: 'Deep',
+            patience: 0.9,
+            confidence: 0.8,
+            engagementScore: 0.95,
+            challengeSeeker: 0.85
           },
           createdAt: new Date(),
           lastActiveDate: new Date(),

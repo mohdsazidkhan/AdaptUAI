@@ -16,6 +16,13 @@ export async function DELETE(request) {
     await dbConnect();
     const userId = authUser.userId;
 
+    if (userId === 'admin') {
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Admin profile reset skipped (not in DB).' 
+      });
+    }
+
     // 1. Delete all chats for this user
     await Chat.deleteMany({ userId });
 
