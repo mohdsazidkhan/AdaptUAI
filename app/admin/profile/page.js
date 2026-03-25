@@ -78,7 +78,7 @@ export default function AdminProfilePage() {
               <img
                 src={data?.avatarUrl || `https://api.dicebear.com/8.x/fun-emoji/svg?seed=${encodeURIComponent(data?.name || 'admin')}`}
                 alt={data?.name}
-                className="w-32 h-32 rounded-3xl bg-surface-100 border-4 border-surface-200 dark:border-surface-800 shadow-2xl mx-auto object-cover transition-transform hover:scale-105"
+                className="w-16 lg:w-32 h-16 lg:h-32 rounded-xl lg:rounded-3xl bg-surface-100 border-4 border-surface-200 dark:border-surface-800 shadow-2xl mx-auto object-cover transition-transform hover:scale-105"
               />
               <div className="absolute -bottom-2 -right-2 bg-brand-500 text-white px-3 py-1.5 rounded-xl text-[10px] font-black border-2 border-surface-50 dark:border-surface-900 shadow-lg uppercase tracking-tight antialiased">
                 🛡️ Root Admin
