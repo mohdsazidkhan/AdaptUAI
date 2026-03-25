@@ -15,10 +15,13 @@ export async function GET(request) {
 
     await dbConnect();
 
+    const adminUsers = await User.find({ role: 'admin' }).select('_id');
+    const adminIds = adminUsers.map(u => u._id);
+
     const [totalUsers, totalChats, totalTransactions, totalAU] = await Promise.all([
       User.countDocuments({ role: { $ne: 'admin' } }),
-      Chat.countDocuments(),
-      Transaction.countDocuments(),
+      Chat.countDocuments({ userId: { $nin: adminIds } }),
+      Transaction.countDocuments({ userId: { $nin: adminIds } }),
       User.aggregate([
         { $match: { role: { $ne: 'admin' } } },
         { $group: { _id: null, total: { $sum: '$au' } } }

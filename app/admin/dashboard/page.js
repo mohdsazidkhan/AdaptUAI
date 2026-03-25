@@ -38,7 +38,7 @@ export default function AdminDashboard() {
           <p className="text-3xl font-black text-brand-900 dark:text-brand-100">{stats?.totalUsers}</p>
         </Card>
         <Card className="bg-ocean-50 dark:bg-ocean-900/20 border-ocean-100 dark:border-ocean-500/20 p-6">
-          <p className="text-[10px] font-black uppercase text-ocean-600 dark:text-ocean-400 tracking-widest mb-1">System Chats</p>
+          <p className="text-[10px] font-black uppercase text-ocean-600 dark:text-ocean-400 tracking-widest mb-1">Users Chat</p>
           <p className="text-3xl font-black text-ocean-900 dark:text-ocean-100">{stats?.totalChats}</p>
         </Card>
         <Card className="bg-coral-50 dark:bg-coral-900/20 border-coral-100 dark:border-coral-500/20 p-6">
@@ -64,9 +64,9 @@ export default function AdminDashboard() {
         </Card>
         
         <Card title="System Health" padding="lg">
-          <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-100 rounded-xl">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-            <p className="text-sm font-bold text-green-700 dark:text-green-400">All services operational</p>
+          <div className="flex items-center gap-3 p-4 bg-brand-50 border border-brand-100 dark:border-brand-500/20 rounded-xl shadow-sm">
+            <div className="w-3 h-3 bg-brand-500 rounded-full animate-pulse shadow-[0_0_10px_rgb(34,197,94,0.5)]" />
+            <p className="text-sm font-black text-brand-700 dark:text-brand-400">All services operational</p>
           </div>
         </Card>
       </div>

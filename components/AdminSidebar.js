@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 const adminLinks = [
   { href: '/admin/dashboard', label: 'Overview', icon: '📊' },
   { href: '/admin/users', label: 'Users', icon: '👥' },
-  { href: '/admin/chats', label: 'Global Chats', icon: '💬' },
+  { href: '/admin/chats', label: 'Users Chat', icon: '💬' },
   { href: '/admin/transactions', label: 'Transactions', icon: '💸' },
   { href: '/admin/profile', label: 'My Profile', icon: '👤' },
 ];

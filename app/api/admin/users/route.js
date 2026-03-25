@@ -13,7 +13,7 @@ export async function GET(request) {
     await dbConnect();
 
     // Get all users except admin (who isn't in DB anyway, but good to be safe)
-    const users = await User.find({}).sort({ createdAt: -1 });
+    const users = await User.find({ role: { $ne: 'admin' } }).sort({ createdAt: -1 });
 
     return NextResponse.json({
       success: true,

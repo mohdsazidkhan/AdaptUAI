@@ -18,18 +18,37 @@ export async function GET(request) {
 
     await dbConnect();
 
-    const [transactions, total] = await Promise.all([
-      Transaction.find({})
+    const adminUsers = await User.find({ role: 'admin' }).select('_id');
+    const adminIds = adminUsers.map(u => u._id);
+
+    const [transactions, total, stats] = await Promise.all([
+      Transaction.find({ userId: { $nin: adminIds } })
         .populate('userId', 'name email')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
-      Transaction.countDocuments()
+      Transaction.countDocuments({ userId: { $nin: adminIds } }),
+      Transaction.aggregate([
+        { $match: { userId: { $nin: adminIds } } },
+        {
+          $group: {
+            _id: '$type',
+            totalAmount: { $sum: '$amount' }
+          }
+        }
+      ])
     ]);
+
+    const totalSpent = stats.find(s => s._id === 'SPEND')?.totalAmount || 0;
+    const totalRecharged = stats.find(s => s._id === 'RECHARGE')?.totalAmount || 0;
 
     return NextResponse.json({
       success: true,
       transactions,
+      stats: {
+        totalSpent,
+        totalRecharged
+      },
       pagination: {
         total,
         page,

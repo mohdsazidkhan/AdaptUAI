@@ -8,6 +8,7 @@ import api from '@/lib/api';
 export default function AdminTransactions() {
   const [transactions, setTransactions] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
+  const [stats, setStats] = useState({ totalSpent: 0, totalRecharged: 0 });
   const [loading, setLoading] = useState(true);
 
   async function fetchTransactions(page = 1) {
@@ -16,6 +17,7 @@ export default function AdminTransactions() {
       const response = await api.get(`/admin/transactions?page=${page}&limit=50`);
       setTransactions(response.transactions);
       setPagination(response.pagination);
+      setStats(response.stats || { totalSpent: 0, totalRecharged: 0 });
     } catch (err) {
       console.error('Failed to fetch admin transactions:', err);
     } finally {
@@ -31,14 +33,30 @@ export default function AdminTransactions() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
-      <header className="mb-8 flex justify-between items-end">
+      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-surface-100 dark:border-surface-100/10 pb-8">
         <div>
-          <h1 className="text-3xl font-black text-surface-900 dark:text-white">Transaction History</h1>
-          <p className="text-surface-500 font-bold mt-2">Global log of all AU token credits and debits</p>
+          <h1 className="text-3xl font-black text-surface-900 dark:text-white flex items-center gap-3">
+            <span className="p-2 bg-coral-500 text-white rounded-xl text-xl shadow-lg shadow-coral-500/20">📜</span>
+            Transaction Ledger
+          </h1>
+          <p className="text-surface-500 font-bold mt-2 ml-1">Global audit of all system AU token movement</p>
         </div>
-        <div className="text-right">
-          <p className="text-xs font-black text-surface-400 uppercase">Total Records</p>
-          <p className="text-xl font-black text-brand-600">{pagination.total}</p>
+        
+        <div className="flex flex-wrap items-center gap-4 md:gap-8 bg-surface-50 dark:bg-surface-900/50 p-4 rounded-2xl border border-surface-200 dark:border-surface-100/10 shadow-sm">
+          <div className="min-w-[100px]">
+            <p className="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1 leading-none">Total Records</p>
+            <p className="text-xl font-black text-surface-900 dark:text-white leading-none">{pagination.total}</p>
+          </div>
+          <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
+          <div className="min-w-[120px]">
+            <p className="text-[10px] font-black text-coral-500 uppercase tracking-widest mb-1 leading-none">Total Spent</p>
+            <p className="text-xl font-black text-coral-600 leading-none">{stats.totalSpent}<span className="text-[10px] ml-1">AU</span></p>
+          </div>
+          <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
+          <div className="min-w-[120px]">
+            <p className="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-1 leading-none">Total Recharged</p>
+            <p className="text-xl font-black text-brand-600 leading-none">{stats.totalRecharged}<span className="text-[10px] ml-1">AU</span></p>
+          </div>
         </div>
       </header>
 

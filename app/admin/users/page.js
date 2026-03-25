@@ -75,6 +75,7 @@ export default function AdminUsers() {
                 <thead className="bg-surface-50 dark:bg-surface-100/50 border-b border-surface-200 dark:border-surface-800">
                   <tr>
                     <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">User</th>
+                    <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-left">Email</th>
                     <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-center">AU Balance</th>
                     <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-right">Actions</th>
                   </tr>
@@ -90,10 +91,13 @@ export default function AdminUsers() {
                         <div className="flex items-center gap-3">
                           <img src={user.avatarUrl} className="w-8 h-8 rounded-full border border-surface-200" alt="" />
                           <div className="min-w-0">
-                            <p className="font-bold text-surface-900 dark:text-white truncate">{user.name}</p>
-                            <p className="text-[10px] font-black text-surface-400 uppercase tracking-tight">{user.role}</p>
+                            <p className="font-black text-surface-900 dark:text-white truncate leading-none mb-1">{user.name}</p>
+                            <p className="text-[9px] font-black text-brand-600 dark:text-brand-500 uppercase tracking-widest antialiased">Student</p>
                           </div>
                         </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-xs font-bold text-surface-500 dark:text-surface-400 truncate text-left">{user.email}</p>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-center gap-2">
@@ -102,7 +106,7 @@ export default function AdminUsers() {
                             defaultValue={user.au}
                             onClick={(e) => e.stopPropagation()}
                             onBlur={(e) => handleUpdateAU(user._id, parseInt(e.target.value))}
-                            className="w-20 px-2 py-1 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded text-sm font-bold dark:text-white text-center"
+                            className="w-20 px-2 py-1 bg-surface-100 border-2 border-surface-200 dark:border-surface-100/10 rounded-xl text-sm font-black text-surface-900 dark:text-surface-900 text-center focus:border-brand-500 focus:outline-none transition-all"
                           />
                         </div>
                       </td>
@@ -133,18 +137,18 @@ export default function AdminUsers() {
           <div className="lg:col-span-1 animate-fade-in-right">
             <Card padding="lg" className="sticky top-24 border-brand-200 shadow-glow-sm">
               <div className="flex justify-between items-start mb-6">
-                <h2 className="text-xl font-black text-surface-900">User Detail</h2>
+                <h2 className="text-xl font-black text-surface-900 dark:text-white">User Detail</h2>
                 <button 
                   onClick={() => setSelectedUser(null)}
-                  className="text-surface-400 hover:text-surface-600"
+                  className="text-surface-400 hover:text-surface-600 dark:hover:text-surface-200 transition-colors"
                 >
                   ✕
                 </button>
               </div>
 
               <div className="text-center mb-8">
-                <img src={selectedUser.avatarUrl} className="w-20 h-20 rounded-full border-4 border-surface-100 shadow-md mx-auto mb-3" alt="" />
-                <h3 className="text-lg font-black text-surface-900 leading-tight">{selectedUser.name}</h3>
+                <img src={selectedUser.avatarUrl} className="w-20 h-20 rounded-3xl border-4 border-surface-100 dark:border-surface-100/10 shadow-xl mx-auto mb-3" alt="" />
+                <h3 className="text-lg font-black text-surface-900 dark:text-white leading-tight">{selectedUser.name}</h3>
                 <p className="text-sm text-surface-400 font-bold mb-4">{selectedUser.email}</p>
                 <div className="flex flex-wrap justify-center gap-2">
                    <span className="px-3 py-1 bg-brand-50 text-brand-600 text-[10px] font-black rounded-full border border-brand-100 uppercase tracking-widest">
@@ -160,21 +164,21 @@ export default function AdminUsers() {
                 <div>
                   <h4 className="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-3 border-b border-surface-100 pb-1">Mindset Profile</h4>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-3 bg-surface-50 rounded-xl">
+                    <div className="p-3 bg-surface-50 dark:bg-surface-100/50 rounded-xl border border-surface-100 dark:border-surface-100/10">
                       <p className="text-[10px] text-surface-400 font-bold uppercase">Learning</p>
-                      <p className="text-sm font-black text-surface-800 capitalize">{selectedUser.mindsetProfile?.learningStyle || 'N/A'}</p>
+                      <p className="text-sm font-black text-surface-800 dark:text-surface-900 capitalize">{selectedUser.mindsetProfile?.learningStyle || 'N/A'}</p>
                     </div>
-                    <div className="p-3 bg-surface-50 rounded-xl">
+                    <div className="p-3 bg-surface-50 dark:bg-surface-100/50 rounded-xl border border-surface-100 dark:border-surface-100/10">
                       <p className="text-[10px] text-surface-400 font-bold uppercase">Depth</p>
-                      <p className="text-sm font-black text-surface-800 capitalize">{selectedUser.mindsetProfile?.depthPreference || 'N/A'}</p>
+                      <p className="text-sm font-black text-surface-800 dark:text-surface-900 capitalize">{selectedUser.mindsetProfile?.depthPreference || 'N/A'}</p>
                     </div>
-                    <div className="p-3 bg-surface-50 rounded-xl">
+                    <div className="p-3 bg-surface-50 dark:bg-surface-100/50 rounded-xl border border-surface-100 dark:border-surface-100/10">
                       <p className="text-[10px] text-surface-400 font-bold uppercase">Patience</p>
-                      <p className="text-sm font-black text-surface-800">{Math.round((selectedUser.mindsetProfile?.patience || 0) * 100)}%</p>
+                      <p className="text-sm font-black text-surface-800 dark:text-surface-900">{Math.round((selectedUser.mindsetProfile?.patience || 0) * 100)}%</p>
                     </div>
-                    <div className="p-3 bg-surface-50 rounded-xl">
+                    <div className="p-3 bg-surface-50 dark:bg-surface-100/50 rounded-xl border border-surface-100 dark:border-surface-100/10">
                       <p className="text-[10px] text-surface-400 font-bold uppercase">Confidence</p>
-                      <p className="text-sm font-black text-surface-800">{Math.round((selectedUser.mindsetProfile?.confidence || 0) * 100)}%</p>
+                      <p className="text-sm font-black text-surface-800 dark:text-surface-900">{Math.round((selectedUser.mindsetProfile?.confidence || 0) * 100)}%</p>
                     </div>
                   </div>
                 </div>

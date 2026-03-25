@@ -29,8 +29,8 @@ export default function AdminChats() {
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <header className="mb-8">
-        <h1 className="text-3xl font-black text-surface-900 dark:text-white">Global Chat History</h1>
-        <p className="text-surface-500 font-bold mt-2">Monitor all AI teaching interactions across the system</p>
+        <h1 className="text-3xl font-black text-surface-900 dark:text-white">Users Chat History</h1>
+        <p className="text-surface-500 font-bold mt-2">Monitor all student AI teaching interactions across the system</p>
       </header>
 
       <div className="space-y-4">
