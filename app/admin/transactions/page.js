@@ -42,20 +42,25 @@ export default function AdminTransactions() {
           <p className="text-surface-500 font-bold mt-2 ml-1">Global audit of all system AU token movement</p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-4 md:gap-8 bg-surface-50 dark:bg-surface-900/50 p-4 rounded-2xl border border-surface-200 dark:border-surface-100/10 shadow-sm">
+        <div className="flex flex-wrap items-center gap-4 md:gap-8 bg-surface-50 dark:bg-surface-50 border border-surface-200 dark:border-surface-100/10 p-4 rounded-2xl shadow-sm">
           <div className="min-w-[100px]">
-            <p className="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1 leading-none">Total Records</p>
+            <p className="text-[10px] font-black text-surface-400 dark:text-surface-500 uppercase tracking-widest mb-1 leading-none">Total Records</p>
             <p className="text-xl font-black text-surface-900 dark:text-white leading-none">{pagination.total}</p>
           </div>
           <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
-          <div className="min-w-[120px]">
-            <p className="text-[10px] font-black text-coral-500 uppercase tracking-widest mb-1 leading-none">Total Spent</p>
-            <p className="text-xl font-black text-coral-600 leading-none">{stats.totalSpent}<span className="text-[10px] ml-1">AU</span></p>
+          <div className="min-w-[100px]">
+            <p className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1 leading-none">Total AU Tokens</p>
+            <p className="text-xl font-black text-purple-900 dark:text-purple-100 leading-none">{stats.totalRecharged}</p>
           </div>
           <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
-          <div className="min-w-[120px]">
-            <p className="text-[10px] font-black text-brand-500 uppercase tracking-widest mb-1 leading-none">Total Recharged</p>
-            <p className="text-xl font-black text-brand-600 leading-none">{stats.totalRecharged}<span className="text-[10px] ml-1">AU</span></p>
+          <div className="min-w-[100px]">
+            <p className="text-[10px] font-black text-coral-600 dark:text-coral-400 uppercase tracking-widest mb-1 leading-none">Total AU Used</p>
+            <p className="text-xl font-black text-coral-900 dark:text-coral-100 leading-none">{stats.totalSpent}</p>
+          </div>
+          <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
+          <div className="min-w-[100px]">
+            <p className="text-[10px] font-black text-accent-600 dark:text-accent-400 uppercase tracking-widest mb-1 leading-none">Total AU Left</p>
+            <p className="text-xl font-black text-accent-900 dark:text-accent-100 leading-none">{stats.totalLeft}</p>
           </div>
         </div>
       </header>
@@ -76,7 +81,7 @@ export default function AdminTransactions() {
             </thead>
             <tbody className="divide-y divide-surface-100">
               {transactions.map((t) => (
-                <tr key={t._id} className="hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors">
+                <tr key={t._id} className="hover:bg-surface-50 dark:hover:bg-surface-100/30 transition-colors group">
                   <td className="px-6 py-4">
                     <div>
                       <p className="font-bold text-surface-900 dark:text-white">{t.userId?.name || 'Unknown'}</p>

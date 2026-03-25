@@ -18,15 +18,23 @@ export async function GET(request) {
     const adminUsers = await User.find({ role: 'admin' }).select('_id');
     const adminIds = adminUsers.map(u => u._id);
 
-    const [totalUsers, totalChats, totalTransactions, totalAU] = await Promise.all([
+    const [totalUsers, totalChats, totalTransactions, auStats, spendStats] = await Promise.all([
       User.countDocuments({ role: { $ne: 'admin' } }),
       Chat.countDocuments({ userId: { $nin: adminIds } }),
       Transaction.countDocuments({ userId: { $nin: adminIds } }),
       User.aggregate([
         { $match: { role: { $ne: 'admin' } } },
         { $group: { _id: null, total: { $sum: '$au' } } }
+      ]),
+      Transaction.aggregate([
+        { $match: { userId: { $nin: adminIds }, type: 'SPEND' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
       ])
     ]);
+
+    const totalLeft = auStats[0]?.total || 0;
+    const totalSpent = spendStats[0]?.total || 0;
+    const totalTokens = totalLeft + totalSpent;
 
     return NextResponse.json({
       success: true,
@@ -34,7 +42,9 @@ export async function GET(request) {
         totalUsers,
         totalChats,
         totalTransactions,
-        totalAU: totalAU[0]?.total || 0,
+        totalLeft,
+        totalSpent,
+        totalRecharged: totalTokens,
       }
     });
   } catch (error) {

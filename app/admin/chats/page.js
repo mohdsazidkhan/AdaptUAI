@@ -55,7 +55,7 @@ export default function AdminChats() {
                   {chat.messages?.length || 0} Messages
                 </span>
                 <Link 
-                  href={`/chat?sessionId=${chat.sessionId}`}
+                  href={`/admin/chats/${chat.sessionId}`}
                   className="text-xs font-black text-brand-500 hover:text-brand-600"
                 >
                   View Details →
