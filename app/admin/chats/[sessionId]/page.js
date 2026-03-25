@@ -63,7 +63,7 @@ export default function AdminChatView() {
         {chat.messages?.map((msg, idx) => (
           <div
             key={idx}
-            className={`flex gap-4 ${msg.role === 'assistant' ? 'bg-surface-50 dark:bg-surface-100/20 p-0 lg:p-6 rounded-xl lg:rounded-3xl border border-surface-100 dark:border-surface-100/5' : 'px-0 lg:px-6 py-4'}`}
+            className={`flex gap-4 ${msg.role === 'assistant' ? 'bg-surface-50 dark:bg-surface-100/20 p-2 lg:p-6 rounded-xl lg:rounded-3xl border border-surface-100 dark:border-surface-100/5' : 'px-0 lg:px-6 py-4'}`}
           >
             <div className="text-2xl mt-1 shrink-0">
               {msg.role === 'assistant' ? '🤖' : '👤'}
