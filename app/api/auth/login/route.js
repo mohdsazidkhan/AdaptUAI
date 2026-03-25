@@ -23,28 +23,49 @@ export async function POST(request) {
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
-    if (adminEmail && adminPassword && 
-        email.toLowerCase().trim() === adminEmail.toLowerCase().trim() && 
-        password === adminPassword) {
+    if (adminEmail && adminPassword && email.toLowerCase().trim() === adminEmail.toLowerCase().trim()) {
+      // Check if administrative user exists in DB
+      let adminUser = await User.findOne({ email: adminEmail.toLowerCase().trim() }).select('+password');
       
+      if (!adminUser) {
+        // Create the admin user in DB if it doesn't exist
+        const hashedPassword = await bcrypt.hash(adminPassword, 12);
+        adminUser = await User.create({
+          name: 'System Admin',
+          email: adminEmail.toLowerCase().trim(),
+          password: hashedPassword,
+          role: 'admin',
+          au: 99999,
+          level: 100,
+          streak: 999,
+        });
+      }
+
+      // Verify password (against .env or DB)
+      const isMatch = await bcrypt.compare(password, adminUser.password);
+      if (!isMatch) {
+         return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
+      }
+
       const token = await signToken({
-        userId: 'admin',
-        email: adminEmail,
-        name: 'System Admin',
+        userId: adminUser._id.toString(),
+        email: adminUser.email,
+        name: adminUser.name,
         role: 'admin'
       });
 
       const response = NextResponse.json({
         success: true,
         user: {
-          id: 'admin',
-          name: 'System Admin',
-          email: adminEmail,
+          id: adminUser._id.toString(),
+          name: adminUser.name,
+          email: adminUser.email,
           role: 'admin',
-          au: 99999,
-          level: 'MOD',
-          streak: 999,
-          avatarUrl: 'https://ui-avatars.com/api/?name=Admin&background=ef4444&color=fff',
+          au: adminUser.au,
+          level: adminUser.level,
+          streak: adminUser.streak,
+          avatarUrl: adminUser.avatarUrl,
+          redirect: '/admin/dashboard',
         },
       });
 

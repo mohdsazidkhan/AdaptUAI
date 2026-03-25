@@ -11,15 +11,11 @@ export async function GET(request) {
     if (!authUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    if (authUser.role === 'admin') {
+      return NextResponse.json({ error: 'Admins cannot access user endpoints.' }, { status: 403 });
+    }
 
     await dbConnect();
-
-    if (authUser.userId === 'admin') {
-      return NextResponse.json({
-        success: true,
-        chats: [],
-      });
-    }
 
     // Fetch previous chats for the user
     const chats = await Chat.find({ userId: authUser.userId })

@@ -8,6 +8,7 @@ const adminLinks = [
   { href: '/admin/users', label: 'Users', icon: '👥' },
   { href: '/admin/chats', label: 'Global Chats', icon: '💬' },
   { href: '/admin/transactions', label: 'Transactions', icon: '💸' },
+  { href: '/user/profile', label: 'My Profile', icon: '👤' },
 ];
 
 export default function AdminSidebar({ isOpen, setIsOpen }) {

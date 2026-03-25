@@ -12,16 +12,12 @@ export async function DELETE(request) {
     if (!authUser) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
+    if (authUser.role === 'admin') {
+      return NextResponse.json({ error: 'Admins cannot access user endpoints.' }, { status: 403 });
+    }
 
     await dbConnect();
     const userId = authUser.userId;
-
-    if (userId === 'admin') {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Admin profile reset skipped (not in DB).' 
-      });
-    }
 
     // 1. Delete all chats for this user
     await Chat.deleteMany({ userId });

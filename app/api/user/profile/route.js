@@ -15,48 +15,13 @@ export async function GET(request) {
     if (!authUser) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
+    if (authUser.role === 'admin') {
+      return NextResponse.json({ error: 'Admins cannot access user endpoints.' }, { status: 403 });
+    }
 
     console.log('[GET /api/user/profile] Request from:', authUser.userId);
     await dbConnect();
 
-    // ── Admin Bypass ────────────────────────────────────────────────────────
-    if (authUser.userId === 'admin') {
-      return NextResponse.json({
-        success: true,
-        user: {
-          id: 'admin',
-          name: 'System Admin',
-          email: process.env.ADMIN_EMAIL || 'admin@gmail.com',
-          avatarUrl: 'https://ui-avatars.com/api/?name=Admin&background=ef4444&color=fff',
-          au: 99999,
-          level: 'MOD',
-          streak: 999,
-          longestStreak: 999,
-          badges: ['🛡️ System Admin'],
-          auProgress: 0,
-          auForNextLevel: 1000,
-          weakAreas: [],
-          strongAreas: ['Everything'],
-          topicsExplored: [],
-          preferences: {},
-          mindsetProfile: {
-            learningStyle: 'Analytical',
-            depthPreference: 'Deep',
-            patience: 0.9,
-            confidence: 0.8,
-            engagementScore: 0.95,
-            challengeSeeker: 0.85
-          },
-          createdAt: new Date(),
-          lastActiveDate: new Date(),
-        },
-        stats: {
-          totalSessions: 0,
-          totalMessages: 0,
-        },
-        recentChats: [],
-      });
-    }
 
     const user = await User.findById(authUser.userId);
     if (!user) {
@@ -131,6 +96,9 @@ export async function PATCH(request) {
     if (!authUser) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
+    if (authUser.role === 'admin') {
+      return NextResponse.json({ error: 'Admins cannot access user endpoints.' }, { status: 403 });
+    }
 
     await dbConnect();
 
@@ -147,23 +115,6 @@ export async function PATCH(request) {
       updateFields['mindsetProfile.depthPreference'] = depthPreference;
     }
 
-    // ── Admin Bypass ────────────────────────────────────────────────────────
-    if (authUser.userId === 'admin') {
-      return NextResponse.json({
-        success: true,
-        user: {
-          id: 'admin',
-          name: body.name || 'System Admin',
-          email: process.env.ADMIN_EMAIL || 'admin@example.com',
-          avatarUrl: 'https://ui-avatars.com/api/?name=Admin&background=ef4444&color=fff',
-          preferences: body.preferences || {},
-          mindsetProfile: {
-            learningStyle: body.learningStyle || 'Analytical',
-            depthPreference: body.depthPreference || 'High'
-          },
-        },
-      });
-    }
 
     const user = await User.findByIdAndUpdate(
       authUser.userId,

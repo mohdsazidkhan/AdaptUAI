@@ -47,3 +47,25 @@ export async function PATCH(request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export async function DELETE(request) {
+  try {
+    const admin = await getAuthUser(request);
+    if (!admin || admin.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const { userId } = await request.json();
+    if (!userId) return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+
+    await dbConnect();
+    await User.findByIdAndDelete(userId);
+
+    return NextResponse.json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error('[DELETE /api/admin/users] Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
