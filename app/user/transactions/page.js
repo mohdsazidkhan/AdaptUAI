@@ -43,7 +43,7 @@ export default function TransactionsPage() {
     <div className="flex bg-surface-50 min-h-screen">
       <Sidebar user={user} />
 
-      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
+      <main className="flex-1 lg:ml-64 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8">
             <h1 className="text-3xl font-black text-surface-900 dark:text-white flex items-center gap-3">

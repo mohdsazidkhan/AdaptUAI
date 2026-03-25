@@ -43,18 +43,26 @@ export default function Navbar({ user }) {
   }
 
   const navLinks = [
-    { href: '/user/dashboard', label: 'Dashboard', icon: '🏠', authRequired: true, hideOnDesktop: true },
-    { href: '/user/chat', label: 'Learn', icon: '🦉', authRequired: true, hideOnDesktop: true },
-    { href: '/user/chats', label: 'Sessions', icon: '💬', authRequired: true, hideOnDesktop: true },
-    { href: '/user/wallet', label: 'Wallet', icon: '🪙', authRequired: true, hideOnDesktop: true },
-    { href: '/user/transactions', label: 'History', icon: '📜', authRequired: true, hideOnDesktop: true },
-    { href: '/user/profile', label: 'Profile', icon: '👤', authRequired: true, hideOnDesktop: true },
+    { 
+      href: user?.role === 'admin' ? '/admin/dashboard' : '/user/dashboard', 
+      label: user?.role === 'admin' ? 'Admin Panel' : 'Dashboard', 
+      icon: user?.role === 'admin' ? '🛡️' : '🏠', 
+      authRequired: true, 
+      hideOnDesktop: true 
+    },
+    { href: '/user/chat', label: 'Learn', icon: '🦉', authRequired: true, hideOnDesktop: true, studentOnly: true },
+    { href: '/user/chats', label: 'Sessions', icon: '💬', authRequired: true, hideOnDesktop: true, studentOnly: true },
+    { href: '/user/wallet', label: 'Wallet', icon: '🪙', authRequired: true, hideOnDesktop: true, studentOnly: true },
+    { href: '/user/transactions', label: 'History', icon: '📜', authRequired: true, hideOnDesktop: true, studentOnly: true },
+    { href: user?.role === 'admin' ? '/admin/profile' : '/user/profile', label: 'Profile', icon: '👤', authRequired: true, hideOnDesktop: true },
     { href: '/auth/login', label: 'Log In', icon: '🔑', authRequired: false, hideOnDesktop: true },
     { href: '/auth/signup', label: 'Get Started', icon: '🚀', authRequired: false, hideOnDesktop: true },
   ];
 
   const filteredLinks = navLinks.filter(link => {
     if (link.authRequired && !user) return false;
+    if (user && !link.authRequired && (link.href === '/auth/login' || link.href === '/auth/signup')) return false;
+    if (user?.role === 'admin' && link.studentOnly) return false;
     if (link.hideOnDesktop) return false; // Handled separately in the UI
     return true;
   });
@@ -68,7 +76,7 @@ export default function Navbar({ user }) {
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href={user ? '/user/dashboard' : '/'} className="flex items-center gap-2 group">
+            <Link href={user ? (user.role === 'admin' ? '/admin/dashboard' : '/user/dashboard') : '/'} className="flex items-center gap-2 group">
               <span className="text-2xl group-hover:animate-bounce-slow transition-all">🦉</span>
               <span className="text-xl font-black">
                 <span className="text-surface-900 dark:text-white">AdaptU</span>
@@ -137,29 +145,19 @@ export default function Navbar({ user }) {
                           <p className="text-xs text-surface-500 truncate">{user.email}</p>
                         </div>
                         <Link
-                          href="/user/profile"
+                          href={user?.role === 'admin' ? '/admin/profile' : '/user/profile'}
                           onClick={() => setUserDropdownOpen(false)}
                           className="flex items-center gap-2 px-4 py-2.5 text-sm text-surface-700 dark:text-surface-900 hover:bg-surface-100 dark:hover:bg-surface-100 font-medium"
                         >
-                          👤 View Profile
+                          {user?.role === 'admin' ? '👤 Admin Profile' : '👤 View Profile'}
                         </Link>
-                        {user.role === 'admin' && (
-                          <Link
-                            href="/admin/dashboard"
-                            onClick={() => setUserDropdownOpen(false)}
-                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-brand-600 dark:text-brand-400 hover:bg-surface-100 dark:hover:bg-surface-100 font-bold"
-                          >
-                            🛡️ Admin Panel
-                          </Link>
-                        )}
                         <Link
-                          href="/user/dashboard"
-                          onClick={() => setUserDropdownOpen(false) || setMobileMenuOpen(false)}
+                          href={user.role === 'admin' ? '/admin/dashboard' : '/user/dashboard'}
+                          onClick={() => setUserDropdownOpen(false)}
                           className="flex items-center gap-2 px-4 py-2.5 text-sm text-surface-700 dark:text-surface-900 hover:bg-surface-100 dark:hover:bg-surface-100 font-medium"
                         >
                           🏠 Dashboard
                         </Link>
-                        <hr className="my-1 border-surface-100" />
                         <button
                           onClick={handleLogout}
                           className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-coral-600 hover:bg-coral-100 dark:hover:bg-coral-900/10 font-medium"
@@ -222,7 +220,7 @@ export default function Navbar({ user }) {
           <div className="h-full flex flex-col bg-surface-50 dark:bg-surface-50">
             {/* Header Area */}
             <div className="p-6 border-b border-surface-200 flex items-center justify-between bg-surface-50">
-              <Link href={user ? '/user/dashboard' : '/'} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
+              <Link href={user ? (user.role === 'admin' ? '/admin/dashboard' : '/user/dashboard') : '/'} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
                 <span className="text-2xl">🦉</span>
                 <span className="text-xl font-black text-surface-900 dark:text-white leading-none">AdaptUAI</span>
               </Link>

@@ -5,17 +5,17 @@ import { usePathname } from 'next/navigation';
 import ProgressBar from './ProgressBar';
 import { getProfileLabel } from '../lib/userProfile';
 
-const navItems = [
-  { href: '/user/dashboard', icon: '🏠', label: 'Dashboard' },
-  { href: '/user/chat', icon: '🦉', label: 'AI Tutor' },
-  { href: '/user/chats', icon: '💬', label: 'Sessions' },
-  { href: '/user/wallet', icon: '🪙', label: 'Wallet' },
-  { href: '/user/transactions', icon: '📜', label: 'History' },
-  { href: '/user/profile', icon: '👤', label: 'Profile' },
-];
-
 export default function Sidebar({ user }) {
   const pathname = usePathname();
+
+  const navItems = [
+    { href: '/user/dashboard', icon: '🏠', label: 'Dashboard' },
+    { href: '/user/chat', icon: '🦉', label: 'AI Tutor' },
+    { href: '/user/chats', icon: '💬', label: 'Sessions' },
+    { href: '/user/wallet', icon: '🪙', label: 'Wallet' },
+    { href: '/user/transactions', icon: '📜', label: 'History' },
+    { href: user?.role === 'admin' ? '/admin/profile' : '/user/profile', icon: '👤', label: 'Profile' },
+  ];
 
   const auProgress =
     user?.level
@@ -23,11 +23,11 @@ export default function Sidebar({ user }) {
       : 0;
 
   return (
-    <aside className="hidden lg:flex w-64 flex-col bg-surface-50 border-r border-surface-200 min-h-screen pt-20 pb-6">
+    <aside className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-surface-50 border-r border-surface-200 dark:border-surface-100/10 hidden lg:flex flex-col z-[40] py-6">
       {/* User Summary */}
       {user && (
-        <div className="p-4 bg-surface-50 border-t border-surface-100">
-          <div className="flex items-center gap-3 p-3 bg-surface-100 border-2 border-surface-200 rounded-xl overflow-hidden">
+        <div className="p-4 bg-surface-50 border-t border-surface-100 dark:border-surface-100/10">
+          <div className="flex items-center gap-3 p-3 bg-surface-100 border-2 border-surface-200 dark:border-surface-700 rounded-xl overflow-hidden">
             <img
               src={user.avatarUrl || `https://api.dicebear.com/8.x/fun-emoji/svg?seed=${encodeURIComponent(user.name || 'user')}`}
               alt={user.name}

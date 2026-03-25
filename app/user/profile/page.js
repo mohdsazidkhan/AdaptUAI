@@ -34,6 +34,10 @@ export default function ProfilePage() {
     async function fetchProfile() {
       try {
         const data = await api.get('/user/profile');
+        if (data.user.role === 'admin') {
+          router.push('/admin/profile');
+          return;
+        }
         setData(data.user);
       } catch (err) {
         console.error('Failed to fetch profile:', err);
@@ -42,7 +46,7 @@ export default function ProfilePage() {
       }
     }
     fetchProfile();
-  }, []);
+  }, [router]);
 
   const handleUpdate = async (fields) => {
     setSaving(true);
@@ -89,7 +93,7 @@ export default function ProfilePage() {
     <div className="flex bg-surface-50 min-h-screen">
       <Sidebar user={data} />
 
-      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
+      <main className="flex-1 lg:ml-64 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8">
             <h1 className="text-3xl font-black text-surface-900 dark:text-white">My Profile</h1>

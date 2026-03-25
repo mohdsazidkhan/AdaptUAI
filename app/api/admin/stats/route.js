@@ -19,7 +19,10 @@ export async function GET(request) {
       User.countDocuments({ role: { $ne: 'admin' } }),
       Chat.countDocuments(),
       Transaction.countDocuments(),
-      User.aggregate([{ $group: { _id: null, total: { $sum: '$au' } } }])
+      User.aggregate([
+        { $match: { role: { $ne: 'admin' } } },
+        { $group: { _id: null, total: { $sum: '$au' } } }
+      ])
     ]);
 
     return NextResponse.json({

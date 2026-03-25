@@ -38,7 +38,7 @@ export default function DashboardPage() {
     <div className="flex bg-surface-50 min-h-screen">
       <Sidebar user={user} />
 
-      <main className="flex-1 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
+      <main className="flex-1 lg:ml-64 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           {/* Welcome Header */}
           <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
