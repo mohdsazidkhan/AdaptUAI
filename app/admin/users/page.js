@@ -52,10 +52,10 @@ export default function AdminUsers() {
   if (loading) return <PageLoader />;
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-4 lg:p-8 container mx-auto">
       <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-surface-900 dark:text-white">User Management</h1>
+          <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white">User Management</h1>
           <p className="text-surface-500 font-bold mt-2">Manage all registered users and their balances</p>
         </div>
         <button
@@ -67,16 +67,16 @@ export default function AdminUsers() {
       </header>
 
       <div className="w-full">
-        {/* User Table */}
-        <Card padding="none" className="overflow-hidden border-surface-200 shadow-sm">
+        {/* Desktop User Table */}
+        <Card padding="none" className="hidden md:block overflow-hidden border-surface-200 shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-surface-50 dark:bg-surface-100/50 border-b border-surface-200 dark:border-surface-800">
                 <tr>
-                  <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">User</th>
-                  <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-left">Email</th>
-                  <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-center">AU Balance</th>
-                  <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-right">Actions</th>
+                  <th className="px-0 lg:px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">User</th>
+                  <th className="px-0 lg:px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-left">Email</th>
+                  <th className="px-0 lg:px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-center">AU Balance</th>
+                  <th className="px-0 lg:px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-surface-100">
@@ -86,7 +86,7 @@ export default function AdminUsers() {
                     className={`hover:bg-brand-50/10 dark:hover:bg-brand-900/10 transition-colors cursor-pointer ${selectedUser?._id === user._id ? 'bg-brand-50 dark:bg-brand-900/20' : ''}`}
                     onClick={() => setSelectedUser(user)}
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-0 lg:px-6 py-4">
                       <div className="flex items-center gap-3">
                         <img src={user.avatarUrl} className="w-8 h-8 rounded-full border border-surface-200 dark:border-surface-100/10" alt="" />
                         <div className="min-w-0">
@@ -95,10 +95,10 @@ export default function AdminUsers() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-0 lg:px-6 py-4">
                       <p className="text-xs font-bold text-surface-500 dark:text-surface-400 truncate text-left">{user.email}</p>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-0 lg:px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
                         <input
                           type="number"
@@ -109,7 +109,7 @@ export default function AdminUsers() {
                         />
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right space-x-2">
+                    <td className="px-0 lg:px-6 py-4 text-right space-x-2">
                       <button
                         onClick={(e) => { e.stopPropagation(); setSelectedUser(user); }}
                         className="text-[10px] font-black uppercase text-brand-600 dark:text-brand-400 hover:underline"
@@ -129,6 +129,53 @@ export default function AdminUsers() {
             </table>
           </div>
         </Card>
+
+        {/* Mobile User List Grid */}
+        <div className="md:hidden flex flex-col gap-4">
+          {users.map((user) => (
+            <Card key={user._id} padding="md" className="border-surface-200 shadow-sm flex flex-col gap-4 cursor-pointer hover:border-brand-300 transition-colors" onClick={() => setSelectedUser(user)}>
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <img src={user.avatarUrl} className="w-12 h-12 rounded-2xl border-2 border-surface-200 dark:border-surface-100/10 shadow-sm" alt="" />
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-brand-500 text-white rounded-lg flex items-center justify-center text-[9px] font-black border-2 border-white dark:border-surface-50">
+                      {user.level}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="font-black text-surface-900 dark:text-white text-base leading-tight">{user.name}</p>
+                    <p className="text-[10px] font-bold text-surface-500 dark:text-surface-400 mt-0.5 truncate max-w-[150px]">{user.email}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="flex flex-col items-end gap-1">
+                    <input
+                      type="number"
+                      defaultValue={user.au}
+                      onClick={(e) => e.stopPropagation()}
+                      onBlur={(e) => handleUpdateAU(user._id, parseInt(e.target.value))}
+                      className="w-16 px-1.5 py-1 bg-surface-100 dark:bg-surface-100/10 border border-surface-200 dark:border-surface-100/20 rounded-lg text-xs font-black text-brand-600 dark:text-brand-400 text-center focus:border-brand-500 focus:outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-3 border-t border-surface-100 dark:border-surface-100/10">
+                <button
+                  onClick={(e) => { e.stopPropagation(); setSelectedUser(user); }}
+                  className="flex-1 py-2 bg-surface-100 hover:bg-surface-200 dark:bg-surface-100/10 dark:hover:bg-surface-100/20 text-green-400 rounded-xl text-xs font-black uppercase tracking-widest transition-colors"
+                >
+                  View Profile
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDeleteUser(user._id); }}
+                  className="px-4 py-2 bg-coral-50 hover:bg-coral-100 dark:bg-coral-900/10 dark:hover:bg-coral-900/20 text-coral-600 rounded-xl text-xs font-black uppercase tracking-widest transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
 
       {/* User Detail Fullscreen Modal */}
@@ -142,7 +189,7 @@ export default function AdminUsers() {
             <div className="p-8 md:p-12 container mx-auto">
               <div className="flex justify-between items-start mb-12">
                 <div>
-                  <h2 className="text-3xl font-black text-surface-900 dark:text-white">Student Overview</h2>
+                  <h2 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white">Student Overview</h2>
                   <p className="text-surface-500 font-bold mt-1">Deep dive into learning mindset and system metrics</p>
                 </div>
                 <button

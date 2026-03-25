@@ -36,13 +36,13 @@ export default function AdminChatView() {
   );
 
   return (
-    <div className="p-8 container mx-auto space-y-8 animate-fade-in">
+    <div className="p-4 lg:-8 container mx-auto space-y-8 animate-fade-in">
       <header className="flex items-center justify-between">
         <div>
           <Link href="/admin/chats" className="text-xs font-black text-surface-400 hover:text-brand-500 uppercase tracking-widest mb-2 inline-block transition-colors">
             ← Back to Users Chat
           </Link>
-          <h1 className="text-3xl font-black text-surface-900 dark:text-white leading-tight">{chat.title}</h1>
+          <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white leading-tight">{chat.title}</h1>
           <div className="flex items-center gap-3 mt-2">
             <div className="flex items-center gap-2">
               <img src={chat.userId?.avatarUrl} className="w-6 h-6 rounded-full border border-surface-200" alt="" />
@@ -54,7 +54,7 @@ export default function AdminChatView() {
         </div>
         <div className="text-right">
           <span className="px-3 py-1 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-brand-100 dark:border-brand-500/20">
-            Read Only Audit
+            Read Only
           </span>
         </div>
       </header>
@@ -63,7 +63,7 @@ export default function AdminChatView() {
         {chat.messages?.map((msg, idx) => (
           <div
             key={idx}
-            className={`flex gap-4 ${msg.role === 'assistant' ? 'bg-surface-50 dark:bg-surface-100/20 p-6 rounded-3xl border border-surface-100 dark:border-surface-100/5' : 'px-6 py-4'}`}
+            className={`flex gap-4 ${msg.role === 'assistant' ? 'bg-surface-50 dark:bg-surface-100/20 p-0 lg:p-6 rounded-xl lg:rounded-3xl border border-surface-100 dark:border-surface-100/5' : 'px-0 lg:px-6 py-4'}`}
           >
             <div className="text-2xl mt-1 shrink-0">
               {msg.role === 'assistant' ? '🤖' : '👤'}

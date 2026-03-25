@@ -36,7 +36,7 @@ export default function WalletPage() {
       <main className="flex-1 lg:ml-64 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8">
-            <h1 className="text-3xl font-black text-surface-900 dark:text-white">AU Token Wallet</h1>
+            <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white">AU Token Wallet</h1>
             <p className="text-surface-500 font-semibold mt-1">
               Manage your tokens and recharge for more learning
             </p>
@@ -84,7 +84,7 @@ export default function WalletPage() {
             </Card>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="p-6 rounded-3xl bg-surface-50 border border-surface-200 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
+              <div className="p-0 lg:p-6 rounded-xl lg:rounded-3xl bg-surface-50 border border-surface-200 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-16 h-16 bg-brand-50 rounded-xl flex items-center justify-center text-brand-500 mb-4">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -104,7 +104,7 @@ export default function WalletPage() {
                 href={`https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_CONTACT || '+917678131912').replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-6 rounded-3xl bg-surface-50 border border-[#25D366]/30 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow group"
+                className="p-0 lg:p-6 rounded-xl lg:rounded-3xl bg-surface-50 border border-[#25D366]/30 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow group"
               >
                 <div className="w-16 h-16 bg-[#25D366]/10 rounded-xl flex items-center justify-center text-[#25D366] mb-4 group-hover:scale-110 transition-transform">
                   <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">

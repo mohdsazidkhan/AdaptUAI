@@ -96,7 +96,7 @@ export default function ProfilePage() {
       <main className="flex-1 lg:ml-64 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8">
-            <h1 className="text-3xl font-black text-surface-900 dark:text-white">My Profile</h1>
+            <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white">My Profile</h1>
             <p className="text-surface-500 font-semibold mt-1">
               Personalize your AI teaching experience
             </p>

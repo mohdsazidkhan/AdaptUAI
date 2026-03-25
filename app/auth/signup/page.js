@@ -48,7 +48,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-md shadow-2xl animate-fade-in" padding="lg">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block text-4xl mb-4 animate-float">🦉</Link>
-          <h1 className="text-3xl font-black text-surface-900 dark:text-white">Get Started!</h1>
+          <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white">Get Started!</h1>
           <p className="text-surface-500 font-medium">Join AdaptUAI today and start learning smarter</p>
         </div>
 

@@ -61,9 +61,9 @@ export default function AdminProfilePage() {
   if (loading) return <PageLoader />;
 
   return (
-    <div className="p-4 sm:p-8 container mx-auto">
+    <div className="p-4 sm:p-4 lg:-8 container mx-auto">
       <header className="mb-8 pl-1">
-        <h1 className="text-3xl font-black text-surface-900 dark:text-white flex items-center gap-3">
+        <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white flex items-center gap-3">
           <span className="p-2 bg-brand-500 text-white rounded-xl text-xl shadow-lg shadow-brand-500/20">👤</span>
           Admin Identity
         </h1>

@@ -190,7 +190,7 @@ export default function LandingPage() {
             return (
               <div
                 key={f.title}
-                className={`p-6 rounded-3xl border bg-gradient-to-br ${colorMap[f.color]} hover:-translate-y-1 hover:shadow-card-hover transition-all duration-200 group`}
+                className={`p-0 lg:p-6 rounded-xl lg:rounded-3xl border bg-gradient-to-br ${colorMap[f.color]} hover:-translate-y-1 hover:shadow-card-hover transition-all duration-200 group`}
               >
                 <div className={`w-12 h-12 ${f.iconBg} rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform`}>
                   {f.icon}

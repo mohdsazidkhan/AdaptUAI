@@ -46,7 +46,7 @@ export default function TransactionsPage() {
       <main className="flex-1 lg:ml-64 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
         <div className="animate-fade-in">
           <header className="mb-8">
-            <h1 className="text-3xl font-black text-surface-900 dark:text-white flex items-center gap-3">
+            <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white flex items-center gap-3">
               <span>📜</span> Transaction History
             </h1>
             <p className="text-surface-500 font-semibold mt-1">
@@ -59,17 +59,17 @@ export default function TransactionsPage() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-surface-100/50 border-b border-surface-200">
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400">Type</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400">Description</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400">Date</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400 text-right">Amount</th>
+                    <th className="px-0 lg:px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400">Type</th>
+                    <th className="px-0 lg:px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400">Description</th>
+                    <th className="px-0 lg:px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400">Date</th>
+                    <th className="px-0 lg:px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400 text-right">Amount</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-surface-100">
                   {transactions.length > 0 ? (
                     transactions.map((t) => (
                       <tr key={t._id} className="hover:bg-surface-50 transition-colors group">
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-0 lg:px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight ${t.type === 'RECHARGE'
                             ? 'bg-green-100 text-green-700'
                             : 'bg-coral-50 text-coral-600'
@@ -77,15 +77,15 @@ export default function TransactionsPage() {
                             {t.type === 'RECHARGE' ? '⚡ Recharge' : '🪙 Spend'}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-0 lg:px-6 py-4">
                           <p className="text-sm font-bold text-surface-800">{t.description}</p>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-0 lg:px-6 py-4 whitespace-nowrap">
                           <p className="text-xs font-semibold text-surface-400">
                             {format(new Date(t.createdAt), 'MMM dd, yyyy • HH:mm')}
                           </p>
                         </td>
-                        <td className="px-6 py-4 text-right whitespace-nowrap">
+                        <td className="px-0 lg:px-6 py-4 text-right whitespace-nowrap">
                           <span className={`text-sm font-black ${t.type === 'RECHARGE' ? 'text-green-600' : 'text-surface-900'
                             }`}>
                             {t.type === 'RECHARGE' ? '+' : '-'}{t.amount} AU

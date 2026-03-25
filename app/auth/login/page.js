@@ -52,7 +52,7 @@ function LoginContent() {
       <Card className="w-full max-w-md shadow-2xl animate-fade-in" padding="lg">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block text-4xl mb-4 animate-float">🦉</Link>
-          <h1 className="text-3xl font-black text-surface-900 dark:text-white">Welcome Back!</h1>
+          <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white">Welcome Back!</h1>
           <p className="text-surface-500 font-medium">Log in to continue your learning journey</p>
         </div>
 
