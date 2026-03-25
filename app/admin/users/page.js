@@ -58,7 +58,7 @@ export default function AdminUsers() {
           <h1 className="text-3xl font-black text-surface-900 dark:text-white">User Management</h1>
           <p className="text-surface-500 font-bold mt-2">Manage all registered users and their balances</p>
         </div>
-        <button 
+        <button
           onClick={fetchUsers}
           className="px-4 py-2 bg-surface-100 hover:bg-surface-200 rounded-lg text-sm font-bold transition-all border border-surface-200"
         >
@@ -66,145 +66,164 @@ export default function AdminUsers() {
         </button>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="w-full">
         {/* User Table */}
-        <div className={selectedUser ? 'lg:col-span-2' : 'lg:col-span-3'}>
-          <Card padding="none" className="overflow-hidden border-surface-200 shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-surface-50 dark:bg-surface-100/50 border-b border-surface-200 dark:border-surface-800">
-                  <tr>
-                    <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">User</th>
-                    <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-left">Email</th>
-                    <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-center">AU Balance</th>
-                    <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-right">Actions</th>
+        <Card padding="none" className="overflow-hidden border-surface-200 shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-surface-50 dark:bg-surface-100/50 border-b border-surface-200 dark:border-surface-800">
+                <tr>
+                  <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">User</th>
+                  <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-left">Email</th>
+                  <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-center">AU Balance</th>
+                  <th className="px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-surface-100">
+                {users.map((user) => (
+                  <tr
+                    key={user._id}
+                    className={`hover:bg-brand-50/10 dark:hover:bg-brand-900/10 transition-colors cursor-pointer ${selectedUser?._id === user._id ? 'bg-brand-50 dark:bg-brand-900/20' : ''}`}
+                    onClick={() => setSelectedUser(user)}
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <img src={user.avatarUrl} className="w-8 h-8 rounded-full border border-surface-200 dark:border-surface-100/10" alt="" />
+                        <div className="min-w-0">
+                          <p className="font-black text-surface-900 dark:text-white truncate leading-none mb-1 text-sm">{user.name}</p>
+                          <p className="text-[9px] font-black text-brand-600 dark:text-brand-500 uppercase tracking-widest antialiased">Student</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-xs font-bold text-surface-500 dark:text-surface-400 truncate text-left">{user.email}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <input
+                          type="number"
+                          defaultValue={user.au}
+                          onClick={(e) => e.stopPropagation()}
+                          onBlur={(e) => handleUpdateAU(user._id, parseInt(e.target.value))}
+                          className="w-20 px-2 py-1 bg-surface-100 dark:bg-surface-100/10 border-2 border-surface-200 dark:border-surface-100/20 rounded-xl text-sm font-black text-surface-900 dark:text-white text-center focus:border-brand-500 focus:outline-none transition-all"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-right space-x-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedUser(user); }}
+                        className="text-[10px] font-black uppercase text-brand-600 dark:text-brand-400 hover:underline"
+                      >
+                        Details
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteUser(user._id); }}
+                        className="text-[10px] font-black uppercase text-coral-500 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-surface-100">
-                  {users.map((user) => (
-                    <tr 
-                      key={user._id} 
-                      className={`hover:bg-brand-50/30 transition-colors cursor-pointer ${selectedUser?._id === user._id ? 'bg-brand-50' : ''}`}
-                      onClick={() => setSelectedUser(user)}
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <img src={user.avatarUrl} className="w-8 h-8 rounded-full border border-surface-200" alt="" />
-                          <div className="min-w-0">
-                            <p className="font-black text-surface-900 dark:text-white truncate leading-none mb-1">{user.name}</p>
-                            <p className="text-[9px] font-black text-brand-600 dark:text-brand-500 uppercase tracking-widest antialiased">Student</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-xs font-bold text-surface-500 dark:text-surface-400 truncate text-left">{user.email}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <input 
-                            type="number" 
-                            defaultValue={user.au}
-                            onClick={(e) => e.stopPropagation()}
-                            onBlur={(e) => handleUpdateAU(user._id, parseInt(e.target.value))}
-                            className="w-20 px-2 py-1 bg-surface-100 border-2 border-surface-200 dark:border-surface-100/10 rounded-xl text-sm font-black text-surface-900 dark:text-surface-900 text-center focus:border-brand-500 focus:outline-none transition-all"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right space-x-2">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setSelectedUser(user); }}
-                          className="text-[10px] font-black uppercase text-brand-600 hover:underline"
-                        >
-                          Details
-                        </button>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); handleDeleteUser(user._id); }}
-                          className="text-[10px] font-black uppercase text-coral-500 hover:underline"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
 
-        {/* User Detail Panel */}
-        {selectedUser && (
-          <div className="lg:col-span-1 animate-fade-in-right">
-            <Card padding="lg" className="sticky top-24 border-brand-200 shadow-glow-sm">
-              <div className="flex justify-between items-start mb-6">
-                <h2 className="text-xl font-black text-surface-900 dark:text-white">User Detail</h2>
-                <button 
+      {/* User Detail Fullscreen Modal */}
+      <div className={`fixed inset-0 z-50 transition-all duration-500 ${selectedUser ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div
+          className="absolute inset-0 bg-surface-900/60 backdrop-blur-md"
+          onClick={() => setSelectedUser(null)}
+        />
+        <div className={`absolute inset-0 bg-white dark:bg-surface-50 transition-transform duration-500 ease-out overflow-y-auto ${selectedUser ? 'translate-y-0' : 'translate-y-full'}`}>
+          {selectedUser && (
+            <div className="p-8 md:p-12 container mx-auto">
+              <div className="flex justify-between items-start mb-12">
+                <div>
+                  <h2 className="text-3xl font-black text-surface-900 dark:text-white">Student Overview</h2>
+                  <p className="text-surface-500 font-bold mt-1">Deep dive into learning mindset and system metrics</p>
+                </div>
+                <button
                   onClick={() => setSelectedUser(null)}
-                  className="text-surface-400 hover:text-surface-600 dark:hover:text-surface-200 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center bg-surface-100 dark:bg-surface-100/20 hover:bg-coral-100/20 dark:hover:bg-coral-900/40 rounded-full transition-all text-coral-500 dark:text-coral-500 antialiased font-bold"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="text-center mb-8">
-                <img src={selectedUser.avatarUrl} className="w-20 h-20 rounded-3xl border-4 border-surface-100 dark:border-surface-100/10 shadow-xl mx-auto mb-3" alt="" />
-                <h3 className="text-lg font-black text-surface-900 dark:text-white leading-tight">{selectedUser.name}</h3>
-                <p className="text-sm text-surface-400 font-bold mb-4">{selectedUser.email}</p>
-                <div className="flex flex-wrap justify-center gap-2">
-                   <span className="px-3 py-1 bg-brand-50 text-brand-600 text-[10px] font-black rounded-full border border-brand-100 uppercase tracking-widest">
-                    Level {selectedUser.level}
-                   </span>
-                   <span className="px-3 py-1 bg-accent-50 text-accent-600 text-[10px] font-black rounded-full border border-accent-100 uppercase tracking-widest">
-                    {selectedUser.au} AU
-                   </span>
-                </div>
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div className="md:col-span-1 text-center">
+                  <div className="relative inline-block mb-6">
+                    <img src={selectedUser.avatarUrl} className="w-32 h-32 rounded-[2.5rem] border-4 border-surface-100 dark:border-surface-100/10 shadow-2xl mx-auto" alt="" />
+                    <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-brand-500 text-white rounded-2xl flex items-center justify-center text-sm font-black border-4 border-white dark:border-surface-50 shadow-lg">
+                      {selectedUser.level}
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-black text-surface-900 dark:text-white leading-tight mb-1">{selectedUser.name}</h3>
+                  <p className="text-sm text-surface-400 font-bold mb-8 uppercase tracking-widest">{selectedUser.email}</p>
 
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-3 border-b border-surface-100 pb-1">Mindset Profile</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-3 bg-surface-50 dark:bg-surface-100/50 rounded-xl border border-surface-100 dark:border-surface-100/10">
-                      <p className="text-[10px] text-surface-400 font-bold uppercase">Learning</p>
-                      <p className="text-sm font-black text-surface-800 dark:text-surface-900 capitalize">{selectedUser.mindsetProfile?.learningStyle || 'N/A'}</p>
+                  <div className="flex flex-col gap-3">
+                    <div className="p-4 bg-brand-50 dark:bg-brand-900/10 rounded-2xl border border-brand-100 dark:border-brand-500/10 flex justify-between items-center">
+                      <span className="text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-widest">Experience</span>
+                      <span className="text-sm font-black text-brand-700 dark:text-brand-300">Level {selectedUser.level}</span>
                     </div>
-                    <div className="p-3 bg-surface-50 dark:bg-surface-100/50 rounded-xl border border-surface-100 dark:border-surface-100/10">
-                      <p className="text-[10px] text-surface-400 font-bold uppercase">Depth</p>
-                      <p className="text-sm font-black text-surface-800 dark:text-surface-900 capitalize">{selectedUser.mindsetProfile?.depthPreference || 'N/A'}</p>
-                    </div>
-                    <div className="p-3 bg-surface-50 dark:bg-surface-100/50 rounded-xl border border-surface-100 dark:border-surface-100/10">
-                      <p className="text-[10px] text-surface-400 font-bold uppercase">Patience</p>
-                      <p className="text-sm font-black text-surface-800 dark:text-surface-900">{Math.round((selectedUser.mindsetProfile?.patience || 0) * 100)}%</p>
-                    </div>
-                    <div className="p-3 bg-surface-50 dark:bg-surface-100/50 rounded-xl border border-surface-100 dark:border-surface-100/10">
-                      <p className="text-[10px] text-surface-400 font-bold uppercase">Confidence</p>
-                      <p className="text-sm font-black text-surface-800 dark:text-surface-900">{Math.round((selectedUser.mindsetProfile?.confidence || 0) * 100)}%</p>
+                    <div className="p-4 bg-accent-50 dark:bg-accent-900/10 rounded-2xl border border-accent-100 dark:border-accent-500/10 flex justify-between items-center">
+                      <span className="text-[10px] font-black text-accent-600 dark:text-accent-400 uppercase tracking-widest">Balance</span>
+                      <span className="text-sm font-black text-accent-700 dark:text-accent-300">{selectedUser.au} AU</span>
                     </div>
                   </div>
                 </div>
 
-                <div>
-                   <h4 className="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-3 border-b border-surface-100 pb-1">Topics Explored</h4>
-                   <div className="flex flex-wrap gap-2">
-                     {selectedUser.topicsExplored?.length > 0 ? (
-                       selectedUser.topicsExplored.map(t => (
-                         <span key={t} className="px-2 py-1 bg-surface-100 text-surface-600 text-[10px] font-bold rounded border border-surface-200 italic">{t}</span>
-                       ))
-                     ) : (
-                       <p className="text-xs text-surface-400 italic">No topics explored yet.</p>
-                     )}
-                   </div>
-                </div>
+                <div className="md:col-span-2 space-y-10">
+                  <div>
+                    <h4 className="text-[10px] font-black text-surface-400 dark:text-surface-500 uppercase tracking-widest mb-4 border-b border-surface-100 dark:border-surface-100/10 pb-2">Mindset Profile</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 bg-surface-50 dark:bg-surface-100/10 rounded-2xl border border-surface-100 dark:border-surface-100/20">
+                        <p className="text-[10px] text-surface-400 font-black uppercase tracking-widest mb-1">Learning Style</p>
+                        <p className="text-base font-black text-surface-900 dark:text-white capitalize">{selectedUser.mindsetProfile?.learningStyle || 'N/A'}</p>
+                      </div>
+                      <div className="p-4 bg-surface-50 dark:bg-surface-100/10 rounded-2xl border border-surface-100 dark:border-surface-100/20">
+                        <p className="text-[10px] text-surface-400 font-black uppercase tracking-widest mb-1">Depth Preference</p>
+                        <p className="text-base font-black text-surface-900 dark:text-white capitalize">{selectedUser.mindsetProfile?.depthPreference || 'N/A'}</p>
+                      </div>
+                      <div className="p-4 bg-surface-50 dark:bg-surface-100/10 rounded-2xl border border-surface-100 dark:border-surface-100/20">
+                        <p className="text-[10px] text-surface-400 font-black uppercase tracking-widest mb-1">Patience</p>
+                        <p className="text-base font-black text-surface-900 dark:text-white ">{Math.round((selectedUser.mindsetProfile?.patience || 0) * 100)}%</p>
+                      </div>
+                      <div className="p-4 bg-surface-50 dark:bg-surface-100/10 rounded-2xl border border-surface-100 dark:border-surface-100/20">
+                        <p className="text-[10px] text-surface-400 font-black uppercase tracking-widest mb-1">Confidence</p>
+                        <p className="text-base font-black text-surface-900 dark:text-white">{Math.round((selectedUser.mindsetProfile?.confidence || 0) * 100)}%</p>
+                      </div>
+                    </div>
+                  </div>
 
-                <div className="pt-4">
-                   <p className="text-[10px] text-surface-400 font-bold text-center">
-                    Joined on {new Date(selectedUser.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}
-                   </p>
+                  <div>
+                    <h4 className="text-[10px] font-black text-surface-400 dark:text-surface-500 uppercase tracking-widest mb-4 border-b border-surface-100 dark:border-surface-100/10 pb-2">Topics Explored</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedUser.topicsExplored?.length > 0 ? (
+                        selectedUser.topicsExplored.map(t => (
+                          <span key={t} className="px-3 py-1.5 bg-surface-100 dark:bg-surface-100/20 text-surface-700 dark:text-surface-300 text-xs font-bold rounded-xl border border-surface-200 dark:border-surface-100/10 transition-colors hover:bg-brand-50 hover:text-brand-600">
+                            {t}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-sm text-surface-400 font-medium italic">No research activity recorded yet.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="pt-8 border-t border-surface-100 dark:border-surface-100/10 text-center">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-surface-400 dark:text-surface-500">
+                      Member since {new Date(selectedUser.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </Card>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

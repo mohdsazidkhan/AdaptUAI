@@ -45,16 +45,19 @@ export default function Navbar({ user }) {
   const navLinks = [
     { 
       href: user?.role === 'admin' ? '/admin/dashboard' : '/user/dashboard', 
-      label: user?.role === 'admin' ? 'Admin Panel' : 'Dashboard', 
-      icon: user?.role === 'admin' ? '🛡️' : '🏠', 
+      label: user?.role === 'admin' ? 'Overview' : 'Dashboard', 
+      icon: user?.role === 'admin' ? '📊' : '🏠', 
       authRequired: true, 
       hideOnDesktop: true 
     },
+    { href: '/admin/users', label: 'Users', icon: '👥', authRequired: true, hideOnDesktop: true, adminOnly: true },
+    { href: '/admin/chats', label: 'Users Chat', icon: '💬', authRequired: true, hideOnDesktop: true, adminOnly: true },
+    { href: '/admin/transactions', label: 'Transactions', icon: '💸', authRequired: true, hideOnDesktop: true, adminOnly: true },
     { href: '/user/chat', label: 'Learn', icon: '🦉', authRequired: true, hideOnDesktop: true, studentOnly: true },
     { href: '/user/chats', label: 'Sessions', icon: '💬', authRequired: true, hideOnDesktop: true, studentOnly: true },
     { href: '/user/wallet', label: 'Wallet', icon: '🪙', authRequired: true, hideOnDesktop: true, studentOnly: true },
     { href: '/user/transactions', label: 'History', icon: '📜', authRequired: true, hideOnDesktop: true, studentOnly: true },
-    { href: user?.role === 'admin' ? '/admin/profile' : '/user/profile', label: 'Profile', icon: '👤', authRequired: true, hideOnDesktop: true },
+    { href: user?.role === 'admin' ? '/admin/profile' : '/user/profile', label: user?.role === 'admin' ? 'My Profile' : 'Profile', icon: '👤', authRequired: true, hideOnDesktop: true },
     { href: '/auth/login', label: 'Log In', icon: '🔑', authRequired: false, hideOnDesktop: true },
     { href: '/auth/signup', label: 'Get Started', icon: '🚀', authRequired: false, hideOnDesktop: true },
   ];
@@ -239,6 +242,8 @@ export default function Navbar({ user }) {
               {navLinks.filter(link => {
                 if (link.authRequired && !user) return false;
                 if (user && !link.authRequired) return false;
+                if (user?.role === 'admin' && link.studentOnly) return false;
+                if (user?.role !== 'admin' && link.adminOnly) return false;
                 return true;
               }).map((link) => {
                 const isActive = pathname === link.href;
@@ -271,12 +276,18 @@ export default function Navbar({ user }) {
                     />
                     <div className="min-w-0">
                       <p className="font-black text-surface-900 truncate text-xs">{user.name}</p>
-                      <p className="text-[10px] text-surface-400 font-bold uppercase tracking-widest mt-0.5">Level {user.level} Tutor</p>
+                      <p className="text-[10px] text-brand-600 font-bold uppercase tracking-widest mt-0.5">
+                        {user.role === 'admin' ? '🛡️ System Admin' : `Level ${user.level} Student`}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between py-2 px-3 bg-surface-50 rounded-xl border border-surface-100">
-                    <span className="text-[10px] font-black uppercase text-surface-400">Balance</span>
-                    <span className="text-xs font-black text-brand-600">{user.au} AU</span>
+                    <span className="text-[10px] font-black uppercase text-surface-400">
+                      {user.role === 'admin' ? 'System Access' : 'Balance'}
+                    </span>
+                    <span className={`text-xs font-black ${user.role === 'admin' ? 'text-surface-600' : 'text-brand-600'}`}>
+                      {user.role === 'admin' ? 'Root Mode' : `${user.au} AU`}
+                    </span>
                   </div>
                 </div>
                 <button

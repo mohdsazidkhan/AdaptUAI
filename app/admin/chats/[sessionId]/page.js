@@ -36,7 +36,7 @@ export default function AdminChatView() {
   );
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-8 animate-fade-in">
+    <div className="p-8 container mx-auto space-y-8 animate-fade-in">
       <header className="flex items-center justify-between">
         <div>
           <Link href="/admin/chats" className="text-xs font-black text-surface-400 hover:text-brand-500 uppercase tracking-widest mb-2 inline-block transition-colors">
@@ -46,7 +46,7 @@ export default function AdminChatView() {
           <div className="flex items-center gap-3 mt-2">
             <div className="flex items-center gap-2">
               <img src={chat.userId?.avatarUrl} className="w-6 h-6 rounded-full border border-surface-200" alt="" />
-              <span className="text-sm font-bold text-surface-700 dark:text-surface-200">{chat.userId?.name}</span>
+              <span className="text-sm font-bold text-green-400">{chat.userId?.name}</span>
             </div>
             <span className="text-surface-300 dark:text-surface-700">|</span>
             <span className="text-xs font-bold text-surface-400 uppercase tracking-widest">{new Date(chat.createdAt).toLocaleString()}</span>
@@ -61,18 +61,18 @@ export default function AdminChatView() {
 
       <div className="space-y-6">
         {chat.messages?.map((msg, idx) => (
-          <div 
-            key={idx} 
-            className={`flex gap-4 ${msg.role === 'assistant' ? 'bg-surface-50 dark:bg-surface-100/30 p-6 rounded-3xl' : 'px-6 py-2'}`}
+          <div
+            key={idx}
+            className={`flex gap-4 ${msg.role === 'assistant' ? 'bg-surface-50 dark:bg-surface-100/20 p-6 rounded-3xl border border-surface-100 dark:border-surface-100/5' : 'px-6 py-4'}`}
           >
             <div className="text-2xl mt-1 shrink-0">
               {msg.role === 'assistant' ? '🤖' : '👤'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-widest text-surface-400 dark:text-surface-500 mb-2">
+              <p className={`text-[10px] font-black uppercase tracking-widest mb-2 ${msg.role === 'assistant' ? 'text-brand-600 dark:text-brand-400' : 'text-surface-400 dark:text-surface-500'}`}>
                 {msg.role === 'assistant' ? 'AI Instructor' : chat.userId?.name}
               </p>
-              <div className="prose dark:prose-invert max-w-none text-surface-700 dark:text-surface-300 font-bold leading-relaxed whitespace-pre-wrap antialiased">
+              <div className="prose dark:prose-invert max-w-none text-surface-900 dark:text-surface-900 font-bold leading-relaxed whitespace-pre-wrap antialiased">
                 {msg.content}
               </div>
             </div>
@@ -82,9 +82,9 @@ export default function AdminChatView() {
 
       <footer className="pt-12 border-t border-surface-100 dark:border-surface-100/10 text-center">
         <p className="text-[10px] font-black uppercase tracking-widest text-surface-400">End of Session Transcript</p>
-        <Link 
-          href="/admin/chats" 
-          className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-surface-900 dark:bg-white text-white dark:text-surface-900 rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-xl"
+        <Link
+          href="/admin/chats"
+          className="mt-6 inline-flex items-center gap-2 px-8 py-4 bg-surface-900 dark:bg-surface-100 text-white dark:text-white rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-xl shadow-surface-900/10 dark:shadow-black/20 border border-surface-800 dark:border-surface-100/10"
         >
           Return to History
         </Link>
