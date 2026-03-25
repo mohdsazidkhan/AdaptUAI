@@ -19,7 +19,13 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const data = await api.get('/user/profile');
+        // Get user role from localStorage
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const role = storedUser?.role || 'user';
+
+        // Call API based on role
+        const endpoint = role === 'admin' ? '/admin/profile' : '/user/profile';
+        const data = await api.get(endpoint);
         setData(data);
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);

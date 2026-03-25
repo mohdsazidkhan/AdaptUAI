@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Card from '@/components/Card';
 import { PageLoader } from '@/components/Loader';
 import api from '@/lib/api';
+import { toast } from 'react-toastify';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -22,6 +23,59 @@ export default function AdminDashboard() {
     }
     fetchStats();
   }, []);
+
+  const handleExportCSV = async () => {
+    try {
+      toast.info('Preparing student data export...', { autoClose: 2000 });
+      const response = await api.get('/admin/users');
+      const usersList = response.users || [];
+      
+      if (usersList.length === 0) {
+        toast.warning('No user data to export.');
+        return;
+      }
+
+      const headers = ['Name', 'Email', 'Role', 'Level', 'AU Balance', 'Joined Date', 'Learning Style', 'Depth', 'Patience (%)', 'Confidence (%)'];
+      
+      const csvRows = [
+        headers.join(','), // Header row
+        ...usersList.map(u => {
+          return [
+            `"${u.name || ''}"`,
+            `"${u.email || ''}"`,
+            `"${u.role || ''}"`,
+            u.level || 1,
+            u.au || 0,
+            `"${new Date(u.createdAt).toLocaleDateString()}"`,
+            `"${u.mindsetProfile?.learningStyle || 'N/A'}"`,
+            `"${u.mindsetProfile?.depthPreference || 'N/A'}"`,
+            Math.round((u.mindsetProfile?.patience || 0) * 100),
+            Math.round((u.mindsetProfile?.confidence || 0) * 100)
+          ].join(',');
+        })
+      ];
+
+      const csvString = csvRows.join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('hidden', '');
+      a.setAttribute('href', url);
+      a.setAttribute('download', `adaptuai_students_export_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      toast.success('Export downloaded successfully!');
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to export user data.');
+    }
+  };
+
+  const handleSystemBroadcast = () => {
+    toast.info('System Broadcast feature coming in v2.0!', { icon: '📢' });
+  };
 
   if (loading) return <PageLoader />;
 
@@ -81,10 +135,10 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card title="Quick Actions" padding="lg">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button className="p-4 bg-surface-100 hover:bg-surface-200 rounded-xl font-bold text-sm transition-all border border-surface-200">
+            <button onClick={handleExportCSV} className="p-4 bg-surface-100 hover:bg-surface-200 rounded-xl font-bold text-sm transition-all border border-surface-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50">
               Export User Data
             </button>
-            <button className="p-4 bg-surface-100 hover:bg-surface-200 rounded-xl font-bold text-sm transition-all border border-surface-200">
+            <button onClick={handleSystemBroadcast} className="p-4 bg-surface-100 hover:bg-surface-200 rounded-xl font-bold text-sm transition-all border border-surface-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50">
               System Broadcast
             </button>
           </div>

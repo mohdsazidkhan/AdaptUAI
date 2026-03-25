@@ -38,6 +38,10 @@ function LoginContent() {
         throw new Error(data.error || 'Login failed');
       }
 
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+
       const destination = data.user?.redirect || callbackUrl || '/user/dashboard';
       router.push(destination);
       router.refresh();

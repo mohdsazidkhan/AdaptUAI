@@ -35,9 +35,11 @@ export default function Navbar({ user }) {
   async function handleLogout() {
     try {
       await api.post('/auth/logout');
+      localStorage.removeItem('user');
       router.push('/');
       router.refresh();
     } catch {
+      localStorage.removeItem('user');
       router.push('/');
     }
   }
