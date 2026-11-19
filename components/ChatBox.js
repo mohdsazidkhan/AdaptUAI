@@ -783,7 +783,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-2.5 sm:p-4 space-y-3 bg-surface-50 custom-scrollbar">
+      <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto overscroll-contain p-2.5 sm:p-4 space-y-3 bg-surface-50 custom-scrollbar">
         {isHistoryLoading ? (
           <div className="flex items-center justify-center h-full">
             <TypingIndicator />

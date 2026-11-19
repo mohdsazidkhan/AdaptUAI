@@ -139,7 +139,7 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
 
   return (
     <div
-      className={`flex items-end gap-2 mb-4 animate-fade-in ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
+      className={`flex w-full min-w-0 items-end gap-2 mb-4 animate-fade-in ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
     >
       {/* Avatar */}
       {!compact && (
@@ -157,11 +157,11 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
       )}
 
       {/* Bubble */}
-      <div className={`min-w-0 max-w-[92%] flex ${isUser ? 'items-end' : 'items-start'} flex-col gap-1.5 group sm:max-w-[85%] md:max-w-[70%]`}>
+      <div className={`min-w-0 flex-1 flex ${isUser ? 'items-end' : 'items-start'} flex-col gap-1.5 group`}>
         <div
           className={`${isUser
-              ? 'bg-brand-500 text-white rounded-tr-sm'
-              : 'bg-surface-100 text-surface-900 rounded-tl-sm'
+              ? 'w-fit max-w-full bg-brand-500 text-white rounded-tr-sm'
+              : 'w-full min-w-0 max-w-full bg-surface-100 text-surface-900 rounded-tl-sm sm:max-w-[85%] md:max-w-[70%]'
             } px-4 py-3 rounded-2xl text-sm leading-relaxed transition-all duration-200`}
         >
           {isUser && editing ? (
@@ -200,7 +200,7 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
               <p className="whitespace-pre-wrap break-words font-medium">{message.content}</p>
             </>
           ) : (
-            <div ref={contentRef} className="prose dark:prose-invert prose-sm max-w-none prose-headings:text-surface-900 prose-p:text-surface-800 prose-code:bg-surface-50 prose-code:rounded prose-code:px-1 prose-code:before:content-none prose-code:after:content-none prose-pre:bg-[#0d1117] prose-pre:text-[#e6edf3] prose-pre:overflow-x-auto [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_.katex-display]:overflow-x-auto [&_.katex-display]:py-1 prose-strong:text-surface-900 prose-a:text-brand-600">
+            <div ref={contentRef} className="prose dark:prose-invert prose-sm w-full min-w-0 max-w-none [overflow-wrap:anywhere] prose-headings:text-surface-900 prose-p:text-surface-800 prose-code:bg-surface-50 prose-code:rounded prose-code:px-1 prose-code:before:content-none prose-code:after:content-none prose-pre:bg-[#0d1117] prose-pre:text-[#e6edf3] prose-pre:overflow-x-auto [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_.katex-display]:overflow-x-auto [&_.katex-display]:py-1 [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto prose-strong:text-surface-900 prose-a:text-brand-600">
               {!message.content || message.content.trim() === '' ? (
                 message.cancelled ? (
                   <p className="not-prose text-surface-500">You stopped this answer.</p>
