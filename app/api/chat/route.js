@@ -5,7 +5,7 @@ import User from '@/models/User';
 import Chat from '@/models/Chat';
 import { getAuthUser } from '@/lib/auth';
 import { generateStreamingCompletion } from '@/lib/ai';
-import { buildSystemPrompt, buildTopicDetectionPrompt, buildWeakAreaPrompt } from '@/lib/promptBuilder';
+import { buildSystemPrompt, buildTopicDetectionPrompt, buildWeakAreaPrompt, MODES } from '@/lib/promptBuilder';
 import { calculateProfile, summarizeMetrics } from '@/lib/userProfile';
 import { generateCompletion } from '@/lib/ai';
 import Transaction from '@/models/Transaction';
@@ -93,7 +93,11 @@ export async function POST(request) {
 
     // Regenerate: drop the saved answer (and its question) so the new attempt replaces them.
     // Failed or cancelled attempts are never saved, so a plain retry has nothing to remove.
-    if (body.regenerate && chat.messages.length) {
+    // Edit / retry from an earlier point: keep only the first `keepMessages` saved messages
+    // (the client counts the finished question+answer pairs before the edited message).
+    if (Number.isInteger(body.keepMessages) && body.keepMessages >= 0 && body.keepMessages < chat.messages.length) {
+      chat.messages.splice(body.keepMessages);
+    } else if (body.regenerate && chat.messages.length) {
       while (chat.messages.length && chat.messages[chat.messages.length - 1].role === 'assistant') chat.messages.pop();
       const last = chat.messages[chat.messages.length - 1];
       if (last?.role === 'user' && last.content === message.trim()) chat.messages.pop();
@@ -101,9 +105,12 @@ export async function POST(request) {
 
     // ── Build personalized system prompt ─────────────────────────────────────
     // Requirement 7: Optional Mode Detection
+    // The mode chip the learner picked wins; on "Auto" the mode is guessed from the message.
     let activeMode = 'Teaching';
     const lowerMessage = message.toLowerCase();
-    if (lowerMessage.includes('quiz')) {
+    if (MODES.includes(body.mode)) {
+      activeMode = body.mode;
+    } else if (lowerMessage.includes('quiz')) {
       activeMode = 'Quiz';
     } else if (lowerMessage.includes('summary')) {
       activeMode = 'Revision';

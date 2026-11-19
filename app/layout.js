@@ -1,3 +1,5 @@
+import 'katex/dist/katex.min.css';
+import 'highlight.js/styles/github-dark.css';
 import './globals.css';
 import { getAuthUserFromCookies } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
@@ -69,7 +71,7 @@ export default async function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap"
           rel="stylesheet"
         />
         <script

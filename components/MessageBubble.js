@@ -3,7 +3,20 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Copy, Check, Share2, RotateCcw, Square } from 'lucide-react';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import rehypeHighlight from 'rehype-highlight';
+
+const REMARK_PLUGINS = [remarkGfm, remarkMath];
+const REHYPE_PLUGINS = [[rehypeKatex, { throwOnError: false, strict: false }], [rehypeHighlight, { detect: true }]];
+
+// Models also write LaTeX as \( … \) and \[ … \]; turn those into the $ / $$ form remark-math reads.
+function normalizeMath(text) {
+  return String(text || '')
+    .replace(/\\\[([\s\S]+?)\\\]/g, (_, m) => `\n$$\n${m.trim()}\n$$\n`)
+    .replace(/\\\(([\s\S]+?)\\\)/g, (_, m) => `$${m.trim()}$`);
+}
+import { Copy, Check, Share2, RotateCcw, Square, Pencil } from 'lucide-react';
 import WaitingWord from './WaitingWord';
 import { toast } from 'react-toastify';
 
@@ -14,8 +27,18 @@ function formatTime(date) {
 
 // onRetry: shown as "Retry" on a failed/stopped answer, "Regenerate" on the latest finished one.
 // onStop: given while this answer is streaming.
-export default function MessageBubble({ message, compact = false, onRetry, onStop }) {
+export default function MessageBubble({ message, compact = false, onRetry, onStop, onEdit }) {
   const [copied, setCopied] = useState(false);
+  // Editing a sent question (onEdit is given for the learner's own messages)
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const startEdit = () => { setDraft(message.content || ''); setEditing(true); };
+  const submitEdit = () => {
+    const text = draft.trim();
+    if (!text) return;
+    setEditing(false);
+    if (text !== (message.content || '').trim()) onEdit?.(text);
+  };
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
 
@@ -78,7 +101,32 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
               : 'bg-surface-100 text-surface-900 rounded-tl-sm'
             }`}
         >
-          {isUser ? (
+          {isUser && editing ? (
+            <div className="w-[min(70vw,520px)]">
+              <label htmlFor={`edit-${message.timestamp}`} className="sr-only">Edit your message</label>
+              <textarea
+                id={`edit-${message.timestamp}`}
+                autoFocus
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); submitEdit(); }
+                  if (e.key === 'Escape') setEditing(false);
+                }}
+                rows={Math.min(8, Math.max(2, draft.split('\n').length))}
+                maxLength={4000}
+                className="block w-full resize-y rounded-lg border-0 bg-white/95 px-3 py-2 text-sm text-[#050505] outline-none focus:ring-2 focus:ring-white"
+              />
+              <div className="mt-2 flex justify-end gap-2">
+                <button type="button" onClick={() => setEditing(false)} className="h-8 rounded-full bg-white/20 px-3 text-xs font-semibold text-white transition hover:bg-white/30">
+                  Cancel
+                </button>
+                <button type="button" onClick={submitEdit} disabled={!draft.trim()} className="h-8 rounded-full bg-white px-3 text-xs font-semibold text-brand-600 transition hover:brightness-95 disabled:opacity-50">
+                  Send
+                </button>
+              </div>
+            </div>
+          ) : isUser ? (
             <>
               {message.image && (
                 <a href={message.image.startsWith('data:') ? undefined : message.image} target="_blank" rel="noopener noreferrer">
@@ -89,7 +137,7 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
               <p className="whitespace-pre-wrap break-words font-medium">{message.content}</p>
             </>
           ) : (
-            <div className="prose dark:prose-invert prose-sm max-w-none prose-headings:text-surface-900 prose-p:text-surface-800 prose-code:bg-surface-100 prose-code:rounded prose-code:px-1 prose-pre:bg-surface-900 prose-pre:text-brand-300 prose-strong:text-surface-900 prose-a:text-brand-600">
+            <div className="prose dark:prose-invert prose-sm max-w-none prose-headings:text-surface-900 prose-p:text-surface-800 prose-code:bg-surface-50 prose-code:rounded prose-code:px-1 prose-code:before:content-none prose-code:after:content-none prose-pre:bg-[#0d1117] prose-pre:text-[#e6edf3] prose-pre:overflow-x-auto [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_.katex-display]:overflow-x-auto [&_.katex-display]:py-1 prose-strong:text-surface-900 prose-a:text-brand-600">
               {!message.content || message.content.trim() === '' ? (
                 message.cancelled ? (
                   <p className="not-prose text-surface-500">You stopped this answer.</p>
@@ -108,8 +156,8 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
                   </>
                 )
               ) : (
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {message.content}
+                <ReactMarkdown remarkPlugins={REMARK_PLUGINS} rehypePlugins={REHYPE_PLUGINS}>
+                  {normalizeMath(message.content)}
                 </ReactMarkdown>
               )}
               {message.cancelled && message.content?.trim() && (
@@ -126,6 +174,19 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
             <span className="text-xs text-surface-400 font-bold uppercase">
               {formatTime(message.timestamp)}
             </span>
+          )}
+
+          {/* Learner's message: Edit, then resend */}
+          {isUser && onEdit && !editing && (
+            <button
+              type="button"
+              onClick={startEdit}
+              title="Edit message"
+              aria-label="Edit message"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-surface-400 transition-colors hover:bg-surface-100 hover:text-brand-500 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
           )}
 
           {/* Failed or stopped answer: a clear Retry button, always visible */}

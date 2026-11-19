@@ -79,8 +79,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['"Outfit"', 'ui-rounded', 'system-ui', 'sans-serif'],
-        display: ['"Outfit"', 'ui-rounded', 'sans-serif'],
+        sans: ['"Ubuntu"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'], // same font as AajExam
+        display: ['"Ubuntu"', 'system-ui', 'sans-serif'],
       },
       // Every rounded-* utility uses the same 8px card radius (Facebook style), except rounded-full.
       borderRadius: {

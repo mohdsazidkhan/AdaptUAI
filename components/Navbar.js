@@ -91,7 +91,8 @@ export default function Navbar({ user }) {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 h-navbar bg-surface-50 shadow-card">
+      {/* On phones the AI Tutor chat is full screen, so the bar is hidden there (desktop keeps it). */}
+      <header className={`fixed inset-x-0 top-0 z-50 h-navbar bg-surface-50 shadow-card ${pathname === '/user/chat' ? 'hidden lg:block' : ''}`}>
         {/* Public pages (no sidebar): same 1280px container as the page content and footer.
             App pages keep the full-width Facebook-style bar. */}
         <div className={`flex h-full items-center justify-between gap-2 px-3 lg:px-4 ${hasSidebar ? '' : 'mx-auto w-full max-w-page'}`}>

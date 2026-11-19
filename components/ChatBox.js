@@ -7,9 +7,30 @@ import { TypingIndicator } from './Loader';
 import { AUPopup } from './AUBadge';
 import api from '@/lib/api';
 import { toast } from 'react-toastify';
-import { ImagePlus, Mic, X, Send, SquarePen, Square } from 'lucide-react';
+import { ImagePlus, Mic, X, Send, SquarePen, Square, MoreVertical, Share2, Copy, Download, FileText, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 const DEBOUNCE_MS = 300;
+
+// Answer style chips above the input. "Auto" lets the server guess from the message.
+// ids must match MODES in lib/promptBuilder.js (each has its own instructions there).
+const MODE_CHIPS = [
+  { id: 'auto', label: 'Auto', hint: 'Picks the best style from your question' },
+  { id: 'Teaching', label: 'Teach', hint: 'Step-by-step explanation with a practice question' },
+  { id: 'Simple', label: 'Simple', hint: 'Explain in very easy words, like to a child', placeholder: 'What should I explain simply?' },
+  { id: 'Hint', label: 'Hint', hint: 'Guides you with hints, without giving the answer away', placeholder: 'Paste a question you want to solve yourself…' },
+  { id: 'Solve', label: 'Solve', hint: 'Full worked solution, step by step', placeholder: 'Type or attach the question to solve…' },
+  { id: 'Doubt Solving', label: 'Doubt', hint: 'Clears exactly what confuses you', placeholder: 'What part is confusing you?' },
+  { id: 'Quiz', label: 'Quiz', hint: '3-5 MCQs to test yourself', placeholder: 'Quiz me on which topic?' },
+  { id: 'Practice', label: 'Practice', hint: 'Practice problems with answers at the end', placeholder: 'Practice problems on which topic?' },
+  { id: 'Flashcards', label: 'Flashcards', hint: 'Quick question-answer cards to revise', placeholder: 'Flashcards for which topic?' },
+  { id: 'Revision', label: 'Revise', hint: 'Short revision sheet of the key points', placeholder: 'Which topic to revise?' },
+  { id: 'Memory Tricks', label: 'Memory tricks', hint: 'Mnemonics and tricks to remember', placeholder: 'What do you need to remember?' },
+  { id: 'Exam Prep', label: 'Exam prep', hint: 'Likely exam questions and how to score', placeholder: 'Which topic or exam?' },
+  { id: 'Compare', label: 'Compare', hint: 'Difference table between two things', placeholder: 'e.g. Mitosis vs meiosis' },
+  { id: 'Study Plan', label: 'Study plan', hint: 'A day-by-day plan for your goal', placeholder: 'Your goal, exam date and daily study time…' },
+  { id: 'Check Answer', label: 'Check answer', hint: 'Marks your answer and shows mistakes', placeholder: 'Paste the question and your answer…' },
+];
 const MAX_IMAGE_SIDE = 1280;
 const MIC_BLOCKED = 'Microphone is blocked. Click the lock icon in the address bar, allow the microphone, then try again.';
 
@@ -44,6 +65,19 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
   const [error, setError] = useState('');
   const [isHistoryLoading, setIsHistoryLoading] = useState(!!initialSessionId);
   const [image, setImage] = useState(null); // shrunk JPEG data URL waiting to be sent
+  const [mode, setMode] = useState('auto');
+
+  // Remember the chosen answer style on this device.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('adaptuai-mode');
+      if (saved && MODE_CHIPS.some((m) => m.id === saved)) setMode(saved);
+    } catch { /* storage unavailable */ }
+  }, []);
+  const chooseMode = (id) => {
+    setMode(id);
+    try { localStorage.setItem('adaptuai-mode', id); } catch { /* storage unavailable */ }
+  };
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [listening, setListening] = useState(false);
   const fileRef = useRef(null);
@@ -77,6 +111,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
         return [
           {
             role: 'assistant',
+            welcome: true,
             content: `Hi ${user?.name?.split(' ')[0] || 'there'}! 👋 I'm your AI tutor. What would you like to learn today?\n\nYou can ask me *anything* — from **coding** to **science**, **history** to **math**. Let's explore together! 🚀`,
             timestamp: new Date(),
           },
@@ -98,6 +133,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           setMessages([
             {
               role: 'assistant',
+              welcome: true,
               content: `Session not found or empty. Let's start fresh! 🌟`,
               timestamp: new Date(),
             },
@@ -176,6 +212,8 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           message: trimmed,
           ...(photo ? { image: photo } : {}),
           ...(opts.regenerate ? { regenerate: true } : {}),
+          ...(Number.isInteger(opts.keepMessages) ? { keepMessages: opts.keepMessages } : {}),
+          ...(mode !== 'auto' ? { mode } : {}),
           sessionId, // the server reads this chat's history from the database
           behaviorMetrics: {
             responseTimeMs: behaviorEvent.responseTimeMs,
@@ -365,13 +403,26 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       setIsStreaming(false);
       inputRef.current?.focus();
     }
-  }, [isStreaming, messages, sessionId, trackMessage]);
+  }, [isStreaming, messages, sessionId, trackMessage, mode]);
 
   // Stop the answer that is streaming right now.
   const stopStreaming = () => abortControllerRef.current?.abort();
 
   // Retry the assistant message at `index`: drop it and its question, then ask again.
   // A failed/stopped answer was never saved; a finished one is replaced on the server (regenerate).
+  // How many messages the server has saved before `index`: every finished answer was saved
+  // together with its question (failed, stopped and welcome messages never are).
+  const savedCountBefore = (index) =>
+    2 * messages.slice(0, index).filter((m) => m.role === 'assistant' && !m.welcome && !m.isError && !m.cancelled && m.content?.trim()).length;
+
+  // Edit a sent question: drop it and everything after it, then ask the new wording.
+  const editAt = (index, newText) => {
+    const original = messages[index];
+    const text = newText.trim();
+    if (isStreaming || !original || original.role !== 'user' || !text) return;
+    sendMessage(text, true, original.image || null, { base: messages.slice(0, index), keepMessages: savedCountBefore(index) });
+  };
+
   const retryAt = (index) => {
     if (isStreaming) return;
     const answer = messages[index];
@@ -380,7 +431,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
     const text = answer.retry?.text ?? question.content;
     const photo = answer.retry ? answer.retry.photo : question.image || null;
     const regenerate = !answer.isError && !answer.cancelled;
-    sendMessage(text, true, photo, { base: messages.slice(0, index - 1), regenerate });
+    sendMessage(text, true, photo, { base: messages.slice(0, index - 1), regenerate, keepMessages: savedCountBefore(index - 1) });
   };
 
   const handleSubmit = (e) => {
@@ -470,12 +521,89 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
     }
   };
 
+  // ---- Share / export the whole chat --------------------------------------------------------
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef(null);
+  useEffect(() => {
+    if (!exportOpen) return undefined;
+    const onDown = (e) => { if (exportRef.current && !exportRef.current.contains(e.target)) setExportOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setExportOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [exportOpen]);
+
+  // Real conversation only: no welcome text, no failed or still-loading answers.
+  const exportable = messages.filter((m, i) => !(i === 0 && m.role === 'assistant') && m.content?.trim() && !m.isError && !m._streamingId);
+  const chatTitle = (exportable.find((m) => m.role === 'user')?.content || 'AdaptUAI chat').replace(/\s+/g, ' ').slice(0, 60);
+  const fileBase = 'adaptuai-chat-' + (chatTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'export');
+  const nowText = () => new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+  const stamp = (m) => (m.timestamp ? new Date(m.timestamp).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '');
+
+  const buildText = () => [
+    'AdaptUAI chat: ' + chatTitle,
+    'Exported ' + nowText(),
+    '',
+    ...exportable.map((m) => {
+      const who = m.role === 'user' ? 'You' : 'AdaptUAI Tutor';
+      const photo = m.image ? (m.image.startsWith('http') ? m.image : '[photo attached]') + '\n' : '';
+      return who + ' (' + stamp(m) + '):\n' + photo + m.content.trim() + (m.cancelled ? '\n[stopped]' : '') + '\n';
+    }),
+  ].join('\n');
+
+  const buildMarkdown = () => [
+    '# ' + chatTitle,
+    '_Exported from AdaptUAI on ' + nowText() + '_',
+    '',
+    ...exportable.map((m) => {
+      const who = m.role === 'user' ? '🧑 **You**' : '🦉 **AdaptUAI Tutor**';
+      const img = m.image?.startsWith('http') ? '![Attached photo](' + m.image + ')\n\n' : m.image ? '_[photo attached]_\n\n' : '';
+      return '### ' + who + ' · ' + stamp(m) + '\n\n' + img + m.content.trim() + (m.cancelled ? '\n\n_[stopped]_' : '') + '\n\n---\n';
+    }),
+  ].join('\n');
+
+  const downloadFile = (content, ext, type) => {
+    const url = URL.createObjectURL(new Blob([content], { type: type + ';charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileBase + '.' + ext;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const exportAction = async (kind) => {
+    setExportOpen(false);
+    if (!exportable.length) { toast.info('Ask something first. There is nothing to export yet.'); return; }
+    try {
+      if (kind === 'txt') { downloadFile(buildText(), 'txt', 'text/plain'); toast.success('Chat downloaded'); }
+      else if (kind === 'md') { downloadFile(buildMarkdown(), 'md', 'text/markdown'); toast.success('Chat exported as Markdown'); }
+      else if (kind === 'copy') { await navigator.clipboard.writeText(buildText()); toast.success('Chat copied'); }
+      else if (kind === 'share') {
+        const text = buildText();
+        if (navigator.share) await navigator.share({ title: 'AdaptUAI: ' + chatTitle, text });
+        else { await navigator.clipboard.writeText(text); toast.success('Sharing is not available here, so the chat was copied'); }
+      }
+    } catch (err) {
+      if (err?.name !== 'AbortError') toast.error('Could not complete that. Please try again.');
+    }
+  };
+
+  const EXPORT_ACTIONS = [
+    { id: 'share', label: 'Share chat', icon: Share2 },
+    { id: 'copy', label: 'Copy chat', icon: Copy },
+    { id: 'txt', label: 'Download as .txt', icon: Download },
+    { id: 'md', label: 'Export as Markdown', icon: FileText },
+  ];
+
   const handleNewChat = () => {
     abortControllerRef.current?.abort();
     setSessionId(uuidv4());
     setMessages([
       {
         role: 'assistant',
+        welcome: true,
         content: `Starting a fresh session! 🌟 What would you like to explore?`,
         timestamp: new Date(),
       },
@@ -502,8 +630,17 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       <AUPopup xp={Number(process.env.NEXT_PUBLIC_EACH_CHAT_AU_TOKEN) || 10} show={showAUPopup} />
 
       {/* Chat header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 sm:px-4 border-b border-surface-200 bg-surface-50">
-        <div className="flex items-center gap-2">
+      <div className="flex-shrink-0 flex items-center justify-between gap-2 px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:px-4 border-b border-surface-200 bg-surface-50">
+        <div className="flex min-w-0 items-center gap-2">
+          {/* Phones: the navbar is hidden on this page, so give a way back */}
+          <Link
+            href="/user/dashboard"
+            aria-label="Back"
+            title="Back"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-surface-900 transition-colors hover:bg-surface-100 lg:hidden"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
           <div className="w-10 h-10 bg-brand-500 rounded-full flex items-center justify-center">
             <span className="text-lg">🦉</span>
           </div>
@@ -514,12 +651,68 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
             </p>
           </div>
         </div>
-        <button
-          onClick={handleNewChat}
-          className="flex h-9 items-center gap-1.5 rounded-full bg-surface-100 px-3 text-sm font-semibold text-surface-900 transition-colors hover:bg-surface-200"
-        >
-          <SquarePen className="h-4 w-4" /> New chat
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={handleNewChat}
+            aria-label="New chat"
+            title="New chat"
+            className="flex h-9 w-9 items-center justify-center gap-1.5 rounded-full bg-surface-100 text-sm font-semibold text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500 sm:w-auto sm:px-3"
+          >
+            <SquarePen className="h-4 w-4" /> <span className="hidden sm:inline">New chat</span>
+          </button>
+
+          {/* Desktop: the export actions as direct icon buttons with a tooltip */}
+          <div className="hidden items-center gap-1.5 lg:flex">
+            {EXPORT_ACTIONS.map(({ id, label, icon: Icon }) => (
+              <div key={id} className="group relative">
+                <button
+                  type="button"
+                  onClick={() => exportAction(id)}
+                  aria-label={label}
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-100 text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
+                  <Icon className="h-4 w-4" />
+                </button>
+                <span
+                  role="tooltip"
+                  className="pointer-events-none absolute right-1/2 top-full z-30 mt-1.5 translate-x-1/2 whitespace-nowrap rounded-md bg-surface-900 px-2 py-1 text-xs font-medium text-surface-50 opacity-0 shadow-menu transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+                >
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Phones/tablets: the same actions in a ⋮ menu */}
+          <div className="relative lg:hidden" ref={exportRef}>
+            <button
+              type="button"
+              onClick={() => setExportOpen((o) => !o)}
+              aria-label="Share or export chat"
+              title="Share or export chat"
+              aria-expanded={exportOpen}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-100 text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </button>
+            {exportOpen && (
+              <div className="absolute right-0 top-11 z-30 w-56 rounded-lg bg-surface-50 p-1.5 shadow-menu animate-fade-in" role="menu">
+                {EXPORT_ACTIONS.map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    role="menuitem"
+                    onClick={() => exportAction(id)}
+                    className="flex w-full items-center gap-3 rounded-lg p-2 text-left text-sm font-medium text-surface-900 transition-colors hover:bg-surface-100"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-100"><Icon className="h-4 w-4" /></span>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Messages area */}
@@ -540,6 +733,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
                 key={msg._streamingId || i}
                 message={msg}
                 onRetry={canRetry ? () => retryAt(i) : undefined}
+                onEdit={msg.role === 'user' && !isStreaming ? (text) => editAt(i, text) : undefined}
                 onStop={msg._streamingId ? stopStreaming : undefined}
               />
             );
@@ -604,6 +798,22 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
 
       {/* Input area */}
       <div className="flex-shrink-0 p-2.5 sm:p-3 pb-[max(0.625rem,env(safe-area-inset-bottom))] border-t border-surface-200 bg-surface-50">
+        {/* Answer style */}
+        <div className="mb-2 flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="radiogroup" aria-label="Answer style">
+          {MODE_CHIPS.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              role="radio"
+              aria-checked={mode === m.id}
+              onClick={() => chooseMode(m.id)}
+              title={m.hint}
+              className={`h-8 shrink-0 rounded-full px-3 text-sm font-semibold transition-colors ${mode === m.id ? 'bg-brand-500/15 text-brand-600' : 'bg-surface-100 text-surface-900 hover:bg-surface-200'}`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
         {image && (
           <div className="mb-2 flex items-center gap-2">
             <span className="relative">
@@ -639,7 +849,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={listening ? 'Listening… speak now' : 'Ask anything…'}
+            placeholder={listening ? 'Listening… speak now' : MODE_CHIPS.find((c) => c.id === mode)?.placeholder || 'Ask anything…'}
             rows={1}
             disabled={isStreaming}
             className="block min-w-0 flex-1 resize-none self-end border-0 bg-transparent px-1.5 py-2 text-sm leading-5 text-surface-900 outline-none placeholder:text-surface-400 disabled:opacity-60"
@@ -685,7 +895,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           )}
         </form>
         <p className="mt-1.5 text-center text-xs text-surface-400">
-          Enter to send · Shift+Enter for a new line · {process.env.NEXT_PUBLIC_EACH_CHAT_AU_TOKEN || 10} AU per answer · AI can make mistakes
+          <span className="hidden sm:inline">Enter to send · Shift+Enter for a new line · </span>{process.env.NEXT_PUBLIC_EACH_CHAT_AU_TOKEN || 10} AU per answer · AI can make mistakes
         </p>
       </div>
     </div>
