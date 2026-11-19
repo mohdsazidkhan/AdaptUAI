@@ -6,7 +6,7 @@ const initialStats = [
   { label: 'Questions asked', value: '—' },
   { label: 'Users', value: '—' },
   { label: 'Topics covered', value: '—' },
-  { label: 'Learner rating', value: '—', note: 'No ratings yet' },
+  { label: 'Tokens used', value: '—' },
 ];
 
 const formatCount = (value) => Number(value || 0).toLocaleString();
@@ -27,9 +27,7 @@ export default function HomeStats() {
           { label: 'Questions asked', value: formatCount(data.questionsAsked) },
           { label: 'Users', value: formatCount(data.users) },
           { label: 'Topics covered', value: formatCount(data.topicsCovered) },
-          data.ratingCount > 0
-            ? { label: 'Learner rating', value: `${Number(data.averageRating).toFixed(1)} / 5` }
-            : { label: 'Learner rating', value: '—', note: 'No ratings yet' },
+          { label: 'Tokens used', value: formatCount(data.tokensUsed) },
         ]);
       })
       .catch((error) => console.error('Failed to load home stats:', error));

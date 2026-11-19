@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Chat from '@/models/Chat';
+import Transaction from '@/models/Transaction';
 import User from '@/models/User';
 
 export const dynamic = 'force-dynamic';
@@ -12,7 +13,7 @@ export async function GET() {
     const admins = await User.find({ role: 'admin' }).select('_id').lean();
     const adminIds = admins.map((user) => user._id);
 
-    const [totalUsers, questionCounts, topicCounts] = await Promise.all([
+    const [totalUsers, questionCounts, topicCounts, tokenUsage] = await Promise.all([
       User.countDocuments({ role: { $ne: 'admin' } }),
       Chat.aggregate([
         { $match: { userId: { $nin: adminIds } } },
@@ -28,14 +29,17 @@ export async function GET() {
         { $match: { _id: { $ne: '' } } },
         { $count: 'total' },
       ]),
+      Transaction.aggregate([
+        { $match: { userId: { $nin: adminIds }, type: 'SPEND' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]),
     ]);
 
     return NextResponse.json({
       questionsAsked: questionCounts[0]?.total || 0,
       users: totalUsers,
       topicsCovered: topicCounts[0]?.total || 0,
-      ratingCount: 0,
-      averageRating: null,
+      tokensUsed: tokenUsage[0]?.total || 0,
     }, {
       headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
     });
