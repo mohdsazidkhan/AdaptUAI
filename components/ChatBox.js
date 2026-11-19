@@ -8,7 +8,7 @@ import { AUPopup } from './AUBadge';
 import api from '@/lib/api';
 import { toast } from 'react-toastify';
 import { ImagePlus, Mic, X, Send, SquarePen, Square, MoreVertical, Share2, Copy, Download, FileText, ArrowLeft, Volume2, VolumeX } from 'lucide-react';
-import { canSpeak, speak, stopSpeaking } from '@/lib/speech';
+import { canSpeak, speak, stopSpeaking, useSpeakingId } from '@/lib/speech';
 import Link from 'next/link';
 
 const DEBOUNCE_MS = 300;
@@ -78,6 +78,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
   // Read every answer aloud (saved on this device). Questions asked by voice are always answered aloud.
   const [readAloud, setReadAloud] = useState(false);
   const [speechOk, setSpeechOk] = useState(false);
+  const speakingId = useSpeakingId();
   const readAloudRef = useRef(false);
   const voiceUsedRef = useRef(false);
   useEffect(() => {
@@ -657,38 +658,52 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
   const showSuggestions = messages.length <= 1;
 
   return (
-    <div className="flex h-full min-h-0 flex-col relative overflow-hidden">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
       {/* AU Popup */}
       <AUPopup xp={Number(process.env.NEXT_PUBLIC_EACH_CHAT_AU_TOKEN) || 10} show={showAUPopup} />
 
       {/* Chat header */}
-      <div className="flex-shrink-0 flex items-center justify-between gap-2 px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:px-4 border-b border-surface-200 bg-surface-50">
-        <div className="flex min-w-0 items-center gap-2">
+      <div className="flex-shrink-0 flex items-center justify-between gap-1.5 px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:gap-2 sm:px-4 border-b border-surface-200 bg-surface-50">
+        <div className="flex min-w-0 items-center gap-1 sm:gap-2">
           {/* Phones: the navbar is hidden on this page, so give a way back */}
           <Link
             href="/user/dashboard"
             aria-label="Back"
             title="Back"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-surface-900 transition-colors hover:bg-surface-100 lg:hidden"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-surface-900 transition-colors hover:bg-surface-100 sm:h-9 sm:w-9 lg:hidden"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <div className="w-10 h-10 bg-brand-500 rounded-full flex items-center justify-center">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-500 sm:h-10 sm:w-10">
             <span className="text-lg">🦉</span>
           </div>
-          <div>
-            <p className="font-semibold text-surface-900 text-[15px]">AdaptUAI Tutor</p>
-            <p className={`text-xs font-medium ${isStreaming ? 'text-brand-500 animate-pulse' : 'text-surface-400'}`}>
+          <div className="min-w-0">
+            <p className="whitespace-nowrap text-sm font-semibold text-surface-900 sm:text-[15px]">
+              <span className="sm:hidden">AdaptUAI</span>
+              <span className="hidden sm:inline">AdaptUAI Tutor</span>
+            </p>
+            <p className={`hidden text-xs font-medium sm:block ${isStreaming ? 'text-brand-500 animate-pulse' : 'text-surface-400'}`}>
               {isStreaming ? 'Thinking...' : 'Ready to teach'}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+          {speakingId !== null && (
+            <button
+              type="button"
+              onClick={stopSpeaking}
+              aria-label="Stop current speech"
+              title="Stop current speech"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-coral-500 text-white outline-none transition-colors hover:bg-coral-600 focus-visible:ring-2 focus-visible:ring-brand-500 sm:h-9 sm:w-9"
+            >
+              <Square className="h-3.5 w-3.5 fill-current" />
+            </button>
+          )}
           <button
             onClick={handleNewChat}
             aria-label="New chat"
             title="New chat"
-            className="flex h-9 w-9 items-center justify-center gap-1.5 rounded-full bg-surface-100 text-sm font-semibold text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500 sm:w-auto sm:px-3"
+            className="flex h-8 w-8 items-center justify-center gap-1.5 rounded-full bg-surface-100 text-sm font-semibold text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500 sm:h-9 sm:w-auto sm:px-3"
           >
             <SquarePen className="h-4 w-4" /> <span className="hidden sm:inline">New chat</span>
           </button>
@@ -700,7 +715,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
                 onClick={toggleReadAloud}
                 aria-pressed={readAloud}
                 aria-label={readAloud ? 'Read aloud is on' : 'Read answers aloud'}
-                className={`flex h-9 w-9 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 ${readAloud ? 'bg-brand-500 text-white hover:brightness-110' : 'bg-surface-100 text-surface-900 hover:bg-surface-200'}`}
+                className={`flex h-8 w-8 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 sm:h-9 sm:w-9 ${readAloud ? 'bg-brand-500 text-white hover:brightness-110' : 'bg-surface-100 text-surface-900 hover:bg-surface-200'}`}
               >
                 {readAloud ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
               </button>
@@ -743,7 +758,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
               aria-label="Share or export chat"
               title="Share or export chat"
               aria-expanded={exportOpen}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-100 text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-100 text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500 sm:h-9 sm:w-9"
             >
               <MoreVertical className="h-4 w-4" />
             </button>

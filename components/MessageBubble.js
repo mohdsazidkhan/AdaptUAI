@@ -139,8 +139,7 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
 
   return (
     <div
-      className={`flex items-end gap-2 mb-4 animate-fade-in ${isUser ? 'flex-row-reverse' : 'flex-row'
-        }`}
+      className={`flex items-end gap-2 mb-4 animate-fade-in ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
     >
       {/* Avatar */}
       {!compact && (
@@ -158,13 +157,12 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
       )}
 
       {/* Bubble */}
-      <div className={`min-w-0 max-w-[92%] sm:max-w-[85%] md:max-w-[70%] ${isUser ? 'items-end' : 'items-start'} flex flex-col gap-1.5 group`}>
-        {!isUser && message.content?.trim() && <div className="flex w-full justify-end">{renderMessageActions()}</div>}
+      <div className={`min-w-0 max-w-[92%] flex ${isUser ? 'items-end' : 'items-start'} flex-col gap-1.5 group sm:max-w-[85%] md:max-w-[70%]`}>
         <div
-          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed transition-all duration-200 ${isUser
+          className={`${isUser
               ? 'bg-brand-500 text-white rounded-tr-sm'
               : 'bg-surface-100 text-surface-900 rounded-tl-sm'
-            }`}
+            } px-4 py-3 rounded-2xl text-sm leading-relaxed transition-all duration-200`}
         >
           {isUser && editing ? (
             <div className="w-[min(70vw,520px)]">
@@ -233,29 +231,20 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
         </div>
 
         {/* Footer info & Actions */}
-        <div className={`flex items-center gap-3 px-1 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+        <div className={`flex items-center px-1 ${isUser ? 'flex-row-reverse gap-3' : 'flex-row gap-3'}`}>
           {/* Timestamp */}
           {message.timestamp && (
-            <span className="text-xs text-surface-400 font-bold uppercase">
+            <span className="shrink-0 text-xs text-surface-400 font-bold uppercase">
               {formatTime(message.timestamp)}
             </span>
           )}
-
-          {/* Learner's message: Edit, then resend */}
           {isUser && onEdit && !editing && (
-            <button
-              type="button"
-              onClick={startEdit}
-              title="Edit message"
-              aria-label="Edit message"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-surface-400 transition-colors hover:bg-surface-100 hover:text-brand-500 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
-            >
+            <button type="button" onClick={startEdit} title="Edit message" aria-label="Edit message" className="flex h-7 w-7 items-center justify-center rounded-full text-surface-400 transition-colors hover:bg-surface-100 hover:text-brand-500 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100">
               <Pencil className="h-3.5 w-3.5" />
             </button>
           )}
-
+          {!isUser && message.content?.trim() && renderMessageActions()}
         </div>
-        {!isUser && message.content?.trim() && <div className="flex w-full justify-end">{renderMessageActions()}</div>}
       </div>
     </div>
   );
