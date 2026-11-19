@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Brain, Zap, MessageCircle, TrendingUp, Target, ShieldCheck, Mic, Camera, ArrowRight } from 'lucide-react';
 import Footer from '@/components/Footer';
+import HomeStats from '@/components/HomeStats';
 
 export const metadata = {
   title: 'AdaptUAI — Your Personalized AI Tutor',
@@ -14,13 +15,6 @@ const features = [
   { icon: TrendingUp, title: 'Progress tracking', desc: 'See your strong topics, weak areas and learning progress on your dashboard.' },
   { icon: Target, title: 'Personalised depth', desc: 'From a quick overview to a deep dive, answers match the level of detail you prefer.' },
   { icon: ShieldCheck, title: 'Secure and private', desc: 'Your chats stay private to your account and are never sold.' },
-];
-
-const stats = [
-  { value: '10K+', label: 'Topics covered' },
-  { value: '50+', label: 'Learning styles' },
-  { value: '∞', label: 'Questions answered' },
-  { value: '5⭐', label: 'Learner rating' },
 ];
 
 const steps = [
@@ -100,14 +94,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── Stats ──────────────────────────────────────────────────────── */}
-        <section className={`${card} grid grid-cols-2 gap-4 md:grid-cols-4`}>
-          {stats.map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="text-2xl font-bold text-brand-500 sm:text-3xl">{s.value}</div>
-              <div className="text-sm text-surface-500">{s.label}</div>
-            </div>
-          ))}
-        </section>
+        <HomeStats />
 
         {/* ── Features ───────────────────────────────────────────────────── */}
         <section className={card}>
