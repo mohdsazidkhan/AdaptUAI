@@ -5,6 +5,7 @@ import { avatarFor } from '@/lib/navItems';
 import { PageHeader, SearchField, StatCard, Pill, IconButton, fmtDateTime } from '@/components/admin/ui';
 import DataView, { SelectField, ViewToggle, Pagination } from '@/components/admin/DataView';
 import { useAdminList, useViewMode } from '@/components/admin/useAdminList';
+import MobileFilters from '@/components/MobileFilters';
 
 const SORTS = [
   { value: 'newest', label: 'Newest' },
@@ -39,6 +40,15 @@ export default function AdminTransactions() {
   const total = list.data?.pagination?.total ?? 0;
   const v = (n) => (list.data ? n ?? 0 : '…');
 
+  const statCards = (
+    <>
+      <StatCard icon={Receipt} label="Records found" value={v(total)} tone="grey" />
+      <StatCard icon={Coins} label="Total AU issued" value={v(stats.totalRecharged)} />
+      <StatCard icon={Flame} label="Total AU used" value={v(stats.totalSpent)} tone="coral" />
+      <StatCard icon={Wallet} label="AU left with users" value={v(stats.totalLeft)} tone="accent" />
+    </>
+  );
+
   const columns = [
     {
       key: 'user', header: 'User', primary: true,
@@ -61,6 +71,8 @@ export default function AdminTransactions() {
 
   return (
     <div className="table-page">
+      {/* Phones/tablets: the totals sit at the top of the Filters drawer (mounted first = shown first) */}
+      <MobileFilters title="Summary"><div className="grid grid-cols-2 gap-2">{statCards}</div></MobileFilters>
       <PageHeader
         title="Transactions"
         count={total}
@@ -73,12 +85,7 @@ export default function AdminTransactions() {
         actions={<IconButton icon={RefreshCw} label="Refresh" onClick={list.reload} />}
       />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
-        <StatCard icon={Receipt} label="Records found" value={v(total)} tone="grey" />
-        <StatCard icon={Coins} label="Total AU issued" value={v(stats.totalRecharged)} />
-        <StatCard icon={Flame} label="Total AU used" value={v(stats.totalSpent)} tone="coral" />
-        <StatCard icon={Wallet} label="AU left with users" value={v(stats.totalLeft)} tone="accent" />
-      </div>
+      <div className="hidden grid-cols-4 gap-4 lg:grid">{statCards}</div>
 
 
       <section className="fb-card table-scroll">

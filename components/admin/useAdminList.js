@@ -56,15 +56,29 @@ export function useAdminList(endpoint, initial = {}) {
  */
 export function useViewMode(storageKey) {
   const [view, setViewState] = useState('table');
+  const [desktop, setDesktop] = useState(true);
+  // Phones and desktop remember their own choice, so a Table picked on desktop never
+  // replaces the Grid default on a phone. Resizing across 1024px switches to that size's view.
+  const keyFor = (isDesktop) => `adaptuai-view-${storageKey}-${isDesktop ? 'desktop' : 'mobile'}`;
+
   useEffect(() => {
-    let saved = null;
-    try { saved = localStorage.getItem(`adaptuai-view-${storageKey}`); } catch { /* storage blocked */ }
-    if (['table', 'list', 'grid'].includes(saved)) setViewState(saved);
-    else setViewState(window.matchMedia('(min-width: 1024px)').matches ? 'table' : 'grid');
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const apply = () => {
+      const isDesktop = mq.matches;
+      setDesktop(isDesktop);
+      let saved = null;
+      try { saved = localStorage.getItem(keyFor(isDesktop)); } catch { /* storage blocked */ }
+      setViewState(['table', 'list', 'grid'].includes(saved) ? saved : isDesktop ? 'table' : 'grid');
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey]);
+
   const setView = (v) => {
     setViewState(v);
-    try { localStorage.setItem(`adaptuai-view-${storageKey}`, v); } catch { /* storage blocked */ }
+    try { localStorage.setItem(keyFor(desktop), v); } catch { /* storage blocked */ }
   };
   return [view, setView];
 }

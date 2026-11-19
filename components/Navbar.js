@@ -159,16 +159,16 @@ export default function Navbar({ user }) {
             </button>
 
             {user ? (
-              <div className="relative" ref={menuRef}>
+              <div className="relative shrink-0" ref={menuRef}>
                 <button
                   type="button"
                   onClick={() => setMenuOpen((o) => !o)}
                   aria-label="Account"
                   aria-expanded={menuOpen}
-                  className="block rounded-full ring-offset-2 ring-offset-surface-50 transition hover:brightness-95"
+                  className="flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-surface-100 outline-none transition hover:brightness-95 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-50"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={avatarFor(user)} alt={user.name} className="h-10 w-10 rounded-full bg-surface-100 object-cover" />
+                  <img src={avatarFor(user)} alt={user.name} className="h-full w-full object-cover" />
                 </button>
 
                 {menuOpen && (

@@ -83,15 +83,16 @@ const TONES = {
 };
 
 /** Stat tile: round tinted icon, value, label. */
-export function StatCard({ icon: Icon, label, value, tone = 'brand', hint }) {
+// compact: phones hide the icon and use a smaller number, so three cards fit in one row.
+export function StatCard({ icon: Icon, label, value, tone = 'brand', hint, compact = false }) {
   return (
     <div className={`${card} flex items-center gap-3 p-3 sm:p-4`}>
-      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${TONES[tone]}`}>
+      <span className={`${compact ? 'hidden sm:flex' : 'flex'} h-11 w-11 shrink-0 items-center justify-center rounded-full ${TONES[tone]}`}>
         <Icon className="h-5 w-5" />
       </span>
       <div className="min-w-0">
         <p className="text-sm text-surface-500">{label}</p>
-        <p className="text-xl font-bold text-surface-900 lg:text-2xl">{value ?? '–'}</p>
+        <p className={`${compact ? 'truncate text-base sm:text-xl' : 'text-xl'} font-bold text-surface-900 lg:text-2xl`}>{value ?? '–'}</p>
         {hint && <p className="text-xs text-surface-500">{hint}</p>}
       </div>
     </div>
