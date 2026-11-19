@@ -1,31 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Receipt, Coins, Flame, Wallet } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
-import Card from '@/components/Card';
 import { PageLoader } from '@/components/Loader';
 import api from '@/lib/api';
-import { format } from 'date-fns';
+import { PageHeader, SearchField, StatCard, Pill, EmptyState, card, brandBtn, fmtDateTime } from '@/components/admin/ui';
 
 export default function TransactionsPage() {
-  const router = useRouter();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [userData, transData] = await Promise.all([
-          api.get('/user/profile'),
-          api.get('/user/transactions')
-        ]);
-
-        setData({
-          user: userData.user,
-          transactions: transData.transactions
-        });
+        const [userData, transData] = await Promise.all([api.get('/user/profile'), api.get('/user/transactions')]);
+        setData({ user: userData.user, transactions: transData.transactions || [] });
       } catch (err) {
         console.error('Failed to fetch transactions:', err);
       } finally {
@@ -35,85 +27,73 @@ export default function TransactionsPage() {
     fetchData();
   }, []);
 
-  if (loading) return <PageLoader />;
-
   const { user, transactions } = data || { transactions: [] };
+
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return q ? transactions.filter((t) => [t.description, t.type].some((v) => v?.toLowerCase().includes(q))) : transactions;
+  }, [transactions, query]);
+
+  const totals = useMemo(() => transactions.reduce(
+    (acc, t) => (t.type === 'RECHARGE' ? { ...acc, added: acc.added + t.amount } : { ...acc, spent: acc.spent + t.amount }),
+    { added: 0, spent: 0 }
+  ), [transactions]);
+
+  if (loading) return <PageLoader />;
 
   return (
     <div className="flex min-h-screen">
       <Sidebar user={user} />
 
       <main className="flex-1 min-w-0 lg:ml-sidebar pt-navbar *:mx-auto *:w-full *:max-w-page *:p-3 lg:*:p-4 app-content">
-        <div className="animate-fade-in">
-          <header className="mb-3 lg:mb-4">
-            <h1 className="text-xl lg:text-3xl font-bold text-surface-900 flex items-center gap-3">
-              <span>📜</span> Transaction History
-            </h1>
-            <p className="text-surface-500 font-semibold mt-1">
-              Track your AU token usage and recharges.
-            </p>
-          </header>
+        <div className="table-page self-padded animate-fade-in">
+          <PageHeader
+            title="Transaction History"
+            count={transactions.length}
+            search={<SearchField value={query} onChange={setQuery} placeholder="Search by description" label="Search transactions" />}
+            actions={<Link href="/user/wallet" className={brandBtn}><Wallet className="h-4 w-4" /> Wallet</Link>}
+          />
 
-          <Card padding="none" className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-surface-100/50 border-b border-surface-200">
-                    <th className="px-0 lg:px-6 py-4 text-xs font-bold uppercase tracking-widest text-surface-400">Type</th>
-                    <th className="px-0 lg:px-6 py-4 text-xs font-bold uppercase tracking-widest text-surface-400">Description</th>
-                    <th className="px-0 lg:px-6 py-4 text-xs font-bold uppercase tracking-widest text-surface-400">Date</th>
-                    <th className="px-0 lg:px-6 py-4 text-xs font-bold uppercase tracking-widest text-surface-400 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-surface-100">
-                  {transactions.length > 0 ? (
-                    transactions.map((t) => (
-                      <tr key={t._id} className="hover:bg-surface-50 transition-colors group">
-                        <td className="px-0 lg:px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase ${t.type === 'RECHARGE'
-                            ? 'bg-brand-500/15 text-brand-600'
-                            : 'bg-coral-50 text-coral-600'
-                            }`}>
-                            {t.type === 'RECHARGE' ? '⚡ Recharge' : '🪙 Spend'}
-                          </span>
-                        </td>
-                        <td className="px-0 lg:px-6 py-4">
-                          <p className="text-sm font-bold text-surface-800">{t.description}</p>
-                        </td>
-                        <td className="px-0 lg:px-6 py-4 whitespace-nowrap">
-                          <p className="text-xs font-semibold text-surface-400">
-                            {format(new Date(t.createdAt), 'MMM dd, yyyy • HH:mm')}
-                          </p>
-                        </td>
-                        <td className="px-0 lg:px-6 py-4 text-right whitespace-nowrap">
-                          <span className={`text-sm font-bold ${t.type === 'RECHARGE' ? 'text-brand-600' : 'text-surface-900'
-                            }`}>
-                            {t.type === 'RECHARGE' ? '+' : '-'}{t.amount} AU
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="px-6 py-12 text-center">
-                        <div className="flex flex-col items-center gap-2 opacity-40">
-                          <span className="text-4xl">🕳️</span>
-                          <p className="text-sm font-bold">No transactions found yet.</p>
+          <div className="grid gap-3 sm:grid-cols-3 lg:gap-4">
+            <StatCard icon={Coins} label="Current balance" value={`${user?.au ?? 0} AU`} tone="accent" />
+            <StatCard icon={Receipt} label="AU added" value={`${totals.added} AU`} />
+            <StatCard icon={Flame} label="AU used" value={`${totals.spent} AU`} tone="coral" />
+          </div>
+
+          <section className={`${card} table-scroll`}>
+            {shown.length === 0 ? (
+              <EmptyState icon={Receipt} title={query ? 'No transactions match your search' : 'No transactions yet'} text={query ? 'Try another word.' : 'Your AU spends and recharges will show here.'} />
+            ) : (
+              <ul className="divide-y divide-surface-200">
+                {shown.map((t) => {
+                  const plus = t.type === 'RECHARGE';
+                  return (
+                    <li key={t._id} className="flex items-center gap-3 p-3 sm:p-4">
+                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${plus ? 'bg-brand-500/15 text-brand-600' : 'bg-coral-500/15 text-coral-600'}`}>
+                        {plus ? <Coins className="h-5 w-5" /> : <Flame className="h-5 w-5" />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[15px] font-semibold text-surface-900">{t.description}</p>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                          <Pill tone={plus ? 'brand' : 'coral'}>{plus ? 'Recharge' : 'Spend'}</Pill>
+                          <span className="text-xs text-surface-500">{fmtDateTime(t.createdAt)}</span>
                         </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+                      </div>
+                      <span className={`shrink-0 font-semibold ${plus ? 'text-brand-600' : 'text-coral-600'}`}>{plus ? '+' : '−'}{t.amount} AU</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
 
-          <footer className="mt-8 text-center p-3 sm:p-4 bg-brand-50 rounded-xl border border-brand-100">
-            <p className="text-xs font-bold text-brand-900 mb-1">Need to top up your wallet?</p>
-            <p className="text-xs text-brand-600">
-              Contact support at <span className="font-bold underline underline-offset-2">{process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com'}</span>
-            </p>
-          </footer>
+          <section className={`${card} flex flex-wrap items-center justify-between gap-3 p-3 sm:p-4`}>
+            <div>
+              <p className="font-semibold text-surface-900">Need to top up your wallet?</p>
+              <p className="text-sm text-surface-500">Contact support and we will recharge your AU.</p>
+            </div>
+            <Link href="/contact" className={brandBtn}>Contact support</Link>
+          </section>
         </div>
       </main>
     </div>

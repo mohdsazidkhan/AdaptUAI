@@ -1,15 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Card from '@/components/Card';
-import { PageLoader } from '@/components/Loader';
-import api from '@/lib/api';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { MessagesSquare } from 'lucide-react';
+import MessageBubble from '@/components/MessageBubble';
+import api from '@/lib/api';
+import { avatarFor } from '@/lib/navItems';
+import { PageHeader, Pill, EmptyState, ListSkeleton, card, greyBtn, fmtDateTime } from '@/components/admin/ui';
 
 export default function AdminChatView() {
   const { sessionId } = useParams();
-  const router = useRouter();
   const [chat, setChat] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,68 +28,64 @@ export default function AdminChatView() {
     if (sessionId) fetchChat();
   }, [sessionId]);
 
-  if (loading) return <PageLoader />;
-  if (!chat) return (
-    <div className="p-4 sm:p-6 text-center bg-surface-50 dark:bg-transparent rounded-3xl border border-dashed border-surface-200">
-      <p className="text-surface-500 font-bold">Chat session not found.</p>
-      <Link href="/admin/chats" className="mt-4 inline-block text-brand-500 font-bold">← Back to History</Link>
-    </div>
-  );
+  const back = { href: '/admin/chats', label: 'Users Chat' };
+
+  if (loading) {
+    return (
+      <div className="space-y-3 lg:space-y-4">
+        <PageHeader title="Chat transcript" back={back} />
+        <section className={card}><ListSkeleton rows={5} /></section>
+      </div>
+    );
+  }
+
+  if (!chat) {
+    return (
+      <div className="space-y-3 lg:space-y-4">
+        <PageHeader title="Chat transcript" back={back} />
+        <section className={card}>
+          <EmptyState icon={MessagesSquare} title="Chat session not found" text="It may have been deleted." />
+        </section>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 lg:-8 container mx-auto space-y-3 lg:space-y-4 animate-fade-in">
-      <header className="flex items-center justify-between">
-        <div>
-          <Link href="/admin/chats" className="text-xs font-bold text-surface-400 hover:text-brand-500 uppercase tracking-widest mb-2 inline-block transition-colors">
-            ← Back to Users Chat
-          </Link>
-          <h1 className="text-xl lg:text-3xl font-bold text-surface-900 leading-tight">{chat.title}</h1>
-          <div className="flex items-center gap-3 mt-2">
-            <div className="flex items-center gap-2">
-              <img src={chat.userId?.avatarUrl} className="w-6 h-6 rounded-full border border-surface-200" alt="" />
-              <span className="text-sm font-bold text-brand-600">{chat.userId?.name}</span>
-            </div>
-            <span className="text-surface-300 dark:text-surface-700">|</span>
-            <span className="text-xs font-bold text-surface-400 uppercase tracking-widest">{new Date(chat.createdAt).toLocaleString()}</span>
-          </div>
-        </div>
-        <div className="text-right">
-          <span className="px-3 py-1 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 text-xs font-bold uppercase tracking-widest rounded-full border border-brand-100 dark:border-brand-500/20">
-            Read Only
-          </span>
-        </div>
-      </header>
+    <div className="space-y-3 lg:space-y-4">
+      <PageHeader
+        title={chat.title || 'Chat transcript'}
+        back={back}
+        subtitle={`Started ${fmtDateTime(chat.createdAt)} · last activity ${fmtDateTime(chat.updatedAt)}`}
+        actions={<Pill>Read only</Pill>}
+      />
 
-      <div className="space-y-3 lg:space-y-4">
-        {chat.messages?.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`flex gap-4 ${msg.role === 'assistant' ? 'bg-surface-50 dark:bg-surface-100/20 p-2 lg:p-6 rounded-xl lg:rounded-3xl border border-surface-100 dark:border-surface-100/5' : 'px-0 lg:px-6 py-4'}`}
-          >
-            <div className="text-2xl mt-1 shrink-0">
-              {msg.role === 'assistant' ? '🤖' : '👤'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${msg.role === 'assistant' ? 'text-brand-600 dark:text-brand-400' : 'text-surface-400 dark:text-surface-500'}`}>
-                {msg.role === 'assistant' ? 'AI Instructor' : chat.userId?.name}
-              </p>
-              <div className="prose dark:prose-invert max-w-none text-surface-900 dark:text-surface-900 font-bold leading-relaxed whitespace-pre-wrap antialiased">
-                {msg.content}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Learner */}
+      <section className={`${card} flex flex-wrap items-center gap-3 p-3 sm:p-4`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={avatarFor(chat.userId)} alt="" className="h-10 w-10 rounded-full bg-surface-100 object-cover" />
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-surface-900">{chat.userId?.name || 'Unknown user'}</p>
+          <p className="truncate text-sm text-surface-500">{chat.userId?.email}</p>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          <Pill>{chat.messages?.length || 0} messages</Pill>
+          {chat.topic && <Pill tone="brand">{chat.topic}</Pill>}
+          {chat.auEarned > 0 && <Pill tone="accent">{chat.auEarned} AU used</Pill>}
+        </div>
+      </section>
 
-      <footer className="pt-12 border-t border-surface-100 text-center">
-        <p className="text-xs font-bold uppercase tracking-widest text-surface-400">End of Session Transcript</p>
-        <Link
-          href="/admin/chats"
-          className="mt-6 inline-flex items-center gap-2 px-8 py-4 bg-surface-900 dark:bg-surface-100 text-white rounded-2xl font-bold text-sm transition-all shadow-card shadow-surface-900/10 dark:shadow-black/20 border border-surface-800"
-        >
-          Return to History
-        </Link>
-      </footer>
+      {/* Transcript: same bubbles the learner saw */}
+      <section className={`${card} space-y-3 p-3 sm:p-4`}>
+        {chat.messages?.length ? (
+          chat.messages.map((msg, idx) => <MessageBubble key={msg._id || idx} message={msg} />)
+        ) : (
+          <EmptyState icon={MessagesSquare} title="No messages in this chat" />
+        )}
+        <div className="border-t border-surface-200 pt-3 text-center">
+          <p className="mb-2 text-sm text-surface-500">End of transcript</p>
+          <Link href="/admin/chats" className={greyBtn}>Back to all chats</Link>
+        </div>
+      </section>
     </div>
   );
 }

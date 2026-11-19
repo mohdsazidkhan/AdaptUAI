@@ -15,7 +15,7 @@
     --surface-100: 240 242 245;  /* grey field / button fill */
     --surface-200: 218 221 225;  /* #dadde1 borders */
     --surface-300: 206 208 212;  /* #ced0d4 */
-    --surface-400: 138 141 145;  /* #8a8d91 placeholders, meta */
+    --surface-400: 112 114 118;  /* #707276 placeholders, meta (4.8:1 on white) */
     --surface-500: 101 103 107;  /* #65676b secondary text */
     --surface-600: 101 103 107;
     --surface-700: 28 30 33;
@@ -29,8 +29,8 @@
     --brand-300: 168 214 141;
     --brand-400: 116 189 72;
     --brand-500: 62 164 1;       /* #3ea401 main buttons, active items */
-    --brand-600: 54 144 1;       /* hover, brand text */
-    --brand-700: 45 118 1;
+    --brand-600: 45 118 1;       /* #2d7601 brand text + hover: 5.6:1 on white, 4.9:1 on grey */
+    --brand-700: 36 95 1;
     --brand-900: 28 74 0;
 
     /* ocean / purple are old accent names: they follow the brand so no blue/violet shows up */
@@ -59,8 +59,8 @@
     --accent-200: 253 230 138;
     --accent-400: 251 191 36;
     --accent-500: 245 158 11;
-    --accent-600: 217 119 6;
-    --accent-700: 180 83 9;
+    --accent-600: 180 83 9;      /* #b45309 gold text: 5.0:1 on white */
+    --accent-700: 146 64 14;
 
     --ring: var(--brand-500);
     --radius: 8px;
@@ -76,7 +76,7 @@
     --surface-100: 58 59 60;     /* #3a3b3c fields / grey buttons */
     --surface-200: 62 64 66;     /* #3e4042 borders */
     --surface-300: 78 80 82;
-    --surface-400: 138 141 145;
+    --surface-400: 165 168 173;  /* placeholders / meta: readable on #3a3b3c fields too */
     --surface-500: 176 179 184;  /* #b0b3b8 */
     --surface-600: 176 179 184;
     --surface-700: 228 230 235;
@@ -185,6 +185,45 @@ html.sidebar-closed .app-sidebar {
 .app-content > :only-child > :last-child,
 main.app-content > * > :last-child {
   margin-bottom: 0 !important;
+}
+
+/* Table/list pages: the page fills the space under the navbar (and above the phone bottom nav);
+   header, stat cards and pagination keep their size, and only the .table-scroll box scrolls.
+   .table-page sits inside a padded wrapper (admin layout); .table-page.self-padded carries the
+   page padding itself (user pages). Sticky table headings live in the same scroll box. */
+.table-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: calc(100dvh - var(--navbar-h) - 24px - 56px);
+  min-height: 420px;
+}
+.table-page.self-padded {
+  height: calc(100dvh - var(--navbar-h) - 56px);
+}
+.table-page > * {
+  flex-shrink: 0;
+}
+.table-page > .table-scroll {
+  /* always fills the remaining height, even with one row (min height = available height) */
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow: auto;
+}
+.table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgb(var(--surface-100));
+}
+@media (min-width: 1024px) {
+  .table-page {
+    gap: 16px;
+    height: calc(100dvh - var(--navbar-h) - 32px);
+  }
+  .table-page.self-padded {
+    height: calc(100dvh - var(--navbar-h));
+  }
 }
 
 /* Smooth transitions */

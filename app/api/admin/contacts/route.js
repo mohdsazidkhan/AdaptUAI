@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongodb';
 import Contact from '@/models/Contact';
 import { getAuthUser } from '@/lib/auth';
+import { parseListQuery, paginationOf } from '@/lib/listQuery';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,30 +12,32 @@ async function requireAdmin(request) {
   return user?.role === 'admin' ? user : null;
 }
 
-const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/** GET /api/admin/contacts?page=1&limit=20&search=&status=all|unread|read */
+const CONTACT_SORTS = {
+  newest: { createdAt: -1 },
+  oldest: { createdAt: 1 },
+  name: { name: 1, createdAt: -1 },
+  unread: { isRead: 1, createdAt: -1 },
+};
+
+/** GET /api/admin/contacts?page=&limit=&search=&status=all|unread|read&range=24h|7d|30d|90d&sort=newest|oldest|name|unread */
 export async function GET(request) {
   try {
     if (!(await requireAdmin(request))) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     await dbConnect();
 
-    const { searchParams } = new URL(request.url);
-    const page = Math.max(parseInt(searchParams.get('page'), 10) || 1, 1);
-    const limit = Math.min(Math.max(parseInt(searchParams.get('limit'), 10) || 20, 1), 100);
-    const search = (searchParams.get('search') || '').trim();
-    const status = searchParams.get('status') || 'all';
+    const q = parseListQuery(request, { sorts: CONTACT_SORTS, defaultSort: 'newest' });
+    const { page, limit } = q;
+    const status = q.sp.get('status') || 'all';
 
     const filter = {};
     if (status === 'unread') filter.isRead = false;
     if (status === 'read') filter.isRead = true;
-    if (search) {
-      const rx = new RegExp(escapeRegex(search), 'i');
-      filter.$or = [{ name: rx }, { email: rx }, { subject: rx }, { message: rx }];
-    }
+    if (q.from) filter.createdAt = { $gte: q.from };
+    if (q.searchRx) filter.$or = [{ name: q.searchRx }, { email: q.searchRx }, { subject: q.searchRx }, { message: q.searchRx }];
 
     const [contacts, total, unread] = await Promise.all([
-      Contact.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+      Contact.find(filter).sort(q.sort).skip(q.skip).limit(limit).lean(),
       Contact.countDocuments(filter),
       Contact.countDocuments({ isRead: false }),
     ]);
@@ -43,7 +46,7 @@ export async function GET(request) {
       success: true,
       contacts,
       unread,
-      pagination: { page, limit, total, totalPages: Math.max(Math.ceil(total / limit), 1) },
+      pagination: { ...paginationOf(page, limit, total), totalPages: Math.max(Math.ceil(total / limit), 1) },
     });
   } catch (error) {
     console.error('[GET /api/admin/contacts] Error:', error);

@@ -1,38 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { MessagesSquare, ChevronRight, SquarePen } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
-import Card from '@/components/Card';
 import { PageLoader } from '@/components/Loader';
+import { PageHeader, SearchField, Pill, EmptyState, card, brandBtn, fmtDateTime } from '@/components/admin/ui';
 
 export default function ChatHistoryPage() {
   const router = useRouter();
   const [chats, setChats] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [profileRes, chatsRes] = await Promise.all([
-          fetch('/api/user/profile'),
-          fetch('/api/user/chats')
-        ]);
-
+        const [profileRes, chatsRes] = await Promise.all([fetch('/api/user/profile'), fetch('/api/user/chats')]);
         if (profileRes.status === 401) {
           router.push('/auth/login?callbackUrl=/user/chats');
           return;
         }
-
-        const [profileData, chatsData] = await Promise.all([
-          profileRes.json(),
-          chatsRes.json()
-        ]);
-
+        const [profileData, chatsData] = await Promise.all([profileRes.json(), chatsRes.json()]);
         if (profileData.success) setUser(profileData.user);
-        if (chatsData.success) setChats(chatsData.chats);
+        if (chatsData.success) setChats(chatsData.chats || []);
       } catch (err) {
         console.error('Failed to fetch chat history:', err);
       } finally {
@@ -40,17 +33,12 @@ export default function ChatHistoryPage() {
       }
     }
     fetchData();
-  }, []);
+  }, [router]);
 
-  const formatDate = (dateStr) => {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return q ? chats.filter((c) => [c.title, c.topic, c.preview].some((v) => v?.toLowerCase().includes(q))) : chats;
+  }, [chats, query]);
 
   if (loading) return <PageLoader />;
 
@@ -59,71 +47,50 @@ export default function ChatHistoryPage() {
       <Sidebar user={user} />
 
       <main className="flex-1 min-w-0 lg:ml-sidebar pt-navbar *:mx-auto *:w-full *:max-w-page *:p-3 lg:*:p-4 app-content">
-        <div className="animate-fade-in">
-          <header className="mb-3 lg:mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-xl lg:text-3xl font-bold text-surface-900">Recent Chats</h1>
-              <div className="flex items-center gap-3 mt-1">
-                <p className="text-surface-500 font-semibold">
-                  Your historical learning sessions
-                </p>
-                <span className="text-surface-300">•</span>
-                <Link href="/user/transactions" className="text-xs font-bold uppercase text-brand-600 hover:text-brand-700 hover:underline tracking-widest flex items-center gap-1">
-                  <span>📜</span> Transaction History
-                </Link>
-              </div>
-            </div>
-            <Link href="/user/chat">
-              <button className="px-6 py-3 bg-brand-500 text-white rounded-xl font-bold shadow-card transition-all text-sm">
-                + Start New Chat
-              </button>
-            </Link>
-          </header>
+        <div className="table-page self-padded animate-fade-in">
+          <PageHeader
+            title="Recent Chats"
+            count={chats.length}
+            search={<SearchField value={query} onChange={setQuery} placeholder="Search your chats" label="Search chats" />}
+            actions={<Link href="/user/chat" className={brandBtn}><SquarePen className="h-4 w-4" /> New chat</Link>}
+          />
 
-          {chats.length === 0 ? (
-            <Card className="text-center py-16 border-dashed border border-surface-200 bg-surface-100/30">
-              <div className="text-5xl mb-4 grayscale opacity-50">🦉</div>
-              <h3 className="text-xl font-bold text-surface-900 mb-2">No Chat History Found</h3>
-              <p className="text-surface-500 font-medium mb-3 lg:mb-4">Ready to start your first session?</p>
-              <Link href="/user/chat">
-                <button className="px-8 py-4 bg-brand-500 text-white rounded-xl font-bold shadow-card hover:shadow-card transition-all">
-                  Let's Begin 🚀
-                </button>
-              </Link>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {chats.map((chat) => (
-                <Card key={chat.sessionId} padding="none" className="overflow-hidden group hover:border-brand-300 transition-all">
-                  <Link href={`/user/chat?sessionId=${chat.sessionId}`} className="flex items-stretch">
-                    <div className="w-16 bg-surface-100 flex flex-col items-center justify-center border-r border-surface-200 group-hover:bg-brand-50 group-hover:border-brand-200 transition-colors">
-                      <span className="text-2xl mb-1">🦉</span>
-                      <span className="text-xs font-bold text-surface-400 group-hover:text-brand-500">{chat.messageCount}</span>
-                    </div>
-
-                    <div className="flex-1 p-5">
-                      <div className="flex justify-between items-start mb-1">
-                        <h4 className="font-bold text-surface-900 group-hover:text-brand-700 transition-colors">
-                          {chat.title}
-                        </h4>
-                        <span className="text-xs font-bold text-surface-400 uppercase tracking-widest whitespace-nowrap ml-4">
-                          {formatDate(chat.updatedAt)}
-                        </span>
+          <section className={`${card} table-scroll`}>
+            {shown.length === 0 ? (
+              query ? (
+                <EmptyState icon={MessagesSquare} title="No chats match your search" text="Try another word from the title or topic." />
+              ) : (
+                <div className="flex min-h-full flex-col items-center justify-center gap-3 px-4 py-12 text-center">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-3xl">🦉</span>
+                  <p className="font-semibold text-surface-900">No chats yet</p>
+                  <p className="text-sm text-surface-500">Ready to start your first session?</p>
+                  <Link href="/user/chat" className={brandBtn}>Start learning</Link>
+                </div>
+              )
+            ) : (
+              <ul className="divide-y divide-surface-200">
+                {shown.map((chat) => (
+                  <li key={chat.sessionId}>
+                    <Link href={`/user/chat?sessionId=${chat.sessionId}`} className="flex items-center gap-3 p-3 transition-colors hover:bg-surface-100 sm:p-4">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500/15 text-brand-600">
+                        <MessagesSquare className="h-5 w-5" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[15px] font-semibold text-surface-900">{chat.title || 'Untitled chat'}</p>
+                        {chat.preview && <p className="truncate text-sm text-surface-500">{chat.preview}</p>}
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                          <Pill>{chat.messageCount || 0} messages</Pill>
+                          {chat.topic && chat.topic !== chat.title && <Pill tone="brand">{chat.topic}</Pill>}
+                          <span className="text-xs text-surface-500">{fmtDateTime(chat.updatedAt)}</span>
+                        </div>
                       </div>
-                      <p className="text-xs text-surface-500 line-clamp-1 font-medium">"{chat.preview}"
-                      </p>
-                    </div>
-
-                    <div className="px-6 flex items-center justify-center bg-surface-50 group-hover:bg-brand-500 transition-colors">
-                      <svg className="w-5 h-5 text-brand-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </Link>
-                </Card>
-              ))}
-            </div>
-          )}
+                      <ChevronRight className="h-5 w-5 shrink-0 text-surface-500" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </div>
       </main>
     </div>

@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Moon, Sun, LogOut, Coins, ChevronRight } from 'lucide-react';
+import { Menu, X, Moon, Sun, LogOut, Coins, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { usePageFilters, pageFilters } from '@/lib/pageFilters';
 import { useTheme } from './ThemeProvider';
 import api from '@/lib/api';
 import { navFor, homeFor, isActivePath, avatarFor } from '@/lib/navItems';
@@ -61,7 +62,10 @@ export default function Navbar({ user }) {
     document.addEventListener('keydown', onKey);
     return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
   }, [menuOpen]);
-  useEffect(() => { setDrawerOpen(false); setMenuOpen(false); }, [pathname]);
+  useEffect(() => { setDrawerOpen(false); setMenuOpen(false); pageFilters.close(); }, [pathname]);
+  // Phones/tablets: pages with filters show a Filters button that opens a right-side drawer.
+  const filters = usePageFilters();
+  const hasFilters = filters.count > 0;
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -138,6 +142,18 @@ export default function Navbar({ user }) {
               </Link>
             )}
 
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={pageFilters.toggle}
+                className={`${roundBtn} lg:hidden ${filters.open ? 'bg-brand-500/15 text-brand-600' : ''}`}
+                aria-label="Search and filters"
+                aria-expanded={filters.open}
+                title="Search and filters"
+              >
+                <SlidersHorizontal className="h-5 w-5" />
+              </button>
+            )}
             <button type="button" onClick={toggleTheme} className={roundBtn} aria-label="Toggle theme" title="Toggle theme">
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
@@ -206,6 +222,29 @@ export default function Navbar({ user }) {
           </div>
         </div>
       </header>
+
+      {/* Filters drawer (right, phones/tablets). Always mounted so pages can portal into the slot. */}
+      <div className={`fixed inset-0 z-[100] lg:hidden ${filters.open && hasFilters ? 'visible' : 'invisible'}`} aria-hidden={!(filters.open && hasFilters)}>
+        <div
+          className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${filters.open ? 'opacity-100' : 'opacity-0'}`}
+          onClick={pageFilters.close}
+        />
+        <aside
+          role="dialog"
+          aria-label="Search and filters"
+          className={`absolute inset-y-0 right-0 flex w-[320px] max-w-[88vw] flex-col bg-surface-50 shadow-menu transition-transform duration-300 ease-out ${filters.open ? 'translate-x-0' : 'translate-x-full'}`}
+        >
+          <div className="flex h-navbar shrink-0 items-center justify-between border-b border-surface-200 px-3">
+            <p className="flex items-center gap-2 text-lg font-bold text-surface-900">
+              <SlidersHorizontal className="h-5 w-5 text-brand-500" /> Filters
+            </p>
+            <button type="button" onClick={pageFilters.close} className={roundBtn} aria-label="Close filters">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div ref={pageFilters.setSlot} className="flex-1 space-y-3 overflow-y-auto p-3" />
+        </aside>
+      </div>
 
       {/* Mobile drawer (left) */}
       <div className={`fixed inset-0 z-[100] ${drawerOpen ? 'visible' : 'invisible'}`} aria-hidden={!drawerOpen}>

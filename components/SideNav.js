@@ -33,7 +33,7 @@ export default function SideNav({ user, items, subtitle, profileHref, children }
               key={href}
               href={href}
               aria-current={active ? 'page' : undefined}
-              className={`flex items-center gap-3 rounded-lg p-2 text-[15px] font-medium transition-colors ${active ? 'bg-brand-500 text-white' : 'text-surface-900 hover:bg-surface-100'}`}
+              className={`flex items-center gap-3 rounded-lg p-2 text-[15px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 ${active ? 'bg-brand-500 text-white' : 'text-surface-900 hover:bg-surface-100'}`}
             >
               <span className={`flex h-9 w-9 items-center justify-center rounded-full ${active ? 'bg-white/20' : 'bg-surface-100'}`}>
                 <Icon className="h-5 w-5" />

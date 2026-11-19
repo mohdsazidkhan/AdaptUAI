@@ -1,173 +1,98 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Card from '@/components/Card';
-import { PageLoader } from '@/components/Loader';
-import api from '@/lib/api';
+import { ArrowLeftRight, Coins, Flame, Wallet, Receipt, RefreshCw } from 'lucide-react';
+import { avatarFor } from '@/lib/navItems';
+import { PageHeader, SearchField, StatCard, Pill, IconButton, fmtDateTime } from '@/components/admin/ui';
+import DataView, { SelectField, ViewToggle, Pagination } from '@/components/admin/DataView';
+import { useAdminList, useViewMode } from '@/components/admin/useAdminList';
+
+const SORTS = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'oldest', label: 'Oldest' },
+  { value: 'amount_high', label: 'Amount high–low' },
+  { value: 'amount_low', label: 'Amount low–high' },
+];
+const TYPES = [
+  { value: 'all', label: 'All' },
+  { value: 'SPEND', label: 'Spend' },
+  { value: 'RECHARGE', label: 'Recharge' },
+];
+const RANGES = [
+  { value: 'all', label: 'Any time' },
+  { value: '24h', label: 'Last 24 hours' },
+  { value: '7d', label: 'Last 7 days' },
+  { value: '30d', label: 'Last 30 days' },
+  { value: '90d', label: 'Last 90 days' },
+];
+
+const TypePill = ({ type }) => (type === 'RECHARGE' ? <Pill tone="brand">Recharge</Pill> : <Pill tone="coral">Spend</Pill>);
+const Amount = ({ t }) => {
+  const plus = t.type === 'RECHARGE';
+  return <span className={`whitespace-nowrap font-semibold ${plus ? 'text-brand-600' : 'text-coral-600'}`}>{plus ? '+' : '−'}{t.amount} AU</span>;
+};
 
 export default function AdminTransactions() {
-  const [transactions, setTransactions] = useState([]);
-  const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
-  const [stats, setStats] = useState({ totalSpent: 0, totalRecharged: 0 });
-  const [loading, setLoading] = useState(true);
+  const list = useAdminList('/admin/transactions', { sort: 'newest', type: 'all', range: 'all' });
+  const [view, setView] = useViewMode('admin-transactions');
+  const transactions = list.data?.transactions || [];
+  const stats = list.data?.stats || {};
+  const total = list.data?.pagination?.total ?? 0;
+  const v = (n) => (list.data ? n ?? 0 : '…');
 
-  async function fetchTransactions(page = 1) {
-    setLoading(true);
-    try {
-      const response = await api.get(`/admin/transactions?page=${page}&limit=50`);
-      setTransactions(response.transactions);
-      setPagination(response.pagination);
-      setStats(response.stats || { totalSpent: 0, totalRecharged: 0 });
-    } catch (err) {
-      console.error('Failed to fetch admin transactions:', err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
-
-  if (loading && transactions.length === 0) return <PageLoader />;
+  const columns = [
+    {
+      key: 'user', header: 'User', primary: true,
+      render: (t) => (
+        <div className="flex min-w-0 items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={avatarFor(t.userId)} alt="" className="h-10 w-10 shrink-0 rounded-full bg-surface-100 object-cover" />
+          <div className="min-w-0">
+            <p className="truncate font-semibold text-surface-900">{t.userId?.name || 'Unknown'}</p>
+            <p className="truncate text-xs text-surface-500">{t.userId?.email || 'N/A'}</p>
+          </div>
+        </div>
+      ),
+    },
+    { key: 'type', header: 'Type', render: (t) => <TypePill type={t.type} /> },
+    { key: 'amount', header: 'Amount', render: (t) => <Amount t={t} /> },
+    { key: 'description', header: 'Description', className: 'max-w-xs', render: (t) => <span className="block truncate text-surface-500" title={t.description}>{t.description}</span> },
+    { key: 'date', header: 'Date', className: 'whitespace-nowrap text-surface-500', render: (t) => fmtDateTime(t.createdAt) },
+  ];
 
   return (
-    <div className="">
-      <header className="mb-3 lg:mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3 lg:gap-4 border-b border-surface-100 pb-8">
-        <div>
-          <h1 className="text-xl lg:text-3xl font-bold text-surface-900 flex items-center gap-3">
-            <span className="p-2 bg-coral-500 text-white rounded-xl text-xl shadow-card">📜</span>
-            Transaction Ledger
-          </h1>
-          <p className="text-surface-500 font-bold mt-2 ml-1">Global audit of all system AU token movement</p>
-        </div>
+    <div className="table-page">
+      <PageHeader
+        title="Transactions"
+        count={total}
+        search={<SearchField value={list.searchInput} onChange={list.setSearchInput} placeholder="Search name, email or description" label="Search transactions" />}
+        filters={<>
+        <SelectField label="Type" value={list.params.type} onChange={(val) => list.set({ type: val })} options={TYPES} />
+        <SelectField label="Date" value={list.params.range} onChange={(val) => list.set({ range: val })} options={RANGES} />
+          <SelectField label="Sort" value={list.params.sort} onChange={(val) => list.set({ sort: val })} options={SORTS} /><ViewToggle view={view} onChange={setView} />
+        </>}
+        actions={<IconButton icon={RefreshCw} label="Refresh" onClick={list.reload} />}
+      />
 
-        <div className="flex flex-wrap items-center gap-4 md:gap-3 lg:gap-4 bg-surface-50 dark:bg-surface-50 border border-surface-200 p-4 rounded-2xl">
-          <div className="min-w-[100px]">
-            <p className="text-xs font-bold text-surface-400 dark:text-surface-500 uppercase tracking-widest mb-1 leading-none">Total Records</p>
-            <p className="text-xl font-bold text-surface-900 leading-none">{pagination.total}</p>
-          </div>
-          <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
-          <div className="min-w-[100px]">
-            <p className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1 leading-none">Total AU Tokens</p>
-            <p className="text-xl font-bold text-purple-900 dark:text-purple-100 leading-none">{stats.totalRecharged}</p>
-          </div>
-          <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
-          <div className="min-w-[100px]">
-            <p className="text-xs font-bold text-coral-600 dark:text-coral-400 uppercase tracking-widest mb-1 leading-none">Total AU Used</p>
-            <p className="text-xl font-bold text-coral-900 dark:text-coral-100 leading-none">{stats.totalSpent}</p>
-          </div>
-          <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
-          <div className="min-w-[100px]">
-            <p className="text-xs font-bold text-accent-600 dark:text-accent-400 uppercase tracking-widest mb-1 leading-none">Total AU Left</p>
-            <p className="text-xl font-bold text-accent-900 dark:text-accent-100 leading-none">{stats.totalLeft}</p>
-          </div>
-        </div>
-      </header>
-
-      <div className="w-full">
-        {/* Desktop Transaction Table */}
-        <Card padding="none" className="hidden md:block overflow-hidden border-surface-200">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-surface-50 dark:bg-surface-100/50 border-b border-surface-200 dark:border-surface-800">
-                <tr>
-                  <th className="px-0 lg:px-6 py-4 text-xs font-bold text-surface-400 uppercase tracking-widest">User</th>
-                  <th className="px-0 lg:px-6 py-4 text-xs font-bold text-surface-400 uppercase tracking-widest">Type</th>
-                  <th className="px-0 lg:px-6 py-4 text-xs font-bold text-surface-400 uppercase tracking-widest">Amount</th>
-                  <th className="px-0 lg:px-6 py-4 text-xs font-bold text-surface-400 uppercase tracking-widest">Description</th>
-                  <th className="px-0 lg:px-6 py-4 text-xs font-bold text-surface-400 uppercase tracking-widest">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-surface-100">
-                {transactions.map((t) => (
-                  <tr key={t._id} className="hover:bg-surface-50 dark:hover:bg-surface-100/30 transition-colors group">
-                    <td className="px-0 lg:px-6 py-4">
-                      <div>
-                        <p className="font-bold text-surface-900">{t.userId?.name || 'Unknown'}</p>
-                        <p className="text-xs text-surface-400 dark:text-surface-500">{t.userId?.email || 'N/A'}</p>
-                      </div>
-                    </td>
-                    <td className="px-0 lg:px-6 py-4">
-                      <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${t.type === 'RECHARGE'
-                        ? 'bg-brand-500/15  text-brand-600 dark:text-brand-600 border border-transparent '
-                        : 'bg-coral-50 dark:bg-coral-900/20 text-coral-600 dark:text-coral-400 border border-coral-200 dark:border-coral-500/20'
-                        }`}>
-                        {t.type === 'RECHARGE' ? '⚡ Recharge' : '🪙 Spend'}
-                      </span>
-                    </td>
-                    <td className="px-0 lg:px-6 py-4 font-bold text-sm">
-                      {t.type === 'RECHARGE' ? '+' : '-'}{t.amount} AU
-                    </td>
-                    <td className="px-0 lg:px-6 py-4 text-sm text-surface-500 max-w-xs truncate">
-                      {t.description}
-                    </td>
-                    <td className="px-0 lg:px-6 py-4 text-xs text-surface-400">
-                      {new Date(t.createdAt).toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-
-        {/* Mobile Transaction List Grid */}
-        <div className="md:hidden flex flex-col gap-4">
-          {transactions.map((t) => (
-            <Card key={t._id} padding="md" className="border-surface-200 flex flex-col gap-3">
-              <div className="flex items-start justify-between border-b border-surface-100 pb-3">
-                <div className="flex flex-col">
-                  <span className={`w-fit px-2 py-0.5 rounded text-xs font-bold uppercase mb-2 ${t.type === 'RECHARGE'
-                    ? 'bg-brand-500/15  text-brand-600 dark:text-brand-600 border border-transparent '
-                    : 'bg-coral-50 dark:bg-coral-900/20 text-coral-600 dark:text-coral-400 border border-coral-200 dark:border-coral-500/20'
-                    }`}>
-                    {t.type === 'RECHARGE' ? '⚡ Recharge' : '🪙 Spend'}
-                  </span>
-                  <p className="font-bold text-surface-900 leading-tight">{t.userId?.name || 'Unknown'}</p>
-                  <p className="text-xs text-surface-400 dark:text-surface-500">{t.userId?.email || 'N/A'}</p>
-                </div>
-                <div className="text-right flex flex-col items-end">
-                  <p className="font-bold text-sm text-surface-900">
-                    {t.type === 'RECHARGE' ? '+' : '-'}{t.amount} AU
-                  </p>
-                  <p className="text-xs font-bold text-surface-400 dark:text-surface-500 mt-1">
-                    {new Date(t.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <p className="text-xs font-semibold text-surface-500 dark:text-surface-400 leading-snug">
-                {t.description}
-              </p>
-            </Card>
-          ))}
-        </div>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+        <StatCard icon={Receipt} label="Records found" value={v(total)} tone="grey" />
+        <StatCard icon={Coins} label="Total AU issued" value={v(stats.totalRecharged)} />
+        <StatCard icon={Flame} label="Total AU used" value={v(stats.totalSpent)} tone="coral" />
+        <StatCard icon={Wallet} label="AU left with users" value={v(stats.totalLeft)} tone="accent" />
       </div>
 
-      {/* Pagination Controls */}
-      {pagination.pages > 1 && (
-        <div className="mt-6 flex items-center justify-between">
-          <p className="text-sm text-surface-500">
-            Showing <span className="font-bold">{(pagination.page - 1) * 50 + 1}</span> to <span className="font-bold">{Math.min(pagination.page * 50, pagination.total)}</span> of <span className="font-bold">{pagination.total}</span>
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => fetchTransactions(pagination.page - 1)}
-              disabled={pagination.page <= 1}
-              className="px-4 py-2 bg-surface-100 hover:bg-surface-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-bold transition-all"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => fetchTransactions(pagination.page + 1)}
-              disabled={pagination.page >= pagination.pages}
-              className="px-4 py-2 bg-surface-100 hover:bg-surface-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-bold transition-all"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
+
+      <section className="fb-card table-scroll">
+        <DataView
+          view={view}
+          columns={columns}
+          rows={transactions}
+          rowKey={(t) => t._id}
+          loading={list.loading}
+          empty={{ icon: ArrowLeftRight, title: list.params.search ? 'No transactions match your search' : 'No transactions found', text: 'Try changing the filters.' }}
+        />
+      </section>
+
+      <Pagination pagination={list.data?.pagination} onPage={(p) => list.set({ page: p })} onLimit={(l) => list.set({ limit: l })} />
     </div>
   );
 }

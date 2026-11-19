@@ -2,17 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Card from '@/components/Card';
-import Button from '@/components/Button';
-import { PageLoader } from '@/components/Loader';
+import Link from 'next/link';
+import { ShieldCheck, LayoutDashboard, Users, Check } from 'lucide-react';
 import api from '@/lib/api';
 import { toast } from 'react-toastify';
+import { avatarFor } from '@/lib/navItems';
+import { PageHeader, Pill, ListSkeleton, card, greyBtn, brandBtn, fmtDateTime } from '@/components/admin/ui';
+
+const field =
+  'h-11 w-full rounded-lg border border-transparent bg-surface-100 px-4 text-[15px] text-surface-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15 disabled:cursor-not-allowed disabled:text-surface-500';
 
 export default function AdminProfilePage() {
   const router = useRouter();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [name, setName] = useState('');
 
   useEffect(() => {
     async function fetchProfile() {
@@ -23,9 +28,10 @@ export default function AdminProfilePage() {
           return;
         }
         setData(response.user);
+        setName(response.user.name || '');
       } catch (err) {
         console.error('Failed to fetch admin profile:', err);
-        toast.error('⚠️ Could not load profile data.');
+        toast.error('Could not load profile data.');
       } finally {
         setLoading(false);
       }
@@ -33,163 +39,96 @@ export default function AdminProfilePage() {
     fetchProfile();
   }, [router]);
 
-  const handleUpdate = async (fields) => {
+  const saveName = async (e) => {
+    e?.preventDefault();
+    const next = name.trim();
+    if (!next || next === data?.name) return;
     setSaving(true);
     try {
-      const response = await api.patch('/admin/profile', fields);
-      setData(prev => ({ ...prev, ...response.user }));
-      toast.success('Admin profile updated! ✨');
+      const response = await api.patch('/admin/profile', { name: next });
+      setData((prev) => ({ ...prev, ...response.user }));
+      toast.success('Profile updated');
     } catch (err) {
       console.error('Failed to update profile:', err);
-      toast.error('⚠️ Failed to save settings.');
+      toast.error('Failed to save settings.');
     } finally {
       setSaving(false);
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  if (loading) return <PageLoader />;
+  if (loading) {
+    return (
+      <div className="space-y-3 lg:space-y-4">
+        <PageHeader title="Admin Profile" />
+        <section className={card}><ListSkeleton rows={3} /></section>
+      </div>
+    );
+  }
 
   return (
-    <div className="">
-      <header className="mb-3 lg:mb-4 pl-1">
-        <h1 className="text-xl lg:text-3xl font-bold text-surface-900 flex items-center gap-3">
-          <span className="p-2 bg-brand-500 text-white rounded-xl text-xl shadow-card">👤</span>
-          Admin Identity
-        </h1>
-        <p className="text-surface-500 font-bold mt-2 ml-1">System-level account management and metadata</p>
-      </header>
+    <div className="space-y-3 lg:space-y-4">
+      <PageHeader title="Admin Profile" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4 pb-12">
-        {/* Profile Card */}
-        <div className="lg:col-span-1 space-y-3 lg:space-y-4">
-          <Card padding="lg" className="text-center bg-brand-50/5 dark:bg-brand-900/5 border-brand-100/30 overflow-hidden relative">
-            <div className="relative inline-block mb-3 mt-4">
-              <img
-                src={data?.avatarUrl || `https://api.dicebear.com/8.x/fun-emoji/svg?seed=${encodeURIComponent(data?.name || 'admin')}`}
-                alt={data?.name}
-                className="w-16 lg:w-32 h-16 lg:h-32 rounded-xl lg:rounded-3xl bg-surface-100 border-4 border-surface-200 dark:border-surface-800 shadow-card mx-auto object-cover transition-transform"
-              />
-              <div className="absolute -bottom-2 -right-2 bg-brand-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold border border-surface-50 dark:border-surface-900 shadow-card uppercase antialiased">
-                🛡️ Root Admin
-              </div>
+      <div className="grid gap-3 lg:grid-cols-3 lg:gap-4">
+        <div className="space-y-3 lg:space-y-4">
+          <section className={`${card} flex flex-col items-center p-4 text-center`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={avatarFor(data)} alt="" className="h-24 w-24 rounded-full bg-surface-100 object-cover" />
+            <h2 className="mt-3 text-xl font-bold text-surface-900">{data?.name}</h2>
+            <p className="text-sm text-surface-500">{data?.email}</p>
+            <Pill tone="brand" className="mt-2"><ShieldCheck className="h-3.5 w-3.5" /> Root admin</Pill>
+          </section>
+
+          <section className={`${card} space-y-3 p-4`}>
+            <h3 className="font-semibold text-surface-900">System metadata</h3>
+            <div>
+              <p className="text-xs text-surface-500">Account ID</p>
+              <p className="truncate rounded-lg bg-surface-100 px-3 py-2 font-mono text-xs text-surface-900">{data?.id || data?._id || '–'}</p>
             </div>
-
-            <h2 className="text-2xl font-bold text-surface-900 mt-4 leading-tight">{data?.name}</h2>
-            <p className="text-sm text-surface-500 font-bold mb-3">{data?.email}</p>
-
-            <div className="flex flex-col gap-2 w-full pt-4 border-t border-surface-100">
-              <div className="flex justify-between items-center px-4 py-2 bg-surface-50 rounded-xl border border-surface-100">
-                <span className="text-xs font-bold uppercase text-surface-400 tracking-widest">AU Balance</span>
-                <span className="text-xs font-bold text-brand-600">{data?.au} AU</span>
-              </div>
-              <div className="flex justify-between items-center px-4 py-2 bg-surface-50 rounded-xl border border-surface-100">
-                <span className="text-xs font-bold uppercase text-surface-400 tracking-widest">Current Streak</span>
-                <span className="text-xs font-bold text-coral-600">{data?.streak} Days</span>
-              </div>
-            </div>
-          </Card>
-
-          <Card title="System Metadata" padding="lg">
-            <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <p className="text-xs font-bold uppercase text-surface-400 tracking-widest mb-1.5 ml-1">Account Unique ID</p>
-                <p className="text-xs font-mono font-bold text-surface-600 bg-surface-100 p-2.5 rounded-xl truncate border border-surface-200">
-                  {data?.id}
-                </p>
-              </div>
-              <div className="pt-2 border-t border-surface-100 dark:border-surface-100/5">
-                <p className="text-xs font-bold uppercase text-surface-400 tracking-widest mb-1 ml-1">Created On</p>
-                <p className="text-xs font-bold text-surface-700 dark:text-surface-300 ml-1">
-                  {formatDate(data?.createdAt)}
-                </p>
+                <p className="text-xs text-surface-500">Created</p>
+                <p className="text-sm font-medium text-surface-900">{fmtDateTime(data?.createdAt)}</p>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase text-surface-400 tracking-widest mb-1 ml-1">Last Active</p>
-                <p className="text-xs font-bold text-surface-700 dark:text-surface-300 ml-1">
-                  {formatDate(data?.lastActiveDate)}
-                </p>
+                <p className="text-xs text-surface-500">Last active</p>
+                <p className="text-sm font-medium text-surface-900">{fmtDateTime(data?.lastActiveDate)}</p>
               </div>
             </div>
-          </Card>
+          </section>
         </div>
 
-        {/* Settings Column */}
-        <div className="lg:col-span-2 space-y-3 lg:space-y-4">
-          <Card padding="lg" title="Profile Configuration" className="relative h-full">
-            {saving && (
-              <div className="absolute top-6 right-8 flex items-center gap-2 px-3 py-1 bg-brand-50 dark:bg-brand-900/20 rounded-full border border-brand-100 dark:border-brand-500/20">
-                <span className="w-2 h-2 bg-brand-500 rounded-full animate-pulse" />
-                <span className="text-xs font-bold text-brand-500 uppercase tracking-widest">Saving Changes</span>
-              </div>
-            )}
-
-            <div className="space-y-3 lg:space-y-4 mt-4">
-              <div>
-                <label className="block text-xs font-bold text-surface-400 uppercase tracking-widest mb-2.5 px-1 ml-1">Full Name</label>
-                <input
-                  type="text"
-                  defaultValue={data?.name}
-                  onBlur={(e) => {
-                    if (e.target.value && e.target.value !== data?.name) handleUpdate({ name: e.target.value });
-                  }}
-                  className="w-full px-5 py-3.5 bg-surface-100 border border-surface-200 rounded-2xl focus:border-brand-500 focus:outline-none transition-all font-bold text-surface-800 dark:text-surface-900 text-sm"
-                  placeholder="Enter admin name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-surface-400 uppercase tracking-widest mb-2.5 px-1 ml-1">Account Email</label>
-                <input
-                  type="email"
-                  value={data?.email}
-                  disabled
-                  className="w-full px-5 py-3.5 bg-surface-200/50 border border-surface-200 rounded-2xl font-bold text-surface-400 dark:text-surface-500 text-sm cursor-not-allowed"
-                />
-                <p className="mt-2 text-xs text-surface-400 font-bold ml-2">Email changes must be requested through system support </p>
-              </div>
-
-              <div className="p-3 sm:p-4 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-500/20 rounded-2xl">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-brand-100 dark:bg-brand-800 rounded-xl text-xl">🛡️</div>
-                  <h4 className="text-sm font-bold text-brand-900 dark:text-brand-400 uppercase tracking-widest leading-none">Administrative Credentials</h4>
-                </div>
-                <p className="text-xs text-brand-700 dark:text-brand-300 font-bold leading-relaxed opacity-90">
-                  Your identity is part of the core management team. Profile updates here are reflected across the system-wide activity logs. Ensure your name matches your organizational records.
-                </p>
-              </div>
-
-              <div className="pt-8 border-t border-surface-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Button
-                  variant="outline"
-                  fullWidth
-                  onClick={() => router.push('/admin/dashboard')}
-                  className="text-xs font-bold uppercase tracking-widest py-4 border hover:bg-surface-100"
-                >
-                  ← System Dashboard
-                </Button>
-                <Button
-                  variant="primary"
-                  fullWidth
-                  onClick={() => router.push('/admin/users')}
-                  className="text-xs font-bold uppercase tracking-widest py-4 shadow-card"
-                >
-                  Manage System Users →
-                </Button>
+        <section className={`${card} p-4 lg:col-span-2`}>
+          <h3 className="text-lg font-bold text-surface-900">Profile <span className="text-brand-500">settings</span></h3>
+          <form onSubmit={saveName} className="mt-3 space-y-3">
+            <div>
+              <label htmlFor="admin-name" className="mb-1 block text-sm font-semibold text-surface-900">Full name</label>
+              <div className="flex gap-2">
+                <input id="admin-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} className={field} placeholder="Admin name" />
+                <button type="submit" disabled={saving || !name.trim() || name.trim() === data?.name} className={`${brandBtn} h-11 shrink-0`}>
+                  <Check className="h-4 w-4" /> {saving ? 'Saving…' : 'Save'}
+                </button>
               </div>
             </div>
-          </Card>
-        </div>
+            <div>
+              <label htmlFor="admin-email" className="mb-1 block text-sm font-semibold text-surface-900">Account email</label>
+              <input id="admin-email" type="email" value={data?.email || ''} disabled className={field} />
+              <p className="mt-1 text-xs text-surface-500">Email changes must be requested through system support.</p>
+            </div>
+          </form>
+
+          <div className="mt-4 flex gap-3 rounded-lg bg-brand-500/15 p-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
+            <p className="text-sm text-surface-900">
+              This account manages the whole system. Name changes show up in admin activity, so keep it matching your records.
+            </p>
+          </div>
+
+          <div className="mt-4 grid gap-2 border-t border-surface-200 pt-4 sm:grid-cols-2">
+            <Link href="/admin/dashboard" className={`${greyBtn} h-11`}><LayoutDashboard className="h-4 w-4" /> Dashboard</Link>
+            <Link href="/admin/users" className={`${brandBtn} h-11`}><Users className="h-4 w-4" /> Manage users</Link>
+          </div>
+        </section>
       </div>
     </div>
   );
