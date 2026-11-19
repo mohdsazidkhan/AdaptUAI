@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongodb';
 import Contact from '@/models/Contact';
+import Notification from '@/models/Notification';
 import { getAuthUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -41,7 +42,20 @@ export async function POST(request) {
     const auth = await getAuthUser(request).catch(() => null);
     const userId = auth?.userId && mongoose.isValidObjectId(auth.userId) ? auth.userId : null;
 
-    await Contact.create({ name, email, subject, message, userId });
+    const contact = await Contact.create({ name, email, subject, message, userId });
+
+    // Admin bell: one notification per new message. A failure here must not fail the form.
+    try {
+      await Notification.create({
+        type: 'contact',
+        title: `New message from ${name}`,
+        body: subject,
+        link: '/admin/contacts',
+        contactId: contact._id,
+      });
+    } catch (notifyError) {
+      console.error('[POST /api/contact] Notification failed:', notifyError.message);
+    }
 
     return NextResponse.json({ success: true, message: 'Message sent successfully.' }, { status: 201 });
   } catch (error) {

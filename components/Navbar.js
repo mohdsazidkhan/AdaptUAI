@@ -5,19 +5,20 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { Menu, X, Moon, Sun, LogOut, Coins, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { usePageFilters, pageFilters } from '@/lib/pageFilters';
+import NotificationBell from './NotificationBell';
 import { useTheme } from './ThemeProvider';
 import api from '@/lib/api';
 import { navFor, homeFor, isActivePath, avatarFor } from '@/lib/navItems';
 
 // Round grey icon button used for every header action (Facebook style).
 const roundBtn =
-  'flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-100 text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500';
+  'flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-surface-100 text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500';
 
 export function Logo({ href = '/', onClick }) {
   return (
     <Link href={href} onClick={onClick} className="flex shrink-0 items-center gap-1.5">
-      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 text-xl">🦉</span>
-      <span className="text-xl font-bold leading-none">
+      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500 text-lg sm:h-10 sm:w-10 sm:text-xl">🦉</span>
+      <span className="text-lg font-bold leading-none sm:text-xl">
         <span className="text-surface-900">AdaptU</span>
         <span className="text-brand-500">AI</span>
       </span>
@@ -151,11 +152,12 @@ export default function Navbar({ user }) {
                 aria-expanded={filters.open}
                 title="Search and filters"
               >
-                <SlidersHorizontal className="h-5 w-5" />
+                <SlidersHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             )}
+            {isAdmin && <NotificationBell />}
             <button type="button" onClick={toggleTheme} className={roundBtn} aria-label="Toggle theme" title="Toggle theme">
-              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              {theme === 'dark' ? <Sun className="h-4 w-4 sm:h-5 sm:w-5" /> : <Moon className="h-4 w-4 sm:h-5 sm:w-5" />}
             </button>
 
             {user ? (
@@ -165,7 +167,7 @@ export default function Navbar({ user }) {
                   onClick={() => setMenuOpen((o) => !o)}
                   aria-label="Account"
                   aria-expanded={menuOpen}
-                  className="flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-surface-100 outline-none transition hover:brightness-95 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-50"
+                  className="flex h-8 w-8 shrink-0 overflow-hidden sm:h-10 sm:w-10 rounded-full bg-surface-100 outline-none transition hover:brightness-95 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-50"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={avatarFor(user)} alt={user.name} className="h-full w-full object-cover" />
@@ -217,7 +219,7 @@ export default function Navbar({ user }) {
               aria-expanded={menuShowsClose}
               title={menuShowsClose ? 'Close menu' : 'Open menu'}
             >
-              {menuShowsClose ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {menuShowsClose ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
             </button>
           </div>
         </div>

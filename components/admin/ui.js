@@ -13,7 +13,7 @@ import MobileFilters from '@/components/MobileFilters';
 export const card = 'fb-card';
 
 export const roundBtn =
-  'flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-100 text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-40';
+  'flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-surface-100 text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-40';
 
 export const greyBtn =
   'inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-surface-100 px-3 text-sm font-semibold text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-40';

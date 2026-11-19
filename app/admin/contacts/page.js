@@ -7,6 +7,9 @@ import api from '@/lib/api';
 import { PageHeader, SearchField, Pill, IconButton, brandBtn, greyBtn, fmtDateTime } from '@/components/admin/ui';
 import DataView, { SelectField, ViewToggle, Pagination } from '@/components/admin/DataView';
 import { useAdminList, useViewMode } from '@/components/admin/useAdminList';
+import { NOTIFICATIONS_CHANGED } from '@/components/NotificationBell';
+
+const bellChanged = () => window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED));
 
 const SORTS = [
   { value: 'newest', label: 'Newest' },
@@ -55,6 +58,7 @@ export default function AdminContacts() {
     setOpen((o) => (o && o._id === c._id ? { ...o, isRead } : o));
     try {
       await api.patch('/admin/contacts', { id: c._id, isRead });
+      bellChanged();
     } catch {
       toast.error('Could not update message');
       list.reload();
@@ -70,6 +74,7 @@ export default function AdminContacts() {
     if (!window.confirm(`Delete the message from ${c.name}?`)) return;
     try {
       await api.delete('/admin/contacts', { data: { id: c._id } });
+      bellChanged();
       toast.success('Message deleted');
       setOpen(null);
       if (contacts.length === 1 && list.params.page > 1) list.set({ page: list.params.page - 1 });

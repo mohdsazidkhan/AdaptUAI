@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongodb';
 import Contact from '@/models/Contact';
+import Notification from '@/models/Notification';
 import { getAuthUser } from '@/lib/auth';
 import { parseListQuery, paginationOf } from '@/lib/listQuery';
 
@@ -64,6 +65,8 @@ export async function PATCH(request) {
     await dbConnect();
     const contact = await Contact.findByIdAndUpdate(id, { isRead: !!isRead }, { new: true }).lean();
     if (!contact) return NextResponse.json({ error: 'Message not found' }, { status: 404 });
+    // Reading a message also clears its bell notification.
+    if (isRead) await Notification.updateMany({ contactId: contact._id, isRead: false }, { isRead: true });
     return NextResponse.json({ success: true, contact });
   } catch (error) {
     console.error('[PATCH /api/admin/contacts] Error:', error);
@@ -80,6 +83,7 @@ export async function DELETE(request) {
 
     await dbConnect();
     await Contact.findByIdAndDelete(id);
+    await Notification.deleteMany({ contactId: id });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[DELETE /api/admin/contacts] Error:', error);
