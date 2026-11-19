@@ -17,6 +17,9 @@ export const dynamic = 'force-dynamic';
 // The chat box shrinks photos to <=1280px JPEG before sending, so ~2 MB of base64 is plenty.
 const IMAGE_DATA_URL = /^data:image\/(jpeg|jpg|png);base64,[A-Za-z0-9+/=]+$/;
 const MAX_IMAGE_CHARS = 2_800_000;
+// Model context: the last 12 saved messages of this chat, each capped so one long answer cannot flood it.
+const HISTORY_MESSAGES = 12;
+const MAX_HISTORY_CHARS = 4000;
 // A retried question can carry the photo that was already uploaded to Cloudinary.
 const CLOUDINARY_IMAGE_URL = /^https:\/\/res\.cloudinary\.com\/[^\s"'<>]+$/;
 
@@ -31,7 +34,8 @@ export async function POST(request) {
     await dbConnect();
 
     const body = await request.json();
-    const { sessionId, messageHistory = [], behaviorMetrics = null } = body;
+    // Any `messageHistory` the client still sends is ignored: context is read from the database.
+    const { sessionId, behaviorMetrics = null } = body;
     let message = typeof body.message === 'string' ? body.message : '';
 
     // Optional photo: a JPG/PNG data URL (the browser shrinks it to <=1280px first), or on a retry
@@ -115,7 +119,6 @@ export async function POST(request) {
     });
 
     // ── Prepare message history for OpenAI ──────────────────────────────────
-    // messageHistory: array of {role, content} from client (last N messages)
     // Keep the photo in Cloudinary so the chat can show it later; the model then reads it by URL.
     // If the upload fails the model still gets the image inline, it just is not saved.
     if (imageForModel && !savedImage) {
@@ -128,10 +131,16 @@ export async function POST(request) {
       }
     }
 
-    const history = (Array.isArray(messageHistory) ? messageHistory : [])
-      .filter((m) => (m?.role === 'user' || m?.role === 'assistant') && typeof m.content === 'string')
-      .slice(-12) // last 12 messages for context
-      .map((m) => ({ role: m.role, content: m.content }));
+    // Context comes from this chat's saved messages in the database, never from the browser, so a
+    // user cannot plant fake "assistant" turns. Only finished question/answer pairs are ever saved
+    // (failed or stopped answers are not), and the regenerate step above already dropped the old pair.
+    const history = chat.messages
+      .filter((m) => (m.role === 'user' || m.role === 'assistant') && m.content && m.content !== '(no response)')
+      .slice(-HISTORY_MESSAGES)
+      .map((m) => ({
+        role: m.role,
+        content: `${m.content.slice(0, MAX_HISTORY_CHARS)}${m.role === 'user' && m.image ? ' [photo attached]' : ''}`,
+      }));
     const openAIMessages = [
       ...history,
       {

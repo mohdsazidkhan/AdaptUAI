@@ -143,7 +143,6 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
   const sendMessage = useCallback(async (text, isRetry = false, photo = null, opts = {}) => {
     const trimmed = text.trim() || (photo ? 'Explain this image and solve the question in it.' : '');
     if (!trimmed || isStreaming) return;
-    const baseMessages = opts.base || messages;
 
     recognitionRef.current?.abort();
     setError('');
@@ -157,12 +156,6 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
     const userMsg = { role: 'user', content: trimmed, timestamp: new Date(), ...(photo ? { image: photo } : {}) };
     setMessages((prev) => [...(opts.base || prev), userMsg]);
     setIsStreaming(true);
-
-    // Build message history for API (last 12; failed/stopped answers are left out)
-    const historyForAPI = baseMessages
-      .filter((m) => m.role !== 'system' && !m.isError && !m.cancelled && m.content)
-      .slice(-12)
-      .map(({ role, content, image: img }) => ({ role, content: img ? `${content} [photo attached]` : content }));
 
     // Create placeholder for streaming response
     const streamingId = Date.now();
@@ -183,8 +176,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           message: trimmed,
           ...(photo ? { image: photo } : {}),
           ...(opts.regenerate ? { regenerate: true } : {}),
-          sessionId,
-          messageHistory: historyForAPI,
+          sessionId, // the server reads this chat's history from the database
           behaviorMetrics: {
             responseTimeMs: behaviorEvent.responseTimeMs,
             isRetry: behaviorEvent.isRetry,
