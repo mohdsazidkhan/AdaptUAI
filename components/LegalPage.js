@@ -53,7 +53,7 @@ export default function LegalPage({ title, intro, sections, current, showUpdated
           </div>
 
           <p className="mt-6 border-t border-surface-200 pt-4 text-sm text-surface-500">
-            Questions? Write to us at{' '}
+            Questions? Use our <Link href="/contact" className="font-semibold text-brand-600 hover:underline">contact form</Link> or write to us at{' '}
             <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-brand-600 hover:underline">{CONTACT_EMAIL}</a>.
           </p>
         </article>

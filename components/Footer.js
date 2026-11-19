@@ -5,9 +5,9 @@ export const LEGAL_LINKS = [
   { href: '/terms', label: 'Terms' },
   { href: '/privacy', label: 'Privacy Policy' },
   { href: '/disclaimer', label: 'Disclaimer' },
+  { href: '/contact', label: 'Contact' },
 ];
 
-const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com';
 
 // Small "About · Terms · …" row, Facebook style. Used in the footer and the signed-in sidebar.
 export function LegalLinks({ className = '' }) {
@@ -37,7 +37,6 @@ export default function Footer() {
           {LEGAL_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="hover:text-surface-900 hover:underline">{l.label}</Link>
           ))}
-          <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-surface-900 hover:underline">Contact</a>
         </nav>
       </div>
     </footer>

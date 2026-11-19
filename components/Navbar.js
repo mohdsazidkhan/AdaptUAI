@@ -92,7 +92,9 @@ export default function Navbar({ user }) {
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50 h-navbar bg-surface-50 shadow-card">
-        <div className="flex h-full items-center justify-between gap-2 px-3 lg:px-4">
+        {/* Public pages (no sidebar): same 1280px container as the page content and footer.
+            App pages keep the full-width Facebook-style bar. */}
+        <div className={`flex h-full items-center justify-between gap-2 px-3 lg:px-4 ${hasSidebar ? '' : 'mx-auto w-full max-w-page'}`}>
           {/* Left: logo */}
           <div className="flex min-w-0 flex-1 items-center">
             <Logo href={homeFor(user)} />

@@ -7,7 +7,7 @@ import { TypingIndicator } from './Loader';
 import { AUPopup } from './AUBadge';
 import api from '@/lib/api';
 import { toast } from 'react-toastify';
-import { ImagePlus, Mic, X, Send, SquarePen } from 'lucide-react';
+import { ImagePlus, Mic, X, Send, SquarePen, Square } from 'lucide-react';
 
 const DEBOUNCE_MS = 300;
 const MAX_IMAGE_SIDE = 1280;
@@ -138,9 +138,12 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
     return { responseTimeMs, isRetry };
   }, []);
 
-  const sendMessage = useCallback(async (text, isRetry = false, photo = null) => {
+  // opts.base: the message list to continue from (a retry drops the old question + answer first).
+  // opts.regenerate: the old answer was saved on the server, so the server replaces it.
+  const sendMessage = useCallback(async (text, isRetry = false, photo = null, opts = {}) => {
     const trimmed = text.trim() || (photo ? 'Explain this image and solve the question in it.' : '');
     if (!trimmed || isStreaming) return;
+    const baseMessages = opts.base || messages;
 
     recognitionRef.current?.abort();
     setError('');
@@ -152,12 +155,12 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
 
     // Add user message optimistically
     const userMsg = { role: 'user', content: trimmed, timestamp: new Date(), ...(photo ? { image: photo } : {}) };
-    setMessages((prev) => [...prev, userMsg]);
+    setMessages((prev) => [...(opts.base || prev), userMsg]);
     setIsStreaming(true);
 
-    // Build message history for API (exclude welcome msg, last 12)
-    const historyForAPI = messages
-      .filter((m) => m.role !== 'system')
+    // Build message history for API (last 12; failed/stopped answers are left out)
+    const historyForAPI = baseMessages
+      .filter((m) => m.role !== 'system' && !m.isError && !m.cancelled && m.content)
       .slice(-12)
       .map(({ role, content, image: img }) => ({ role, content: img ? `${content} [photo attached]` : content }));
 
@@ -168,6 +171,8 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       { role: 'assistant', content: '', timestamp: new Date(), _streamingId: streamingId },
     ]);
 
+    const retryInfo = { text: trimmed, photo };
+    let accumulatedText = '';
     try {
       abortControllerRef.current = new AbortController();
 
@@ -177,6 +182,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
         body: JSON.stringify({
           message: trimmed,
           ...(photo ? { image: photo } : {}),
+          ...(opts.regenerate ? { regenerate: true } : {}),
           sessionId,
           messageHistory: historyForAPI,
           behaviorMetrics: {
@@ -203,8 +209,8 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       // Read SSE stream
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let accumulatedText = '';
       let buffer = '';
+      let streamError = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -223,24 +229,25 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           const data = trimmedLine.slice(6).trim();
           if (data === '[DONE]') continue;
 
+          let parsed;
           try {
-            const parsed = JSON.parse(data);
-            if (parsed.content) {
-              accumulatedText += parsed.content;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m._streamingId === streamingId
-                    ? { ...m, content: accumulatedText }
-                    : m
-                )
-              );
-            }
-            if (parsed.error) {
-              throw new Error(parsed.error);
-            }
+            parsed = JSON.parse(data);
           } catch (parseErr) {
             console.error('SSE Parse Error:', parseErr, 'Line:', line);
+            continue;
           }
+          if (parsed.content) {
+            accumulatedText += parsed.content;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m._streamingId === streamingId
+                  ? { ...m, content: accumulatedText }
+                  : m
+              )
+            );
+          }
+          // The server reports model failures inside the stream; remember it and stop reading.
+          if (parsed.error) streamError = parsed.error;
         }
 
         if (done) {
@@ -268,7 +275,11 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           }
           break;
         }
+        if (streamError) break;
       }
+
+      if (streamError) throw new Error(streamError);
+      if (!accumulatedText.trim()) throw new Error('No answer came back. Please try again.');
 
       // Finalize — remove _streamingId marker
       setMessages((prev) =>
@@ -285,13 +296,24 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       // Refresh user data (if callback provided)
       if (onSuccess) onSuccess();
     } catch (err) {
-      if (err.name === 'AbortError') return; // user cancelled
+      // Stopped by the user: keep whatever text already arrived, mark it, and offer Retry.
+      // Nothing is saved or charged on the server for a stopped answer.
+      if (err.name === 'AbortError') {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m._streamingId === streamingId
+              ? { ...m, content: accumulatedText, _streamingId: undefined, cancelled: true, retry: retryInfo }
+              : m
+          )
+        );
+        return;
+      }
 
       const errorMsg = err.message || 'Something went wrong. Please try again.';
-      setError(errorMsg);
-      if (photo) setImage(photo); // keep the photo so the user can send it again
+      const outOfAU = errorMsg === 'INSUFFICIENT_AU';
+      if (outOfAU) setError(errorMsg);
 
-      if (errorMsg === 'INSUFFICIENT_AU') {
+      if (outOfAU) {
         const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com';
         const phone = process.env.NEXT_PUBLIC_WHATSAPP_CONTACT || '+917678131912';
         const waLink = `https://wa.me/${phone.replace(/[^0-9]/g, '')}`;
@@ -338,9 +360,11 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           m._streamingId === streamingId
             ? {
               ...m,
-              content: `⚠️ ${errorMsg}`,
+              content: outOfAU ? '⚠️ Your AU balance is too low for this answer. Recharge to continue.' : `⚠️ ${errorMsg}`,
               _streamingId: undefined,
               isError: true,
+              // Retrying cannot help while the wallet is empty.
+              retry: outOfAU ? null : retryInfo,
             }
             : m
         )
@@ -350,6 +374,22 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       inputRef.current?.focus();
     }
   }, [isStreaming, messages, sessionId, trackMessage]);
+
+  // Stop the answer that is streaming right now.
+  const stopStreaming = () => abortControllerRef.current?.abort();
+
+  // Retry the assistant message at `index`: drop it and its question, then ask again.
+  // A failed/stopped answer was never saved; a finished one is replaced on the server (regenerate).
+  const retryAt = (index) => {
+    if (isStreaming) return;
+    const answer = messages[index];
+    const question = messages[index - 1];
+    if (!answer || question?.role !== 'user') return;
+    const text = answer.retry?.text ?? question.content;
+    const photo = answer.retry ? answer.retry.photo : question.image || null;
+    const regenerate = !answer.isError && !answer.cancelled;
+    sendMessage(text, true, photo, { base: messages.slice(0, index - 1), regenerate });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -497,9 +537,21 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
             <TypingIndicator />
           </div>
         ) : (
-          messages.map((msg, i) => (
-            <MessageBubble key={msg._streamingId || i} message={msg} />
-          ))
+          messages.map((msg, i) => {
+            // Retry on a failed/stopped answer, and Regenerate on the latest finished one.
+            const canRetry =
+              !isStreaming && i > 0 && msg.role === 'assistant' && !msg._streamingId &&
+              messages[i - 1]?.role === 'user' && msg.retry !== null &&
+              (msg.isError || msg.cancelled || i === messages.length - 1);
+            return (
+              <MessageBubble
+                key={msg._streamingId || i}
+                message={msg}
+                onRetry={canRetry ? () => retryAt(i) : undefined}
+                onStop={msg._streamingId ? stopStreaming : undefined}
+              />
+            );
+          })
         )}
 
 
@@ -618,21 +670,27 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
               <Mic className="h-[18px] w-[18px]" />
             </button>
           )}
-          <button
-            type="submit"
-            disabled={(!input.trim() && !image) || isStreaming}
-            aria-label="Send"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white transition hover:brightness-110 disabled:opacity-40"
-          >
-            {isStreaming ? (
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-            ) : (
+          {isStreaming ? (
+            // While answering, the send button becomes Stop.
+            <button
+              type="button"
+              onClick={stopStreaming}
+              aria-label="Stop answer"
+              title="Stop answer"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white transition hover:brightness-110"
+            >
+              <Square className="h-3.5 w-3.5 fill-current" />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={!input.trim() && !image}
+              aria-label="Send"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white transition hover:brightness-110 disabled:opacity-40"
+            >
               <Send className="h-4 w-4 -translate-x-px translate-y-px" />
-            )}
-          </button>
+            </button>
+          )}
         </form>
         <p className="mt-1.5 text-center text-xs text-surface-400">
           Enter to send · Shift+Enter for a new line · {process.env.NEXT_PUBLIC_EACH_CHAT_AU_TOKEN || 10} AU per answer · AI can make mistakes

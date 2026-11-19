@@ -17,6 +17,8 @@ export const dynamic = 'force-dynamic';
 // The chat box shrinks photos to <=1280px JPEG before sending, so ~2 MB of base64 is plenty.
 const IMAGE_DATA_URL = /^data:image\/(jpeg|jpg|png);base64,[A-Za-z0-9+/=]+$/;
 const MAX_IMAGE_CHARS = 2_800_000;
+// A retried question can carry the photo that was already uploaded to Cloudinary.
+const CLOUDINARY_IMAGE_URL = /^https:\/\/res\.cloudinary\.com\/[^\s"'<>]+$/;
 
 export async function POST(request) {
   try {
@@ -32,14 +34,20 @@ export async function POST(request) {
     const { sessionId, messageHistory = [], behaviorMetrics = null } = body;
     let message = typeof body.message === 'string' ? body.message : '';
 
-    // Optional photo: a JPG/PNG data URL (the browser shrinks it to <=1280px first).
+    // Optional photo: a JPG/PNG data URL (the browser shrinks it to <=1280px first), or on a retry
+    // the Cloudinary URL it was already saved at.
     let imageForModel = null;
+    let savedImage;
     if (body.image) {
-      const dataUrl = String(body.image);
-      if (!IMAGE_DATA_URL.test(dataUrl) || dataUrl.length > MAX_IMAGE_CHARS) {
+      const img = String(body.image);
+      if (CLOUDINARY_IMAGE_URL.test(img)) {
+        imageForModel = img;
+        savedImage = img;
+      } else if (IMAGE_DATA_URL.test(img) && img.length <= MAX_IMAGE_CHARS) {
+        imageForModel = img;
+      } else {
         return NextResponse.json({ error: 'Attach a JPG or PNG image under 2 MB.' }, { status: 400 });
       }
-      imageForModel = dataUrl;
       if (!message.trim()) message = 'Explain this image and solve the question in it.';
     }
 
@@ -79,6 +87,14 @@ export async function POST(request) {
       });
     }
 
+    // Regenerate: drop the saved answer (and its question) so the new attempt replaces them.
+    // Failed or cancelled attempts are never saved, so a plain retry has nothing to remove.
+    if (body.regenerate && chat.messages.length) {
+      while (chat.messages.length && chat.messages[chat.messages.length - 1].role === 'assistant') chat.messages.pop();
+      const last = chat.messages[chat.messages.length - 1];
+      if (last?.role === 'user' && last.content === message.trim()) chat.messages.pop();
+    }
+
     // ── Build personalized system prompt ─────────────────────────────────────
     // Requirement 7: Optional Mode Detection
     let activeMode = 'Teaching';
@@ -102,8 +118,7 @@ export async function POST(request) {
     // messageHistory: array of {role, content} from client (last N messages)
     // Keep the photo in Cloudinary so the chat can show it later; the model then reads it by URL.
     // If the upload fails the model still gets the image inline, it just is not saved.
-    let savedImage;
-    if (imageForModel) {
+    if (imageForModel && !savedImage) {
       try {
         const uploaded = await uploadImage(imageForModel, 'adaptuai/chats');
         savedImage = uploaded.secure_url;
@@ -134,11 +149,13 @@ export async function POST(request) {
     }, savedImage);
 
     // ── Stream AI response ───────────────────────────────────────────────────
-    const stream = generateStreamingCompletion(systemPrompt, openAIMessages);
+    // request.signal aborts when the user presses Stop, which also stops the model call upstream.
+    const stream = generateStreamingCompletion(systemPrompt, openAIMessages, { signal: request.signal });
 
     // ── Collect the full response to save ────────────────────────────────────
     // We collect via a TransformStream so we can save after streaming completes
     let fullResponse = '';
+    let streamFailed = false;
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
@@ -154,15 +171,18 @@ export async function POST(request) {
             try {
               const parsed = JSON.parse(data);
               if (parsed.content) fullResponse += parsed.content;
+              if (parsed.error) streamFailed = true;
             } catch { }
           }
         }
         controller.enqueue(chunk);
       },
       async flush() {
-        // Save the complete response to DB
+        // Only a real answer is saved and charged. A failed/empty answer costs nothing, and a
+        // cancelled one never reaches flush (the stream is cancelled instead).
+        if (streamFailed || !fullResponse.trim()) return;
         try {
-          chat.addMessage('assistant', fullResponse || '(no response)');
+          chat.addMessage('assistant', fullResponse);
 
           // Deduct AU (Consumption Mode)
           const tokenCost = Number(process.env.EACH_CHAT_AU_TOKEN) || 10;
