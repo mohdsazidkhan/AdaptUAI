@@ -286,10 +286,8 @@ main.app-content > * > :last-child {
   color: rgb(var(--brand-600)) !important;
 }
 
-/* Read aloud (lib/speechHighlight.js): the sentence and the word being spoken */
-::highlight(speak-line) {
-  background-color: rgb(var(--brand-500) / 0.14);
-}
+/* Read aloud (lib/speechHighlight.js): the active spoken word */
 ::highlight(speak-word) {
-  background-color: rgb(var(--brand-500) / 0.45);
+  background-color: #000000;
+  color: #ffffff;
 }

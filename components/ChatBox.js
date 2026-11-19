@@ -660,7 +660,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
   const showSuggestions = messages.length <= 1;
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex h-full min-h-0 flex-col relative overflow-hidden">
       {/* AU Popup */}
       <AUPopup xp={Number(process.env.NEXT_PUBLIC_EACH_CHAT_AU_TOKEN) || 10} show={showAUPopup} />
 
@@ -771,7 +771,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 bg-surface-50 custom-scrollbar">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-2.5 sm:p-4 space-y-3 bg-surface-50 custom-scrollbar">
         {isHistoryLoading ? (
           <div className="flex items-center justify-center h-full">
             <TypingIndicator />

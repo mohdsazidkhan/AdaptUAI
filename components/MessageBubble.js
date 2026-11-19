@@ -95,6 +95,48 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
     }
   };
 
+  const renderMessageActions = () => (
+    <div className="flex min-h-7 items-center gap-2">
+      {!isUser && onRetry && (message.isError || message.cancelled) && (
+        <button type="button" onClick={onRetry} className="inline-flex h-7 items-center gap-1 rounded-full bg-brand-500 px-2.5 text-xs font-semibold text-white transition hover:brightness-110">
+          <RotateCcw className="h-3 w-3" /> Retry
+        </button>
+      )}
+      {canListen && (
+        <button
+          type="button"
+          onClick={toggleListen}
+          aria-pressed={isSpeaking}
+          aria-label={isSpeaking ? 'Stop reading' : 'Listen to answer'}
+          title={isSpeaking ? 'Stop reading' : 'Listen to answer'}
+          className={`inline-flex h-7 items-center gap-1 rounded-full px-2.5 text-xs font-semibold transition-colors ${isSpeaking ? 'bg-brand-500 text-white hover:brightness-110' : 'bg-surface-100 text-surface-600 hover:bg-surface-200 hover:text-brand-600'}`}
+        >
+          {isSpeaking ? <Square className="h-3 w-3 fill-current" /> : <Volume2 className="h-3.5 w-3.5" />}
+          {isSpeaking ? 'Stop' : 'Listen'}
+        </button>
+      )}
+      {!isUser && !message.isError && message.content?.trim() && (
+        <div className="flex items-center gap-1 rounded-full border border-surface-200 bg-surface-100 px-1.5 py-0.5">
+          <button type="button" onClick={handleCopy} title="Copy response" aria-label="Copy response" className="p-1 text-surface-500 hover:text-brand-500">
+            {copied ? <Check size={13} className="text-brand-600" /> : <Copy size={13} />}
+          </button>
+          <span className="h-3 w-px bg-surface-200" />
+          <button type="button" onClick={handleShare} title="Share response" aria-label="Share response" className="p-1 text-surface-500 hover:text-brand-500">
+            <Share2 size={13} />
+          </button>
+          {onRetry && !message.cancelled && (
+            <>
+              <span className="h-3 w-px bg-surface-200" />
+              <button type="button" onClick={onRetry} title="Regenerate answer" aria-label="Regenerate answer" className="p-1 text-surface-500 hover:text-brand-500">
+                <RotateCcw size={13} />
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div
       className={`flex items-end gap-2 mb-4 animate-fade-in ${isUser ? 'flex-row-reverse' : 'flex-row'
@@ -116,7 +158,8 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
       )}
 
       {/* Bubble */}
-      <div className={`max-w-[85%] md:max-w-[70%] ${isUser ? 'items-end' : 'items-start'} flex flex-col gap-1.5 group`}>
+      <div className={`min-w-0 max-w-[92%] sm:max-w-[85%] md:max-w-[70%] ${isUser ? 'items-end' : 'items-start'} flex flex-col gap-1.5 group`}>
+        {!isUser && message.content?.trim() && <div className="flex w-full justify-end">{renderMessageActions()}</div>}
         <div
           className={`px-4 py-3 rounded-2xl text-sm leading-relaxed transition-all duration-200 ${isUser
               ? 'bg-brand-500 text-white rounded-tr-sm'
@@ -211,68 +254,8 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
             </button>
           )}
 
-          {/* Failed or stopped answer: a clear Retry button, always visible */}
-          {!isUser && onRetry && (message.isError || message.cancelled) && (
-            <button
-              type="button"
-              onClick={onRetry}
-              className="inline-flex h-8 items-center gap-1.5 rounded-full bg-brand-500 px-3 text-xs font-semibold text-white transition hover:brightness-110"
-            >
-              <RotateCcw className="h-3.5 w-3.5" /> Retry
-            </button>
-          )}
-
-          {/* Read the answer aloud: always visible so learners find it */}
-          {canListen && (
-            <button
-              type="button"
-              onClick={toggleListen}
-              aria-pressed={isSpeaking}
-              aria-label={isSpeaking ? 'Stop reading' : 'Listen to answer'}
-              title={isSpeaking ? 'Stop reading' : 'Listen to answer'}
-              className={`inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold transition-colors ${isSpeaking ? 'bg-brand-500 text-white hover:brightness-110' : 'bg-surface-100 text-surface-600 hover:bg-surface-200 hover:text-brand-600'}`}
-            >
-              {isSpeaking ? <Square className="h-3 w-3 fill-current" /> : <Volume2 className="h-3.5 w-3.5" />}
-              {isSpeaking ? 'Stop' : 'Listen'}
-            </button>
-          )}
-
-          {/* AI Message specific actions */}
-          {!isUser && !message.isError && message.content && message.content.trim() !== '' && (
-            <div className="flex items-center gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 bg-surface-100 border border-surface-200 rounded-full px-2 py-0.5">
-              <button 
-                onClick={handleCopy}
-                title="Copy response"
-                className="p-1 text-surface-400 hover:text-brand-500 transition-colors"
-                aria-label="Copy"
-              >
-                {copied ? <Check size={12} className="text-brand-600" /> : <Copy size={12} />}
-              </button>
-              <div className="w-px h-2.5 bg-surface-200" />
-              <button 
-                onClick={handleShare}
-                title="Share response"
-                className="p-1 text-surface-400 hover:text-brand-500 transition-colors"
-                aria-label="Share"
-              >
-                <Share2 size={12} />
-              </button>
-              {onRetry && !message.cancelled && (
-                <>
-                  <div className="w-px h-2.5 bg-surface-200" />
-                  <button
-                    onClick={onRetry}
-                    title="Regenerate answer"
-                    className="p-1 text-surface-400 hover:text-brand-500 transition-colors"
-                    aria-label="Regenerate answer"
-                  >
-                    <RotateCcw size={12} />
-                  </button>
-                </>
-              )}
-            </div>
-          )}
         </div>
+        {!isUser && message.content?.trim() && <div className="flex w-full justify-end">{renderMessageActions()}</div>}
       </div>
     </div>
   );
