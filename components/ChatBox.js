@@ -799,7 +799,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       {/* Input area */}
       <div className="flex-shrink-0 p-2.5 sm:p-3 pb-[max(0.625rem,env(safe-area-inset-bottom))] border-t border-surface-200 bg-surface-50">
         {/* Answer style */}
-        <div className="mb-2 flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="radiogroup" aria-label="Answer style">
+        <div className="mb-1.5 flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:flex-wrap lg:overflow-visible" role="radiogroup" aria-label="Answer style">
           {MODE_CHIPS.map((m) => (
             <button
               key={m.id}
@@ -808,7 +808,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
               aria-checked={mode === m.id}
               onClick={() => chooseMode(m.id)}
               title={m.hint}
-              className={`h-8 shrink-0 rounded-full px-3 text-sm font-semibold transition-colors ${mode === m.id ? 'bg-brand-500/15 text-brand-600' : 'bg-surface-100 text-surface-900 hover:bg-surface-200'}`}
+              className={`h-7 shrink-0 rounded-full px-2.5 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 ${mode === m.id ? 'bg-brand-500/15 text-brand-600' : 'bg-surface-100 text-surface-900 hover:bg-surface-200'}`}
             >
               {m.label}
             </button>
