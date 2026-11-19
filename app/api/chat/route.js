@@ -5,7 +5,7 @@ import User from '@/models/User';
 import Chat from '@/models/Chat';
 import { getAuthUser } from '@/lib/auth';
 import { generateStreamingCompletion } from '@/lib/ai';
-import { buildSystemPrompt, buildTopicDetectionPrompt } from '@/lib/promptBuilder';
+import { buildSystemPrompt, buildTopicDetectionPrompt, buildWeakAreaPrompt } from '@/lib/promptBuilder';
 import { calculateProfile, summarizeMetrics } from '@/lib/userProfile';
 import { generateCompletion } from '@/lib/ai';
 import Transaction from '@/models/Transaction';
@@ -69,6 +69,8 @@ export async function POST(request) {
       activeMode = 'Quiz';
     } else if (lowerMessage.includes('summary')) {
       activeMode = 'Revision';
+    } else if (/\b(doubt|confus\w*|don'?t understand|not clear|samajh nahi|samjh nahi|samajh nhi|samjh nhi)\b|समझ नहीं/i.test(message)) {
+      activeMode = 'Doubt Solving';
     }
 
     const systemPrompt = buildSystemPrompt(user.mindsetProfile, {
@@ -175,7 +177,8 @@ export async function POST(request) {
               ])
                 .then(async (result) => {
                   try {
-                    const parsed = JSON.parse(result);
+                    // Models often wrap JSON in ```json fences or add text; take the first {...} block.
+                    const parsed = JSON.parse(String(result || '').match(/\{[\s\S]*\}/)?.[0] || '{}');
                     if (parsed.weakArea && parsed.confidence > 0.6) {
                       await User.findByIdAndUpdate(userId, { $addToSet: { weakAreas: parsed.weakArea } });
                     }
