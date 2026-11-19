@@ -143,7 +143,7 @@ export default function DashboardPage() {
                           </div>
                         </div>
                         <div className="flex-shrink-0 bg-accent-100 text-accent-700 px-2 py-1 rounded-lg text-xs font-bold">
-                          +{chat.auEarned || 0} AU
+                          −{chat.auEarned || 0} AU used
                         </div>
                       </Link>
                     ))
