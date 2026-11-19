@@ -33,12 +33,14 @@ function ChatContent() {
   if (loading) return <PageLoader />;
 
   return (
-    <div className="flex bg-surface-50 min-h-screen">
+    <div className="flex min-h-screen">
       <Sidebar user={user} />
 
-      <main className="flex-1 lg:ml-64 h-screen pt-16 flex flex-col">
-        <div className="flex-1 container mx-auto w-full h-full border-x border-surface-100 bg-surface-50">
-          <ChatBox user={user} initialSessionId={sessionId} onSuccess={fetchUser} />
+      <main className="flex-1 min-w-0 lg:ml-sidebar h-screen h-[100dvh] pt-navbar flex flex-col">
+        <div className="mx-auto flex w-full max-w-page flex-1 min-h-0 flex-col p-3 lg:p-4">
+          <div className="fb-card flex-1 min-h-0 overflow-hidden">
+            <ChatBox user={user} initialSessionId={sessionId} onSuccess={fetchUser} />
+          </div>
         </div>
       </main>
     </div>

@@ -15,6 +15,11 @@ const MessageSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    // Cloudinary URL of a photo the user attached to this message
+    image: {
+      type: String,
+      default: undefined,
+    },
     metadata: {
       responseTimeMs: Number,
       tokenCount: Number,
@@ -93,8 +98,8 @@ ChatSchema.virtual('lastMessageAt').get(function () {
 });
 
 // ── Methods ───────────────────────────────────────────────────────────────────
-ChatSchema.methods.addMessage = function (role, content, metadata = {}) {
-  this.messages.push({ role, content, metadata });
+ChatSchema.methods.addMessage = function (role, content, metadata = {}, image = undefined) {
+  this.messages.push({ role, content, metadata, ...(image ? { image } : {}) });
   // Update session metrics
   if (role === 'user') {
     this.sessionMetrics.messageCount += 1;

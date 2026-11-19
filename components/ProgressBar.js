@@ -15,11 +15,11 @@ export default function ProgressBar({
   const percent = Math.min(Math.round((value / max) * 100), 100);
 
   const colors = {
-    brand: 'bg-brand-500 shadow-[0_0_12px_rgba(34,197,94,0.4)]',
-    ocean: 'bg-ocean-500 shadow-[0_0_12px_rgba(14,165,233,0.4)]',
-    accent: 'bg-accent-400',
-    coral: 'bg-coral-500 shadow-[0_0_12px_rgba(244,63,94,0.4)]',
-    purple: 'bg-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.4)]',
+    brand: 'bg-brand-500',
+    ocean: 'bg-brand-500',
+    accent: 'bg-accent-500',
+    coral: 'bg-coral-500',
+    purple: 'bg-brand-500',
   };
 
   const heights = {
@@ -39,7 +39,7 @@ export default function ProgressBar({
           )}
         </div>
       )}
-      <div className={clsx('w-full bg-surface-200 rounded-full overflow-hidden', heights[height])}>
+      <div className={clsx('w-full bg-surface-100 rounded-full overflow-hidden', heights[height])}>
         <div
           className={`${heights[height]} ${colors[color]} rounded-full transition-all duration-700 ease-out ${animated ? 'animate-slide-in-right' : ''}`}
           style={{ width: `${percent}%` }}

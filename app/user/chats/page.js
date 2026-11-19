@@ -55,38 +55,38 @@ export default function ChatHistoryPage() {
   if (loading) return <PageLoader />;
 
   return (
-    <div className="flex bg-surface-50 min-h-screen">
+    <div className="flex min-h-screen">
       <Sidebar user={user} />
 
-      <main className="flex-1 lg:ml-64 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
+      <main className="flex-1 min-w-0 lg:ml-sidebar pt-navbar *:mx-auto *:w-full *:max-w-page *:p-3 lg:*:p-4 app-content">
         <div className="animate-fade-in">
-          <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <header className="mb-3 lg:mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white">Recent Chats</h1>
+              <h1 className="text-xl lg:text-3xl font-bold text-surface-900">Recent Chats</h1>
               <div className="flex items-center gap-3 mt-1">
                 <p className="text-surface-500 font-semibold">
                   Your historical learning sessions
                 </p>
                 <span className="text-surface-300">•</span>
-                <Link href="/user/transactions" className="text-[10px] font-black uppercase text-brand-600 hover:text-brand-700 hover:underline tracking-widest flex items-center gap-1">
+                <Link href="/user/transactions" className="text-xs font-bold uppercase text-brand-600 hover:text-brand-700 hover:underline tracking-widest flex items-center gap-1">
                   <span>📜</span> Transaction History
                 </Link>
               </div>
             </div>
             <Link href="/user/chat">
-              <button className="px-6 py-3 bg-brand-500 text-white rounded-xl font-black shadow-lg shadow-brand-500/20 hover:scale-105 transition-all text-sm">
+              <button className="px-6 py-3 bg-brand-500 text-white rounded-xl font-bold shadow-card transition-all text-sm">
                 + Start New Chat
               </button>
             </Link>
           </header>
 
           {chats.length === 0 ? (
-            <Card className="text-center py-16 border-dashed border-2 border-surface-200 bg-surface-100/30">
+            <Card className="text-center py-16 border-dashed border border-surface-200 bg-surface-100/30">
               <div className="text-5xl mb-4 grayscale opacity-50">🦉</div>
-              <h3 className="text-xl font-black text-surface-900 mb-2">No Chat History Found</h3>
-              <p className="text-surface-500 font-medium mb-8">Ready to start your first session?</p>
+              <h3 className="text-xl font-bold text-surface-900 mb-2">No Chat History Found</h3>
+              <p className="text-surface-500 font-medium mb-3 lg:mb-4">Ready to start your first session?</p>
               <Link href="/user/chat">
-                <button className="px-8 py-4 bg-brand-500 text-white rounded-xl font-black shadow-lg hover:shadow-xl transition-all">
+                <button className="px-8 py-4 bg-brand-500 text-white rounded-xl font-bold shadow-card hover:shadow-card transition-all">
                   Let's Begin 🚀
                 </button>
               </Link>
@@ -94,24 +94,23 @@ export default function ChatHistoryPage() {
           ) : (
             <div className="space-y-4">
               {chats.map((chat) => (
-                <Card key={chat.sessionId} padding="none" className="overflow-hidden group hover:border-brand-300 transition-all hover:translate-x-1 shadow-sm">
+                <Card key={chat.sessionId} padding="none" className="overflow-hidden group hover:border-brand-300 transition-all">
                   <Link href={`/user/chat?sessionId=${chat.sessionId}`} className="flex items-stretch">
                     <div className="w-16 bg-surface-100 flex flex-col items-center justify-center border-r border-surface-200 group-hover:bg-brand-50 group-hover:border-brand-200 transition-colors">
                       <span className="text-2xl mb-1">🦉</span>
-                      <span className="text-[10px] font-black text-surface-400 group-hover:text-brand-500">{chat.messageCount}</span>
+                      <span className="text-xs font-bold text-surface-400 group-hover:text-brand-500">{chat.messageCount}</span>
                     </div>
 
                     <div className="flex-1 p-5">
                       <div className="flex justify-between items-start mb-1">
-                        <h4 className="font-black text-surface-900 group-hover:text-brand-700 transition-colors">
+                        <h4 className="font-bold text-surface-900 group-hover:text-brand-700 transition-colors">
                           {chat.title}
                         </h4>
-                        <span className="text-[10px] font-bold text-surface-400 uppercase tracking-widest whitespace-nowrap ml-4">
+                        <span className="text-xs font-bold text-surface-400 uppercase tracking-widest whitespace-nowrap ml-4">
                           {formatDate(chat.updatedAt)}
                         </span>
                       </div>
-                      <p className="text-xs text-surface-500 line-clamp-1 font-medium italic">
-                        "{chat.preview}"
+                      <p className="text-xs text-surface-500 line-clamp-1 font-medium">"{chat.preview}"
                       </p>
                     </div>
 

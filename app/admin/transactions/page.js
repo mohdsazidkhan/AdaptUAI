@@ -32,35 +32,35 @@ export default function AdminTransactions() {
   if (loading && transactions.length === 0) return <PageLoader />;
 
   return (
-    <div className="p-4 lg:p-8 container mx-auto">
-      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-surface-100 dark:border-surface-100/10 pb-8">
+    <div className="">
+      <header className="mb-3 lg:mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3 lg:gap-4 border-b border-surface-100 pb-8">
         <div>
-          <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white flex items-center gap-3">
-            <span className="p-2 bg-coral-500 text-white rounded-xl text-xl shadow-lg shadow-coral-500/20">📜</span>
+          <h1 className="text-xl lg:text-3xl font-bold text-surface-900 flex items-center gap-3">
+            <span className="p-2 bg-coral-500 text-white rounded-xl text-xl shadow-card">📜</span>
             Transaction Ledger
           </h1>
           <p className="text-surface-500 font-bold mt-2 ml-1">Global audit of all system AU token movement</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 md:gap-8 bg-surface-50 dark:bg-surface-50 border border-surface-200 dark:border-surface-100/10 p-4 rounded-2xl shadow-sm">
+        <div className="flex flex-wrap items-center gap-4 md:gap-3 lg:gap-4 bg-surface-50 dark:bg-surface-50 border border-surface-200 p-4 rounded-2xl">
           <div className="min-w-[100px]">
-            <p className="text-[10px] font-black text-surface-400 dark:text-surface-500 uppercase tracking-widest mb-1 leading-none">Total Records</p>
-            <p className="text-xl font-black text-surface-900 dark:text-white leading-none">{pagination.total}</p>
+            <p className="text-xs font-bold text-surface-400 dark:text-surface-500 uppercase tracking-widest mb-1 leading-none">Total Records</p>
+            <p className="text-xl font-bold text-surface-900 leading-none">{pagination.total}</p>
           </div>
           <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
           <div className="min-w-[100px]">
-            <p className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1 leading-none">Total AU Tokens</p>
-            <p className="text-xl font-black text-purple-900 dark:text-purple-100 leading-none">{stats.totalRecharged}</p>
+            <p className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1 leading-none">Total AU Tokens</p>
+            <p className="text-xl font-bold text-purple-900 dark:text-purple-100 leading-none">{stats.totalRecharged}</p>
           </div>
           <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
           <div className="min-w-[100px]">
-            <p className="text-[10px] font-black text-coral-600 dark:text-coral-400 uppercase tracking-widest mb-1 leading-none">Total AU Used</p>
-            <p className="text-xl font-black text-coral-900 dark:text-coral-100 leading-none">{stats.totalSpent}</p>
+            <p className="text-xs font-bold text-coral-600 dark:text-coral-400 uppercase tracking-widest mb-1 leading-none">Total AU Used</p>
+            <p className="text-xl font-bold text-coral-900 dark:text-coral-100 leading-none">{stats.totalSpent}</p>
           </div>
           <div className="hidden md:block h-8 w-px bg-surface-200 dark:bg-surface-100/10" />
           <div className="min-w-[100px]">
-            <p className="text-[10px] font-black text-accent-600 dark:text-accent-400 uppercase tracking-widest mb-1 leading-none">Total AU Left</p>
-            <p className="text-xl font-black text-accent-900 dark:text-accent-100 leading-none">{stats.totalLeft}</p>
+            <p className="text-xs font-bold text-accent-600 dark:text-accent-400 uppercase tracking-widest mb-1 leading-none">Total AU Left</p>
+            <p className="text-xl font-bold text-accent-900 dark:text-accent-100 leading-none">{stats.totalLeft}</p>
           </div>
         </div>
       </header>
@@ -72,11 +72,11 @@ export default function AdminTransactions() {
             <table className="w-full text-left">
               <thead className="bg-surface-50 dark:bg-surface-100/50 border-b border-surface-200 dark:border-surface-800">
                 <tr>
-                  <th className="px-0 lg:px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">User</th>
-                  <th className="px-0 lg:px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">Type</th>
-                  <th className="px-0 lg:px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">Amount</th>
-                  <th className="px-0 lg:px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">Description</th>
-                  <th className="px-0 lg:px-6 py-4 text-xs font-black text-surface-400 uppercase tracking-widest">Date</th>
+                  <th className="px-0 lg:px-6 py-4 text-xs font-bold text-surface-400 uppercase tracking-widest">User</th>
+                  <th className="px-0 lg:px-6 py-4 text-xs font-bold text-surface-400 uppercase tracking-widest">Type</th>
+                  <th className="px-0 lg:px-6 py-4 text-xs font-bold text-surface-400 uppercase tracking-widest">Amount</th>
+                  <th className="px-0 lg:px-6 py-4 text-xs font-bold text-surface-400 uppercase tracking-widest">Description</th>
+                  <th className="px-0 lg:px-6 py-4 text-xs font-bold text-surface-400 uppercase tracking-widest">Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-surface-100">
@@ -84,19 +84,19 @@ export default function AdminTransactions() {
                   <tr key={t._id} className="hover:bg-surface-50 dark:hover:bg-surface-100/30 transition-colors group">
                     <td className="px-0 lg:px-6 py-4">
                       <div>
-                        <p className="font-bold text-surface-900 dark:text-white">{t.userId?.name || 'Unknown'}</p>
-                        <p className="text-[10px] text-surface-400 dark:text-surface-500">{t.userId?.email || 'N/A'}</p>
+                        <p className="font-bold text-surface-900">{t.userId?.name || 'Unknown'}</p>
+                        <p className="text-xs text-surface-400 dark:text-surface-500">{t.userId?.email || 'N/A'}</p>
                       </div>
                     </td>
                     <td className="px-0 lg:px-6 py-4">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${t.type === 'RECHARGE'
-                        ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/20'
+                      <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${t.type === 'RECHARGE'
+                        ? 'bg-brand-500/15  text-brand-600 dark:text-brand-600 border border-transparent '
                         : 'bg-coral-50 dark:bg-coral-900/20 text-coral-600 dark:text-coral-400 border border-coral-200 dark:border-coral-500/20'
                         }`}>
                         {t.type === 'RECHARGE' ? '⚡ Recharge' : '🪙 Spend'}
                       </span>
                     </td>
-                    <td className="px-0 lg:px-6 py-4 font-black text-sm">
+                    <td className="px-0 lg:px-6 py-4 font-bold text-sm">
                       {t.type === 'RECHARGE' ? '+' : '-'}{t.amount} AU
                     </td>
                     <td className="px-0 lg:px-6 py-4 text-sm text-surface-500 max-w-xs truncate">
@@ -116,27 +116,27 @@ export default function AdminTransactions() {
         <div className="md:hidden flex flex-col gap-4">
           {transactions.map((t) => (
             <Card key={t._id} padding="md" className="border-surface-200 flex flex-col gap-3">
-              <div className="flex items-start justify-between border-b border-surface-100 dark:border-surface-100/10 pb-3">
+              <div className="flex items-start justify-between border-b border-surface-100 pb-3">
                 <div className="flex flex-col">
-                  <span className={`w-fit px-2 py-0.5 rounded text-[10px] font-black uppercase mb-2 ${t.type === 'RECHARGE'
-                    ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/20'
+                  <span className={`w-fit px-2 py-0.5 rounded text-xs font-bold uppercase mb-2 ${t.type === 'RECHARGE'
+                    ? 'bg-brand-500/15  text-brand-600 dark:text-brand-600 border border-transparent '
                     : 'bg-coral-50 dark:bg-coral-900/20 text-coral-600 dark:text-coral-400 border border-coral-200 dark:border-coral-500/20'
                     }`}>
                     {t.type === 'RECHARGE' ? '⚡ Recharge' : '🪙 Spend'}
                   </span>
-                  <p className="font-bold text-surface-900 dark:text-white leading-tight">{t.userId?.name || 'Unknown'}</p>
-                  <p className="text-[10px] text-surface-400 dark:text-surface-500">{t.userId?.email || 'N/A'}</p>
+                  <p className="font-bold text-surface-900 leading-tight">{t.userId?.name || 'Unknown'}</p>
+                  <p className="text-xs text-surface-400 dark:text-surface-500">{t.userId?.email || 'N/A'}</p>
                 </div>
                 <div className="text-right flex flex-col items-end">
-                  <p className="font-black text-sm text-surface-900 dark:text-white">
+                  <p className="font-bold text-sm text-surface-900">
                     {t.type === 'RECHARGE' ? '+' : '-'}{t.amount} AU
                   </p>
-                  <p className="text-[10px] font-bold text-surface-400 dark:text-surface-500 mt-1">
+                  <p className="text-xs font-bold text-surface-400 dark:text-surface-500 mt-1">
                     {new Date(t.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
-              <p className="text-[11px] font-semibold text-surface-500 dark:text-surface-400 leading-snug">
+              <p className="text-xs font-semibold text-surface-500 dark:text-surface-400 leading-snug">
                 {t.description}
               </p>
             </Card>

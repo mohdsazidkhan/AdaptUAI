@@ -18,7 +18,7 @@ export default function Loader({ size = 'md', text = '' }) {
           />
         ))}
       </div>
-      {text && <p className="text-sm text-surface-700 font-medium animate-pulse">{text}</p>}
+      {text && <p className="text-sm text-surface-500 font-medium">{text}</p>}
     </div>
   );
 }
@@ -28,12 +28,10 @@ export default function Loader({ size = 'md', text = '' }) {
  */
 export function PageLoader() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-50/80 backdrop-blur-sm">
-      <div className="flex flex-col items-center justify-center p-4 bg-surface-50/50 backdrop-blur-sm rounded-[2.5rem] border-2 border-surface-200 shadow-2xl animate-fade-in transition-colors">
-        {/* Owl mascot */}
-        <div className="text-6xl animate-float">🦉</div>
-        <Loader size="lg" />
-        <p className="text-brand-600 font-bold text-lg">Loading AdaptUAI...</p>
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-background">
+      <div className="fb-card flex flex-col items-center justify-center gap-3 px-8 py-6 animate-fade-in">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-3xl">🦉</span>
+        <Loader size="md" />
       </div>
     </div>
   );

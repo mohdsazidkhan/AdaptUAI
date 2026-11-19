@@ -40,13 +40,13 @@ export default function TransactionsPage() {
   const { user, transactions } = data || { transactions: [] };
 
   return (
-    <div className="flex bg-surface-50 min-h-screen">
+    <div className="flex min-h-screen">
       <Sidebar user={user} />
 
-      <main className="flex-1 lg:ml-64 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
+      <main className="flex-1 min-w-0 lg:ml-sidebar pt-navbar *:mx-auto *:w-full *:max-w-page *:p-3 lg:*:p-4 app-content">
         <div className="animate-fade-in">
-          <header className="mb-8">
-            <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white flex items-center gap-3">
+          <header className="mb-3 lg:mb-4">
+            <h1 className="text-xl lg:text-3xl font-bold text-surface-900 flex items-center gap-3">
               <span>📜</span> Transaction History
             </h1>
             <p className="text-surface-500 font-semibold mt-1">
@@ -54,15 +54,15 @@ export default function TransactionsPage() {
             </p>
           </header>
 
-          <Card padding="none" className="overflow-hidden border-b-4 border-brand-200">
+          <Card padding="none" className="overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-surface-100/50 border-b border-surface-200">
-                    <th className="px-0 lg:px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400">Type</th>
-                    <th className="px-0 lg:px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400">Description</th>
-                    <th className="px-0 lg:px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400">Date</th>
-                    <th className="px-0 lg:px-6 py-4 text-[10px] font-black uppercase tracking-widest text-surface-400 text-right">Amount</th>
+                    <th className="px-0 lg:px-6 py-4 text-xs font-bold uppercase tracking-widest text-surface-400">Type</th>
+                    <th className="px-0 lg:px-6 py-4 text-xs font-bold uppercase tracking-widest text-surface-400">Description</th>
+                    <th className="px-0 lg:px-6 py-4 text-xs font-bold uppercase tracking-widest text-surface-400">Date</th>
+                    <th className="px-0 lg:px-6 py-4 text-xs font-bold uppercase tracking-widest text-surface-400 text-right">Amount</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-surface-100">
@@ -70,8 +70,8 @@ export default function TransactionsPage() {
                     transactions.map((t) => (
                       <tr key={t._id} className="hover:bg-surface-50 transition-colors group">
                         <td className="px-0 lg:px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight ${t.type === 'RECHARGE'
-                            ? 'bg-green-100 text-green-700'
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase ${t.type === 'RECHARGE'
+                            ? 'bg-brand-500/15 text-brand-600'
                             : 'bg-coral-50 text-coral-600'
                             }`}>
                             {t.type === 'RECHARGE' ? '⚡ Recharge' : '🪙 Spend'}
@@ -86,7 +86,7 @@ export default function TransactionsPage() {
                           </p>
                         </td>
                         <td className="px-0 lg:px-6 py-4 text-right whitespace-nowrap">
-                          <span className={`text-sm font-black ${t.type === 'RECHARGE' ? 'text-green-600' : 'text-surface-900'
+                          <span className={`text-sm font-bold ${t.type === 'RECHARGE' ? 'text-brand-600' : 'text-surface-900'
                             }`}>
                             {t.type === 'RECHARGE' ? '+' : '-'}{t.amount} AU
                           </span>
@@ -108,10 +108,10 @@ export default function TransactionsPage() {
             </div>
           </Card>
 
-          <footer className="mt-8 text-center p-6 bg-brand-50 rounded-xl border border-brand-100">
+          <footer className="mt-8 text-center p-3 sm:p-4 bg-brand-50 rounded-xl border border-brand-100">
             <p className="text-xs font-bold text-brand-900 mb-1">Need to top up your wallet?</p>
-            <p className="text-[10px] text-brand-600">
-              Contact support at <span className="font-black underline underline-offset-2">{process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com'}</span>
+            <p className="text-xs text-brand-600">
+              Contact support at <span className="font-bold underline underline-offset-2">{process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@mohdsazidkhan.com'}</span>
             </p>
           </footer>
         </div>

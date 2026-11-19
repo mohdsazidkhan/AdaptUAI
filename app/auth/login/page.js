@@ -4,7 +4,7 @@ import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Button from '@/components/Button';
-import Card from '@/components/Card';
+import AuthShell, { authInput } from '@/components/AuthShell';
 import { PageLoader } from '@/components/Loader';
 
 function LoginContent() {
@@ -52,76 +52,58 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen bg-hero pt-32 pb-20 px-4 flex items-center justify-center transition-colors">
-      <Card className="w-full max-w-md shadow-2xl animate-fade-in" padding="lg">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block text-4xl mb-4 animate-float">🦉</Link>
-          <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white">Welcome Back!</h1>
-          <p className="text-surface-500 font-medium">Log in to continue your learning journey</p>
+    <AuthShell
+      title={'Log in to AdaptUAI'}
+      subtitle={'Continue your learning journey'}
+    >
+      {error && (
+        <div className="mb-3 rounded-lg bg-coral-50 px-3 py-2.5 text-sm font-medium text-coral-600 animate-slide-up">
+          {error}
         </div>
+      )}
 
-        {error && (
-          <div className="mb-6 p-4 bg-coral-50 border border-coral-200 text-coral-700 text-sm font-bold rounded-xl animate-slide-up">
-            ⚠️ {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-sm font-bold text-surface-700 mb-2 px-1" htmlFor="email">
-              Email Address
-            </label>
+            <label className="sr-only" htmlFor="email">Email address</label>
             <input
               id="email"
               name="email"
               type="email"
               required
+              autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="name@example.com"
-              className="w-full px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-xl focus:border-brand-500 focus:outline-none transition-all font-medium text-surface-900"
+              placeholder="Email address"
+              className={authInput}
             />
           </div>
-
           <div>
-            <label className="block text-sm font-bold text-surface-700 mb-2 px-1" htmlFor="password">
-              Password
-            </label>
+            <label className="sr-only" htmlFor="password">Password</label>
             <input
               id="password"
               name="password"
               type="password"
               required
+              autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="••••••••"
-              className="w-full px-4 py-3 bg-surface-50 border-2 border-surface-200 rounded-xl focus:border-brand-500 focus:outline-none transition-all font-medium text-surface-900"
+              placeholder="Password"
+              className={authInput}
             />
           </div>
+        <Button type="submit" fullWidth size="lg" loading={loading}>
+          Log in
+        </Button>
+      </form>
 
-          <div className="pt-2">
-            <Button
-              type="submit"
-              fullWidth
-              size="lg"
-              loading={loading}
-              className="text-lg"
-            >
-              Log In
-            </Button>
-          </div>
-        </form>
+      <div className="my-4 border-t border-surface-200" />
 
-        <div className="mt-8 text-center">
-          <p className="text-surface-500 font-medium">
-            Don&apos;t have an account?{' '}
-            <Link href="/auth/signup" className="text-brand-600 font-bold hover:underline">
-              Sign up free
-            </Link>
-          </p>
-        </div>
-      </Card>
-    </div>
+      <div className="flex justify-center">
+        <Link href="/auth/signup" className="inline-flex h-11 items-center rounded-lg bg-surface-900 px-5 text-[15px] font-semibold text-surface-50 transition hover:opacity-90">
+          Create new account
+        </Link>
+      </div>
+    </AuthShell>
   );
 }
 

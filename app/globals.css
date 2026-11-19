@@ -2,104 +2,112 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ───────── Theme tokens (Facebook-style greys + AdaptUAI's own green brand) ─────────
+   Every colour in the app comes from these variables, so light/dark and the brand stay in one place.
+   background = page grey, surface-50 = cards/navbar, surface-100 = grey fills (fields, secondary
+   buttons, hover rows), surface-200/300 = borders, surface-400…900 = text from muted to primary. */
 @layer base {
   :root {
-    /* Light Mode (Duolingo-inspired) */
-    --background: 253 253 253;
-    --foreground: 28 28 28;
-    
-    --surface-50: 255 255 255;
-    --surface-100: 245 245 245;
-    --surface-200: 229 229 229;
-    --surface-300: 212 212 212;
-    --surface-400: 163 163 163;
-    --surface-500: 115 115 115;
-    --surface-600: 82 82 82;
-    --surface-700: 64 64 64;
-    --surface-800: 38 38 38;
-    --surface-900: 23 23 23;
+    --background: 240 242 245;   /* #f0f2f5 page */
+    --foreground: 5 5 5;         /* #050505 text */
 
-    --brand-50: 240 253 244;
-    --brand-100: 220 252 231;
-    --brand-200: 187 247 208;
-    --brand-400: 74 222 128;
-    --brand-500: 34 197 94;
-    --brand-600: 22 163 74;
-    --brand-700: 21 128 61;
+    --surface-50: 255 255 255;   /* cards, navbar, sidebar */
+    --surface-100: 240 242 245;  /* grey field / button fill */
+    --surface-200: 218 221 225;  /* #dadde1 borders */
+    --surface-300: 206 208 212;  /* #ced0d4 */
+    --surface-400: 138 141 145;  /* #8a8d91 placeholders, meta */
+    --surface-500: 101 103 107;  /* #65676b secondary text */
+    --surface-600: 101 103 107;
+    --surface-700: 28 30 33;
+    --surface-800: 28 30 33;
+    --surface-900: 5 5 5;
 
-    --ocean-50: 240 249 255;
-    --ocean-100: 224 242 254;
-    --ocean-200: 186 230 253;
-    --ocean-500: 14 165 233;
-    --ocean-600: 2 132 199;
+    /* Brand: same green as AajExam (#3EA401) */
+    --brand-50: 245 250 242;
+    --brand-100: 232 244 225;
+    --brand-200: 201 230 184;
+    --brand-300: 168 214 141;
+    --brand-400: 116 189 72;
+    --brand-500: 62 164 1;       /* #3ea401 main buttons, active items */
+    --brand-600: 54 144 1;       /* hover, brand text */
+    --brand-700: 45 118 1;
+    --brand-900: 28 74 0;
 
-    --purple-50: 250 245 255;
-    --purple-100: 243 232 255;
-    --purple-500: 168 85 247;
-    --purple-600: 147 51 234;
+    /* ocean / purple are old accent names: they follow the brand so no blue/violet shows up */
+    --ocean-50: var(--brand-50);
+    --ocean-100: var(--brand-100);
+    --ocean-200: var(--brand-200);
+    --ocean-500: var(--brand-500);
+    --ocean-600: var(--brand-600);
+    --ocean-700: var(--brand-700);
+    --purple-50: var(--brand-50);
+    --purple-100: var(--brand-100);
+    --purple-200: var(--brand-200);
+    --purple-500: var(--brand-500);
+    --purple-600: var(--brand-600);
+    --purple-700: var(--brand-700);
 
+    /* coral = danger / weak areas; accent = AU tokens and streak (gold) */
     --coral-50: 255 241 242;
     --coral-100: 255 228 230;
-    --coral-500: 244 63 94;
-    --coral-600: 225 29 72;
-
+    --coral-200: 254 205 211;
+    --coral-500: 228 30 63;
+    --coral-600: 200 22 52;
+    --coral-700: 159 18 57;
     --accent-50: 255 251 235;
     --accent-100: 254 243 199;
     --accent-200: 253 230 138;
+    --accent-400: 251 191 36;
     --accent-500: 245 158 11;
     --accent-600: 217 119 6;
+    --accent-700: 180 83 9;
 
-    --ring: 34 197 94;
-    --radius: 1.5rem;
+    --ring: var(--brand-500);
+    --radius: 8px;
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    --navbar-h: 56px;
   }
 
   .dark {
-    /* Dark Mode (High Contrast & Premium) */
-    --background: 15 17 21;
-    --foreground: 240 243 248;
+    --background: 24 25 26;      /* #18191a */
+    --foreground: 228 230 235;   /* #e4e6eb */
 
-    --surface-50: 26 30 38;
-    --surface-100: 36 43 56;
-    --surface-200: 51 61 79;
-    --surface-300: 74 86 107;
-    --surface-400: 115 115 115;
-    --surface-500: 140 140 140;
-    --surface-600: 180 180 180;
-    --surface-700: 212 212 212;
-    --surface-800: 240 240 240;
-    --surface-900: 255 255 255;
+    --surface-50: 36 37 38;      /* #242526 cards */
+    --surface-100: 58 59 60;     /* #3a3b3c fields / grey buttons */
+    --surface-200: 62 64 66;     /* #3e4042 borders */
+    --surface-300: 78 80 82;
+    --surface-400: 138 141 145;
+    --surface-500: 176 179 184;  /* #b0b3b8 */
+    --surface-600: 176 179 184;
+    --surface-700: 228 230 235;
+    --surface-800: 228 230 235;
+    --surface-900: 228 230 235;
 
-    --brand-50: 5 46 22;
-    --brand-100: 6 78 59;
-    --brand-200: 20 83 45;
-    --brand-400: 22 101 52;
-    --brand-500: 34 197 94;
-    --brand-600: 74 222 128;
-    --brand-700: 134 239 172;
+    --brand-50: 28 42 20;
+    --brand-100: 32 56 22;
+    --brand-200: 38 76 22;
+    --brand-300: 48 106 16;
+    --brand-400: 56 136 8;
+    --brand-500: 62 164 1;
+    --brand-600: 116 189 72;
+    --brand-700: 168 214 141;
+    --brand-900: 201 230 184;
 
-    --ocean-50: 8 47 73;
-    --ocean-100: 12 74 110;
-    --ocean-200: 30 58 138;
-    --ocean-500: 14 165 233;
-    --ocean-600: 56 189 248;
-
-    --purple-50: 46 16 101;
-    --purple-100: 59 7 100;
-    --purple-500: 168 85 247;
-    --purple-600: 192 132 252;
-
-    --coral-50: 76 5 25;
-    --coral-100: 136 19 55;
+    --coral-50: 60 20 26;
+    --coral-100: 80 24 34;
+    --coral-200: 110 30 44;
     --coral-500: 244 63 94;
     --coral-600: 251 113 133;
-
-    --accent-50: 69 26 3;
-    --accent-100: 120 53 15;
-    --accent-200: 154 52 18;
+    --coral-700: 253 164 175;
+    --accent-50: 60 42 10;
+    --accent-100: 80 55 12;
+    --accent-200: 110 75 15;
+    --accent-400: 251 191 36;
     --accent-500: 245 158 11;
     --accent-600: 251 191 36;
+    --accent-700: 252 211 77;
 
-    --ring: 74 222 128;
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -107,24 +115,76 @@
   * {
     @apply border-surface-200;
   }
+  html {
+    overflow-x: clip;
+  }
   body {
     background-color: rgb(var(--background));
     color: rgb(var(--foreground));
     @apply transition-colors duration-300;
   }
+  /* One grey fill for every field, light and dark. :where() keeps specificity at zero so a
+     field inside a styled box can still use bg-transparent. */
+  :where(input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']), select, textarea) {
+    background-color: rgb(var(--surface-100));
+    color: rgb(var(--surface-900));
+  }
+  :where(input, textarea)::placeholder {
+    color: rgb(var(--surface-400));
+  }
 }
 
-/* Duolingo-style Background Patterns */
+/* Old dotted hero pattern: now just the plain page grey */
 .bg-hero {
   background-color: rgb(var(--background));
-  background-image: 
-    radial-gradient(circle at 2px 2px, rgb(var(--surface-100)) 1px, transparent 0);
-  background-size: 32px 32px;
 }
 
-.dark .bg-hero {
-  background-image: 
-    radial-gradient(circle at 2px 2px, rgb(var(--surface-100)) 1px, transparent 0);
+/* ───────── Facebook-style UI layer ─────────
+   Sentence case with normal letter spacing, white cards lifted off the grey page by a soft shadow.
+   Add .keep-upper to text that must stay in capitals. */
+.uppercase:not(.keep-upper) {
+  text-transform: none;
+}
+[class*='tracking-[0.'],
+.tracking-wide,
+.tracking-wider,
+.tracking-widest {
+  letter-spacing: normal;
+}
+.fb-card {
+  background-color: rgb(var(--surface-50));
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+}
+html:not(.dark) .fb-card.border {
+  border-color: transparent;
+}
+
+/* Desktop sidebar toggle (navbar menu button). Content using lg:ml-sidebar moves back to the edge; the 1280px container stays centred. */
+.app-sidebar {
+  transition: transform 0.25s ease;
+}
+html.sidebar-closed .app-sidebar {
+  transform: translateX(-100%);
+}
+/* Attribute selectors avoid escaping the ':' and '*' in the Tailwind class names. */
+@media (min-width: 1024px) {
+  [class~='lg:ml-sidebar'] {
+    transition: margin-left 0.25s ease;
+  }
+  html.sidebar-closed [class~='lg:ml-sidebar'] {
+    margin-left: 0;
+  }
+}
+
+/* Equal page gap on all four sides (12px phone, 16px desktop): the last block inside a page
+   wrapper must not add its own bottom margin on top of the wrapper padding. */
+[class~='max-w-page'] > :last-child,
+[class~='max-w-page'] > :only-child > :last-child,
+.app-content > :last-child,
+.app-content > :only-child > :last-child,
+main.app-content > * > :last-child {
+  margin-bottom: 0 !important;
 }
 
 /* Smooth transitions */
@@ -134,33 +194,13 @@
   transition-duration: 200ms;
 }
 
-/* Shadow utilities */
-.shadow-button {
-  box-shadow: 0 4px 0 0 rgba(0,0,0,0.1);
-}
-.shadow-button:hover {
-  box-shadow: 0 6px 0 0 rgba(0,0,0,0.1);
-}
-.shadow-button-press {
-  box-shadow: 0 0 0 0 rgba(0,0,0,0.1) !important;
-}
-
-/* Floating animation */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
 /* Slide up animation */
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-slide-up {
-  animation: slide-up 0.5s ease-out forwards;
+  animation: slide-up 0.35s ease-out forwards;
 }
 
 /* Fade in animation */
@@ -169,44 +209,40 @@
   to { opacity: 1; }
 }
 .animate-fade-in {
-  animation: fade-in 0.6s ease-out forwards;
+  animation: fade-in 0.3s ease-out forwards;
 }
 
-/* XP Pop animation */
+/* AU pop animation */
 @keyframes xp-pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); color: #22c55e; }
-  100% { transform: scale(1); }
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
 }
 .animate-xp-pop {
-  animation: xp-pop 0.5s ease-out;
+  animation: xp-pop 0.45s ease-out;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-surface-50;
+  background-color: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-surface-300 rounded-full transition-colors;
+  background-color: rgb(var(--surface-300));
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgb(var(--surface-400));
 }
-.dark ::-webkit-scrollbar-track {
-  background-color: rgb(var(--background));
-}
-.dark ::-webkit-scrollbar-thumb {
-  background-color: rgb(var(--surface-200));
-}
 
 .dark .prose pre {
   background-color: #000000 !important;
-  border: 1px solid rgb(var(--surface-200) / 0.3) !important;
+  border: 1px solid rgb(var(--surface-200)) !important;
 }
 
 .dark .prose code {
-  color: rgb(var(--brand-400)) !important;
+  color: rgb(var(--brand-600)) !important;
 }

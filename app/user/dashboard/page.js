@@ -41,15 +41,15 @@ export default function DashboardPage() {
   const { user, stats, recentChats } = data || {};
 
   return (
-    <div className="flex bg-surface-50 min-h-screen">
+    <div className="flex min-h-screen">
       <Sidebar user={user} />
 
-      <main className="flex-1 lg:ml-64 pt-24 pb-12 px-4 sm:px-6 lg:px-8 container mx-auto">
+      <main className="flex-1 min-w-0 lg:ml-sidebar pt-navbar *:mx-auto *:w-full *:max-w-page *:p-3 lg:*:p-4 app-content">
         <div className="animate-fade-in">
           {/* Welcome Header */}
-          <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <header className="mb-3 lg:mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl lg:text-3xl font-black text-surface-900 dark:text-white">
+              <h1 className="text-xl lg:text-3xl font-bold text-surface-900">
                 Hi, {user?.name?.split(' ')[0]}! 👋
               </h1>
               <p className="text-surface-500 font-semibold mt-1">
@@ -57,44 +57,44 @@ export default function DashboardPage() {
               </p>
             </div>
             <Link href="/user/chat">
-              <Button size="lg" className="px-8 py-4 shadow-glow w-full lg:w-auto">
+              <Button size="lg" className="px-8 py-4 w-full lg:w-auto">
                 🚀 Start Learning
               </Button>
             </Link>
           </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
             {/* Main stats column */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-3 lg:space-y-4">
               {/* Progress Card */}
               <Card padding="lg" className="border-b-4 border-brand-200">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-black text-surface-900">Weekly Progress</h2>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-xl font-bold text-surface-900">Weekly Progress</h2>
                   <div className="text-brand-600 font-bold bg-brand-50 px-3 py-1 rounded-full text-xs uppercase tracking-wider">
                     Excellent
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3 lg:mb-4">
                   <div className="bg-surface-100 rounded-xl p-4 text-center border border-surface-200">
                     <p className="text-2xl mb-1">🔥</p>
-                    <p className="text-lg font-black text-surface-900">{user?.streak || 0}</p>
-                    <p className="text-[10px] font-bold text-surface-400 uppercase tracking-tighter">Day Streak</p>
+                    <p className="text-lg font-bold text-surface-900">{user?.streak || 0}</p>
+                    <p className="text-xs font-bold text-surface-400 uppercase">Day Streak</p>
                   </div>
                   <div className="bg-surface-100 rounded-xl p-4 text-center border border-surface-200">
                     <p className="text-2xl mb-1">🪙</p>
-                    <p className="text-lg font-black text-surface-900">{user?.au || 0}</p>
-                    <p className="text-[10px] font-bold text-surface-400 uppercase tracking-tighter">AU Tokens</p>
+                    <p className="text-lg font-bold text-surface-900">{user?.au || 0}</p>
+                    <p className="text-xs font-bold text-surface-400 uppercase">AU Tokens</p>
                   </div>
                   <div className="bg-surface-100 rounded-xl p-4 text-center border border-surface-200">
                     <p className="text-2xl mb-1">🎓</p>
-                    <p className="text-lg font-black text-surface-900">{stats?.totalSessions || 0}</p>
-                    <p className="text-[10px] font-bold text-surface-400 uppercase tracking-tighter">Lessons</p>
+                    <p className="text-lg font-bold text-surface-900">{stats?.totalSessions || 0}</p>
+                    <p className="text-xs font-bold text-surface-400 uppercase">Lessons</p>
                   </div>
                   <div className="bg-surface-100 rounded-xl p-4 text-center border border-surface-200">
                     <p className="text-2xl mb-1">🌍</p>
-                    <p className="text-lg font-black text-surface-900">{user?.topicsExplored?.length || 0}</p>
-                    <p className="text-[10px] font-bold text-surface-400 uppercase tracking-tighter">Topics</p>
+                    <p className="text-lg font-bold text-surface-900">{user?.topicsExplored?.length || 0}</p>
+                    <p className="text-xs font-bold text-surface-400 uppercase">Topics</p>
                   </div>
                 </div>
 
@@ -102,11 +102,11 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">🛡️</span>
                     <div>
-                      <p className="text-xs font-black text-brand-900">Wallet Secure</p>
-                      <p className="text-[10px] text-brand-700 font-bold uppercase tracking-wider">Recharge anytime in Profile Settings</p>
+                      <p className="text-xs font-bold text-brand-900">Wallet Secure</p>
+                      <p className="text-xs text-brand-700 font-bold uppercase tracking-wider">Recharge anytime in Profile Settings</p>
                     </div>
                   </div>
-                  <Link href="/user/profile" className="text-xs font-black text-brand-600 hover:text-brand-700 underline">
+                  <Link href="/user/profile" className="text-xs font-bold text-brand-600 hover:text-brand-700 underline">
                     View Wallet →
                   </Link>
                 </div>
@@ -114,8 +114,8 @@ export default function DashboardPage() {
 
               {/* Recent Sessions */}
               <Card padding="lg">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-black text-surface-900">Recent Chats</h2>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-xl font-bold text-surface-900">Recent Chats</h2>
                   <Link href="/user/chats" className="text-sm font-bold text-brand-600 hover:underline">
                     View all →
                   </Link>
@@ -130,7 +130,7 @@ export default function DashboardPage() {
                         className="flex items-center justify-between p-4 bg-surface-100 border border-surface-200 rounded-xl hover:border-brand-500 hover:bg-brand-50 transition-all group"
                       >
                         <div className="flex items-center gap-3 overflow-hidden">
-                          <span className="text-2xl group-hover:scale-110 transition-transform">
+                          <span className="text-2xl transition-transform">
                             {chat.topic ? '📚' : '💬'}
                           </span>
                           <div className="min-w-0">
@@ -142,7 +142,7 @@ export default function DashboardPage() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex-shrink-0 bg-accent-100 text-accent-700 px-2 py-1 rounded-lg text-xs font-black">
+                        <div className="flex-shrink-0 bg-accent-100 text-accent-700 px-2 py-1 rounded-lg text-xs font-bold">
                           +{chat.auEarned || 0} AU
                         </div>
                       </Link>
@@ -161,21 +161,21 @@ export default function DashboardPage() {
             </div>
 
             {/* Side stats Column */}
-            <div className="space-y-6">
+            <div className="space-y-3 lg:space-y-4">
               {/* Level Badge Detail */}
               <Card padding="lg" className="bg-gradient-to-br from-brand-50 to-ocean-50 border-brand-100 text-center">
                 <div className="flex justify-center mb-4">
                   <AUBadge level={user?.level} xp={user?.au} streak={user?.streak} />
                 </div>
-                <h3 className="text-lg font-black text-surface-900 mb-1">Level {user?.level} Learner</h3>
+                <h3 className="text-lg font-bold text-surface-900 mb-1">Level {user?.level} Learner</h3>
                 <p className="text-xs text-surface-500 font-bold uppercase tracking-widest mb-4">
                   Points to level {(user?.level || 1) + 1}: {user?.auForNextLevel - user?.au} AU
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
-                  <div className="bg-surface-50/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-brand-100 text-[10px] font-black tracking-tight uppercase text-brand-700">
+                  <div className="bg-surface-50/80 px-3 py-1.5 rounded-xl border border-brand-100 text-xs font-bold uppercase text-brand-700">
                     🏆 TOP 5%
                   </div>
-                  <div className="bg-surface-50/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-brand-100 text-[10px] font-black tracking-tight uppercase text-ocean-700">
+                  <div className="bg-surface-50/80 px-3 py-1.5 rounded-xl border border-brand-100 text-xs font-bold uppercase text-ocean-700">
                     🔥 ON FIRE
                   </div>
                 </div>
@@ -183,7 +183,7 @@ export default function DashboardPage() {
 
               {/* Topics Explored */}
               <Card padding="lg">
-                <h3 className="text-lg font-black text-surface-900 mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-surface-900 mb-4 flex items-center gap-2">
                   <span>📚</span> Strong Topics
                 </h3>
                 <div className="flex flex-wrap gap-2 text-center">
@@ -194,13 +194,13 @@ export default function DashboardPage() {
                       </span>
                     ))
                   ) : (
-                    <p className="text-xs text-surface-400 font-medium italic">Explore more topics to rank up!</p>
+                    <p className="text-xs text-surface-400 font-medium">Explore more topics to rank up!</p>
                   )}
                 </div>
 
                 <hr className="my-6 border-surface-100" />
 
-                <h3 className="text-lg font-black text-surface-900 mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-surface-900 mb-4 flex items-center gap-2">
                   <span>🎯</span> Need Practice
                 </h3>
                 <div className="flex flex-wrap gap-2 text-center">
@@ -211,26 +211,26 @@ export default function DashboardPage() {
                       </span>
                     ))
                   ) : (
-                    <p className="text-xs text-surface-400 font-medium italic">You&apos;re doing great — no weak areas detected! ✨</p>
+                    <p className="text-xs text-surface-400 font-medium">You&apos;re doing great — no weak areas detected! ✨</p>
                   )}
                 </div>
               </Card>
 
               {/* Mindset Card */}
               <Card padding="lg" className="border-b-4 border-purple-200">
-                <h3 className="text-lg font-black text-surface-900 mb-2">My Mindset</h3>
-                <p className="text-xs text-surface-500 font-bold mb-4 uppercase tracking-tighter">Personalized Profile</p>
+                <h3 className="text-lg font-bold text-surface-900 mb-2">My Mindset</h3>
+                <p className="text-xs text-surface-500 font-bold mb-4 uppercase">Personalized Profile</p>
 
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] font-black uppercase text-surface-400">
+                    <div className="flex justify-between text-xs font-bold uppercase text-surface-400">
                       <span>Impatient</span>
                       <span>Patient</span>
                     </div>
                     <ProgressBar value={user?.mindsetProfile?.patience * 100 || 50} max={100} height="sm" color="purple" animated={false} />
                   </div>
                   <div className="space-y-1">
-                    <div className="flex justify-between text-[10px] font-black uppercase text-surface-400">
+                    <div className="flex justify-between text-xs font-bold uppercase text-surface-400">
                       <span>Cautious</span>
                       <span>Confident</span>
                     </div>

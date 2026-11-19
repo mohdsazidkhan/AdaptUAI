@@ -2,306 +2,266 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import Button from './Button';
+import { useState, useEffect, useRef } from 'react';
+import { Menu, X, Moon, Sun, LogOut, Coins, ChevronRight } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
-import AUBadge from './AUBadge';
 import api from '@/lib/api';
+import { navFor, homeFor, isActivePath, avatarFor } from '@/lib/navItems';
+
+// Round grey icon button used for every header action (Facebook style).
+const roundBtn =
+  'flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-100 text-surface-900 outline-none transition-colors hover:bg-surface-200 focus-visible:ring-2 focus-visible:ring-brand-500';
+
+export function Logo({ href = '/', onClick }) {
+  return (
+    <Link href={href} onClick={onClick} className="flex shrink-0 items-center gap-1.5">
+      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-500 text-xl">🦉</span>
+      <span className="text-xl font-bold leading-none">
+        <span className="text-surface-900">AdaptU</span>
+        <span className="text-brand-500">AI</span>
+      </span>
+    </Link>
+  );
+}
 
 export default function Navbar({ user }) {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [sidebarClosed, setSidebarClosed] = useState(false);
+  const menuRef = useRef(null);
+  // Signed-in app pages have the left sidebar; landing, legal and auth pages do not.
+  const hasSidebar = !!user && /^\/(user|admin)(\/|$)/.test(pathname || '');
+  const togglesSidebar = hasSidebar && isDesktop;
+  const menuShowsClose = togglesSidebar ? !sidebarClosed : drawerOpen;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    setSidebarClosed(document.documentElement.classList.contains('sidebar-closed'));
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
   }, []);
 
-  // Lock body scroll when mobile menu is open
+  const items = navFor(user);
+  const tabs = items.filter((i) => i.tab);
+  const isAdmin = user?.role === 'admin';
+  const profileHref = isAdmin ? '/admin/profile' : '/user/profile';
+
+  // Close the account menu on outside click / Escape, and both menus on navigation.
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+    if (!menuOpen) return undefined;
+    const onDown = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [menuOpen]);
+  useEffect(() => { setDrawerOpen(false); setMenuOpen(false); }, [pathname]);
+  useEffect(() => {
+    document.body.style.overflow = drawerOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [drawerOpen]);
+
+  // Menu button: on desktop app pages it slides the left sidebar in/out (remembered; content then
+  // takes the full width); everywhere else it opens/closes the drawer. Icon: X while open, bars while closed.
+  // The html.sidebar-closed class drives the CSS in globals.css.
+  function handleMenu() {
+    if (togglesSidebar) {
+      const closed = document.documentElement.classList.toggle('sidebar-closed');
+      setSidebarClosed(closed);
+      try { localStorage.setItem('sidebarClosed', closed ? '1' : '0'); } catch { /* storage blocked */ }
+      return;
     }
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [mobileMenuOpen]);
+    setDrawerOpen((o) => !o);
+  }
 
   async function handleLogout() {
     try {
       await api.post('/auth/logout');
-      localStorage.removeItem('user');
-      router.push('/');
-      router.refresh();
-    } catch {
-      localStorage.removeItem('user');
-      router.push('/');
-    }
+    } catch { /* still sign out locally */ }
+    localStorage.removeItem('user');
+    router.push('/');
+    router.refresh();
   }
-
-  const navLinks = [
-    { 
-      href: user?.role === 'admin' ? '/admin/dashboard' : '/user/dashboard', 
-      label: user?.role === 'admin' ? 'Overview' : 'Dashboard', 
-      icon: user?.role === 'admin' ? '📊' : '🏠', 
-      authRequired: true, 
-      hideOnDesktop: true 
-    },
-    { href: '/admin/users', label: 'Users', icon: '👥', authRequired: true, hideOnDesktop: true, adminOnly: true },
-    { href: '/admin/chats', label: 'Users Chat', icon: '💬', authRequired: true, hideOnDesktop: true, adminOnly: true },
-    { href: '/admin/transactions', label: 'Transactions', icon: '💸', authRequired: true, hideOnDesktop: true, adminOnly: true },
-    { href: '/user/chat', label: 'Learn', icon: '🦉', authRequired: true, hideOnDesktop: true, studentOnly: true },
-    { href: '/user/chats', label: 'Sessions', icon: '💬', authRequired: true, hideOnDesktop: true, studentOnly: true },
-    { href: '/user/wallet', label: 'Wallet', icon: '🪙', authRequired: true, hideOnDesktop: true, studentOnly: true },
-    { href: '/user/transactions', label: 'History', icon: '📜', authRequired: true, hideOnDesktop: true, studentOnly: true },
-    { href: user?.role === 'admin' ? '/admin/profile' : '/user/profile', label: user?.role === 'admin' ? 'My Profile' : 'Profile', icon: '👤', authRequired: true, hideOnDesktop: true },
-    { href: '/auth/login', label: 'Log In', icon: '🔑', authRequired: false, hideOnDesktop: true },
-    { href: '/auth/signup', label: 'Get Started', icon: '🚀', authRequired: false, hideOnDesktop: true },
-  ];
-
-  const filteredLinks = navLinks.filter(link => {
-    if (link.authRequired && !user) return false;
-    if (user && !link.authRequired && (link.href === '/auth/login' || link.href === '/auth/signup')) return false;
-    if (user?.role === 'admin' && link.studentOnly) return false;
-    if (link.hideOnDesktop) return false; // Handled separately in the UI
-    return true;
-  });
 
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-surface-200 dark:border-surface-100/10 ${scrolled ? 'bg-surface-50/95 dark:bg-surface-50/95 backdrop-blur-md shadow-md' : 'bg-surface-50/90 dark:bg-surface-50/90 backdrop-blur-sm'
-          }`}
-      >
-        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href={user ? (user.role === 'admin' ? '/admin/dashboard' : '/user/dashboard') : '/'} className="flex items-center gap-2 group">
-              <span className="text-2xl group-hover:animate-bounce-slow transition-all">🦉</span>
-              <span className="text-xl font-black">
-                <span className="text-surface-900 dark:text-white">AdaptU</span>
-                <span className="text-brand-500">AI</span>
-              </span>
-              <span className="hidden sm:inline-block h-4 w-px bg-surface-200 mx-1" />
-              <span className="hidden md:inline-block text-[10px] font-bold text-surface-400 tracking-widest uppercase">
-                AI that adapts to you
-              </span>
-            </Link>
-
-            {/* Desktop Nav */}
-            {user && (
-              <nav className="hidden md:flex items-center gap-1">
-                {filteredLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-150 ${pathname === link.href
-                      ? 'bg-brand-500 text-white shadow-sm'
-                      : 'text-surface-600 hover:bg-surface-100 hover:text-surface-900'
-                      }`}
-                  >
-                    <span>{link.icon}</span>
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
-            )}
-
-            {/* Right side */}
-            <div className="flex items-center gap-2 sm:gap-4">
-              {/* Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2.5 rounded-xl bg-surface-100 hover:bg-surface-200 text-surface-600 transition-all active:scale-95"
-                aria-label="Toggle Theme"
-              >
-                {theme === 'light' ? '🌙' : '☀️'}
-              </button>
-
-              {user ? (
-                <>
-                  {/* AU Badge (compact) */}
-                  <div className="hidden sm:block">
-                    <AUBadge xp={user.au} level={user.level} streak={user.streak} compact />
-                  </div>
-
-                  {/* Avatar dropdown */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                      className="flex items-center gap-2 p-1 rounded-full hover:ring-2 hover:ring-brand-300 transition-all"
-                    >
-                      <img
-                        src={user.avatarUrl || `https://api.dicebear.com/8.x/fun-emoji/svg?seed=${encodeURIComponent(user.name)}`}
-                        alt={user.name}
-                        className="w-9 h-9 rounded-full bg-brand-100 object-cover border-2 border-brand-200"
-                      />
-                    </button>
-
-                    {userDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-52 bg-surface-50 dark:bg-surface-50 rounded-xl shadow-xl border border-surface-200 dark:border-surface-100/10 py-1 animate-scale-in z-50">
-                        <div className="px-4 py-3 border-b border-surface-100">
-                          <p className="font-bold text-surface-900 truncate">{user.name}</p>
-                          <p className="text-xs text-surface-500 truncate">{user.email}</p>
-                        </div>
-                        <Link
-                          href={user?.role === 'admin' ? '/admin/profile' : '/user/profile'}
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-surface-700 dark:text-surface-900 hover:bg-surface-100 dark:hover:bg-surface-100 font-medium"
-                        >
-                          {user?.role === 'admin' ? '👤 Admin Profile' : '👤 View Profile'}
-                        </Link>
-                        <Link
-                          href={user.role === 'admin' ? '/admin/dashboard' : '/user/dashboard'}
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-surface-700 dark:text-surface-900 hover:bg-surface-100 dark:hover:bg-surface-100 font-medium"
-                        >
-                          🏠 Dashboard
-                        </Link>
-                        <button
-                          onClick={handleLogout}
-                          className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-coral-600 hover:bg-coral-100 dark:hover:bg-coral-900/10 font-medium"
-                        >
-                          🚪 Sign Out
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="hidden xs:flex items-center gap-2">
-                    <Link
-                      href="/auth/login"
-                      className="px-4 py-2 text-sm font-semibold text-surface-700 dark:text-surface-900 hover:text-surface-900 dark:hover:text-white hover:bg-surface-100 dark:hover:bg-surface-100 rounded-xl transition-all"
-                    >
-                    Log In
-                  </Link>
-                  <Link
-                    href="/auth/signup"
-                    className="px-4 py-2 text-sm font-bold bg-brand-500 text-white rounded-xl hover:bg-brand-600 shadow-button border-b-2 border-brand-700 hover:translate-y-[1px] hover:shadow-button-press transition-all"
-                  >
-                    Get Started
-                  </Link>
-                </div>
-              )}
-
-              {/* Mobile hamburger */}
-              <button
-                className="md:hidden p-2 rounded-xl hover:bg-surface-100 transition-colors"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                <div className={`w-5 h-0.5 bg-surface-600 mb-1.5 transition-transform ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
-                <div className={`w-5 h-0.5 bg-surface-600 mb-1.5 transition-opacity ${mobileMenuOpen ? 'opacity-0' : ''}`} />
-                <div className={`w-5 h-0.5 bg-surface-600 transition-transform ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
-              </button>
-            </div>
+      <header className="fixed inset-x-0 top-0 z-50 h-navbar bg-surface-50 shadow-card">
+        <div className="flex h-full items-center justify-between gap-2 px-3 lg:px-4">
+          {/* Left: logo */}
+          <div className="flex min-w-0 flex-1 items-center">
+            <Logo href={homeFor(user)} />
           </div>
-        </div>
 
-      </header>
-
-      {/* Mobile Side Drawer - Outside header to avoid z-index/transform issues */}
-      <div
-        className={`fixed inset-0 z-[100] md:hidden transition-all duration-300 ${mobileMenuOpen ? 'visible' : 'invisible'
-          }`}
-      >
-        {/* Backdrop */}
-        <div
-          className={`absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'
-            }`}
-          onClick={() => setMobileMenuOpen(false)}
-        />
-
-        {/* Sidebar Drawer Container */}
-        <div
-          className={`absolute inset-y-0 left-0 w-[280px] bg-surface-50 dark:bg-surface-50 shadow-2xl transition-transform duration-300 ease-out transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-            }`}
-        >
-          <div className="h-full flex flex-col bg-surface-50 dark:bg-surface-50">
-            {/* Header Area */}
-            <div className="p-6 border-b border-surface-200 flex items-center justify-between bg-surface-50">
-              <Link href={user ? (user.role === 'admin' ? '/admin/dashboard' : '/user/dashboard') : '/'} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
-                <span className="text-2xl">🦉</span>
-                <span className="text-xl font-black text-surface-900 dark:text-white leading-none">AdaptUAI</span>
-              </Link>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded-xl bg-surface-100 text-surface-500 hover:text-surface-900 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Nav Links */}
-            <div className="flex-1 overflow-y-auto py-3 lg:py-6 px-2 lg:px-4 space-x-2 lg:space-y-2 bg-surface-50">
-              {navLinks.filter(link => {
-                if (link.authRequired && !user) return false;
-                if (user && !link.authRequired) return false;
-                if (user?.role === 'admin' && link.studentOnly) return false;
-                if (user?.role !== 'admin' && link.adminOnly) return false;
-                return true;
-              }).map((link) => {
-                const isActive = pathname === link.href;
+          {/* Centre: icon tabs (desktop) */}
+          {user && (
+            <nav className="hidden h-full items-stretch md:flex" aria-label="Main">
+              {tabs.map(({ href, label, icon: Icon }) => {
+                const active = isActivePath(pathname, href);
                 return (
                   <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-4 px-3 lg:px-5 py-2 lg:py-4 rounded-xl lg:rounded-xl font-bold text-base transition-all ${isActive
-                      ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20 translate-x-1'
-                      : 'text-surface-600 hover:bg-surface-100 hover:text-surface-900 border border-transparent hover:border-surface-200'
-                      }`}
+                    key={href}
+                    href={href}
+                    title={label}
+                    aria-label={label}
+                    aria-current={active ? 'page' : undefined}
+                    className="relative flex w-[60px] items-center justify-center rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-500 lg:w-[96px]"
                   >
-                    <span className="text-2xl">{link.icon}</span>
-                    {link.label}
+                    <span className={`flex h-12 w-full items-center justify-center rounded-lg transition-colors ${active ? 'text-brand-500' : 'text-surface-500 hover:bg-surface-100'}`}>
+                      <Icon className="h-6 w-6" strokeWidth={active ? 2.4 : 2} />
+                    </span>
+                    {active && <span className="absolute inset-x-1 bottom-0 h-[3px] rounded-full bg-brand-500" />}
                   </Link>
                 );
               })}
-            </div>
+            </nav>
+          )}
 
-            {/* User Profile / Logout */}
-            {user && (
-              <div className="p-4 border-t border-surface-200 bg-surface-100/30">
-                <div className="p-4 bg-white dark:bg-surface-100 rounded-xl lg:rounded-3xl border border-surface-200 mb-4 shadow-sm">
-                  <div className="flex items-center gap-3 mb-3">
-                    <img
-                      src={user.avatarUrl || `https://api.dicebear.com/8.x/fun-emoji/svg?seed=${encodeURIComponent(user.name)}`}
-                      alt={user.name}
-                      className="w-10 h-10 rounded-full border-2 border-brand-100"
-                    />
-                    <div className="min-w-0">
-                      <p className="font-black text-surface-900 truncate text-xs">{user.name}</p>
-                      <p className="text-[10px] text-brand-600 font-bold uppercase tracking-widest mt-0.5">
-                        {user.role === 'admin' ? '🛡️ System Admin' : `Level ${user.level} Student`}
-                      </p>
+          {/* Right: actions, menu button last */}
+          <div className="flex flex-1 items-center justify-end gap-1.5 sm:gap-2">
+            {user && !isAdmin && (
+              <Link
+                href="/user/wallet"
+                title="AU balance"
+                className="hidden h-10 items-center gap-1.5 rounded-full bg-surface-100 px-3 text-sm font-semibold text-surface-900 transition-colors hover:bg-surface-200 xs:flex"
+              >
+                <Coins className="h-4 w-4 text-accent-500" />
+                {user.au} AU
+              </Link>
+            )}
+
+            <button type="button" onClick={toggleTheme} className={roundBtn} aria-label="Toggle theme" title="Toggle theme">
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </button>
+
+            {user ? (
+              <div className="relative" ref={menuRef}>
+                <button
+                  type="button"
+                  onClick={() => setMenuOpen((o) => !o)}
+                  aria-label="Account"
+                  aria-expanded={menuOpen}
+                  className="block rounded-full ring-offset-2 ring-offset-surface-50 transition hover:brightness-95"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={avatarFor(user)} alt={user.name} className="h-10 w-10 rounded-full bg-surface-100 object-cover" />
+                </button>
+
+                {menuOpen && (
+                  <div className="absolute right-0 top-12 z-50 w-[300px] max-w-[calc(100vw-1rem)] rounded-lg bg-surface-50 p-2 shadow-menu animate-fade-in">
+                    <Link href={profileHref} className="flex items-center gap-3 rounded-lg p-2 shadow-card transition-colors hover:bg-surface-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={avatarFor(user)} alt="" className="h-10 w-10 rounded-full bg-surface-100 object-cover" />
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-surface-900">{user.name}</p>
+                        <p className="truncate text-xs text-surface-500">{user.email}</p>
+                      </div>
+                    </Link>
+                    <div className="mt-2 space-y-0.5">
+                      {items.filter((i) => !i.tab || i.href === profileHref).map(({ href, label, icon: Icon }) => (
+                        <Link key={href} href={href} className="flex items-center gap-3 rounded-lg p-2 text-sm font-medium text-surface-900 transition-colors hover:bg-surface-100">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-100"><Icon className="h-5 w-5" /></span>
+                          <span className="flex-1">{label}</span>
+                          <ChevronRight className="h-5 w-5 text-surface-500" />
+                        </Link>
+                      ))}
+                      <button type="button" onClick={handleLogout} className="flex w-full items-center gap-3 rounded-lg p-2 text-sm font-medium text-coral-600 transition-colors hover:bg-surface-100">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-coral-50"><LogOut className="h-5 w-5" /></span>
+                        Log out
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between py-2 px-3 bg-surface-50 rounded-xl border border-surface-100">
-                    <span className="text-[10px] font-black uppercase text-surface-400">
-                      {user.role === 'admin' ? 'System Access' : 'Balance'}
-                    </span>
-                    <span className={`text-xs font-black ${user.role === 'admin' ? 'text-surface-600' : 'text-brand-600'}`}>
-                      {user.role === 'admin' ? 'Root Mode' : `${user.au} AU`}
-                    </span>
+                )}
+              </div>
+            ) : (
+              <div className="hidden items-center gap-2 xs:flex">
+                <Link href="/auth/login" className="flex h-10 items-center rounded-lg bg-surface-100 px-4 text-sm font-semibold text-surface-900 transition-colors hover:bg-surface-200">
+                  Log in
+                </Link>
+                <Link href="/auth/signup" className="flex h-10 items-center rounded-lg bg-brand-500 px-4 text-sm font-semibold text-white transition hover:brightness-110">
+                  Sign up
+                </Link>
+              </div>
+            )}
+
+            {/* Menu button: always last at the right end; toggles the sidebar (desktop) or drawer (mobile) */}
+            <button
+              type="button"
+              onClick={handleMenu}
+              className={`${roundBtn} ${user ? '' : 'xs:hidden'}`}
+              aria-label={menuShowsClose ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuShowsClose}
+              title={menuShowsClose ? 'Close menu' : 'Open menu'}
+            >
+              {menuShowsClose ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile drawer (left) */}
+      <div className={`fixed inset-0 z-[100] ${drawerOpen ? 'visible' : 'invisible'}`} aria-hidden={!drawerOpen}>
+        <div
+          className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${drawerOpen ? 'opacity-100' : 'opacity-0'}`}
+          onClick={() => setDrawerOpen(false)}
+        />
+        <aside
+          className={`absolute inset-y-0 left-0 flex w-[300px] max-w-[85vw] flex-col bg-surface-50 shadow-menu transition-transform duration-300 ease-out ${drawerOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        >
+          <div className="flex h-navbar items-center justify-between border-b border-surface-200 px-3">
+            <Logo href={homeFor(user)} onClick={() => setDrawerOpen(false)} />
+            <button type="button" onClick={() => setDrawerOpen(false)} className={roundBtn} aria-label="Close menu">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-2">
+            {user ? (
+              <>
+                <Link href={profileHref} className="mb-1 flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-surface-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={avatarFor(user)} alt="" className="h-9 w-9 rounded-full bg-surface-100 object-cover" />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-surface-900">{user.name}</p>
+                    <p className="truncate text-xs text-surface-500">{isAdmin ? 'System admin' : `Level ${user.level} · ${user.au} AU`}</p>
                   </div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 py-4 bg-coral-50 hover:bg-coral-100 text-coral-600 rounded-xl font-black text-sm transition-all border border-coral-200/50"
-                >
-                  Sign Out 🚪
-                </button>
+                </Link>
+                {items.map(({ href, label, icon: Icon }) => {
+                  const active = isActivePath(pathname, href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      className={`flex items-center gap-3 rounded-lg p-2 text-[15px] font-medium transition-colors ${active ? 'bg-brand-500 text-white' : 'text-surface-900 hover:bg-surface-100'}`}
+                    >
+                      <span className={`flex h-9 w-9 items-center justify-center rounded-full ${active ? 'bg-white/20' : 'bg-surface-100'}`}><Icon className="h-5 w-5" /></span>
+                      {label}
+                    </Link>
+                  );
+                })}
+              </>
+            ) : (
+              <div className="space-y-2 p-2">
+                <Link href="/auth/login" className="flex h-11 items-center justify-center rounded-lg bg-surface-100 font-semibold text-surface-900">Log in</Link>
+                <Link href="/auth/signup" className="flex h-11 items-center justify-center rounded-lg bg-brand-500 font-semibold text-white">Sign up</Link>
               </div>
             )}
           </div>
-        </div>
+
+          {user && (
+            <div className="border-t border-surface-200 p-2">
+              <button type="button" onClick={handleLogout} className="flex w-full items-center gap-3 rounded-lg p-2 text-[15px] font-medium text-coral-600 transition-colors hover:bg-surface-100">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-coral-50"><LogOut className="h-5 w-5" /></span>
+                Log out
+              </button>
+            </div>
+          )}
+        </aside>
       </div>
     </>
   );

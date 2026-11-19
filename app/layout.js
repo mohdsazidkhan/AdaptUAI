@@ -3,6 +3,7 @@ import { getAuthUserFromCookies } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Navbar from '@/components/Navbar';
+import BottomNav from '@/components/BottomNav';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -84,6 +85,7 @@ export default async function RootLayout({ children }) {
                   } else {
                     document.documentElement.classList.remove('dark');
                   }
+                  if (localStorage.getItem('sidebarClosed') === '1') document.documentElement.classList.add('sidebar-closed');
                 } catch (e) {}
               })();
             `,
@@ -96,6 +98,7 @@ export default async function RootLayout({ children }) {
           <main className="min-h-screen">
             {children}
           </main>
+          <BottomNav user={user} />
           <ToastContainer 
             position="top-center"
             autoClose={5000}
@@ -107,6 +110,7 @@ export default async function RootLayout({ children }) {
             draggable
             pauseOnHover
             theme="colored"
+            style={{ top: 'calc(var(--navbar-h) + 8px)' }}
           />
         </ThemeProvider>
       </body>

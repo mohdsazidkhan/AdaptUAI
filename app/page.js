@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { Brain, Zap, MessageCircle, TrendingUp, Target, ShieldCheck, Mic, Camera, ArrowRight } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 export const metadata = {
   title: 'AdaptUAI — Your Personalized AI Tutor',
@@ -6,254 +8,155 @@ export const metadata = {
 };
 
 const features = [
-  {
-    icon: '🧠',
-    title: 'Mindset-Aware AI',
-    desc: 'The more you learn, the smarter it gets about how YOU learn — adapting tone, depth, and style to match you.',
-    color: 'purple',
-    iconBg: 'bg-purple-100/80',
-  },
-  {
-    icon: '⚡',
-    title: 'Gamified Learning',
-    desc: 'Earn XP, level up, maintain streaks. Learning should feel like a game — rewarding, fun, and addictive.',
-    color: 'accent',
-    iconBg: 'bg-accent-100/80',
-  },
-  {
-    icon: '💬',
-    title: 'Streaming AI Responses',
-    desc: "Real-time streaming responses mean you never wait. It's like chatting with the world's smartest tutor.",
-    color: 'ocean',
-    iconBg: 'bg-ocean-100/80',
-  },
-  {
-    icon: '📈',
-    title: 'Progress Tracking',
-    desc: 'Track your weak areas, strong topics, and learning progress with beautiful analytics on your dashboard.',
-    color: 'brand',
-    iconBg: 'bg-brand-100/80',
-  },
-  {
-    icon: '🎯',
-    title: 'Personalized Depth',
-    desc: 'From quick overviews to deep dives — the AI matches the complexity of its answers to your preference.',
-    color: 'coral',
-    iconBg: 'bg-coral-100/80',
-  },
-  {
-    icon: '🔒',
-    title: 'Secure & Private',
-    desc: 'Your conversations are private and protected. JWT authentication keeps your account secure.',
-    color: 'surface',
-    iconBg: 'bg-surface-100/80',
-  },
+  { icon: Brain, title: 'Mindset-aware AI', desc: 'The more you learn, the better it understands how you learn, and adapts its tone, depth and style to match.' },
+  { icon: Zap, title: 'Gamified learning', desc: 'Earn AU, level up and keep your streak going. Learning feels rewarding, not like a chore.' },
+  { icon: MessageCircle, title: 'Streaming answers', desc: 'Answers appear as they are written, so you never wait. It feels like chatting with a real tutor.' },
+  { icon: TrendingUp, title: 'Progress tracking', desc: 'See your strong topics, weak areas and learning progress on your dashboard.' },
+  { icon: Target, title: 'Personalised depth', desc: 'From a quick overview to a deep dive, answers match the level of detail you prefer.' },
+  { icon: ShieldCheck, title: 'Secure and private', desc: 'Your chats stay private to your account and are never sold.' },
 ];
 
 const stats = [
-  { value: '10K+', label: 'Topics Covered' },
-  { value: '50+', label: 'Learning Styles' },
-  { value: '∞', label: 'Questions Answered' },
-  { value: '5⭐', label: 'Learner Rating' },
+  { value: '10K+', label: 'Topics covered' },
+  { value: '50+', label: 'Learning styles' },
+  { value: '∞', label: 'Questions answered' },
+  { value: '5⭐', label: 'Learner rating' },
 ];
+
+const steps = [
+  { title: 'Sign up', desc: 'Create your free account in 30 seconds. No credit card needed.' },
+  { title: 'Ask anything', desc: 'Type, speak or send a photo of your question to the AI tutor.' },
+  { title: 'AI adapts to you', desc: 'The more you chat, the more personal your tutor becomes.' },
+];
+
+// Big headings: last word in the brand colour.
+function AccentLast({ children }) {
+  const words = String(children).trim().split(' ');
+  const last = words.pop();
+  return <>{words.join(' ')} <span className="text-brand-500">{last}</span></>;
+}
+
+const card = 'fb-card p-4 xl:p-6';
 
 export default function LandingPage() {
   return (
-    <div className="bg-hero min-h-screen text-surface-900 transition-colors duration-500">
-      {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-full mx-auto">
-        <div className="text-center container mx-auto animate-fade-in">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-brand-100 text-brand-700 border border-brand-200 rounded-full px-4 py-1.5 text-sm font-bold mb-6">
-            <span className="w-2 h-2 bg-brand-500 rounded-full animate-pulse" />
-            AI-Powered Personalized Learning
-          </div>
-
-          {/* Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-surface-900 leading-tight mb-4 text-balance">
-            Learn anything with
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-brand-500 via-ocean-500 to-purple-500 mt-1">
-              AdaptUAI
+    <div className="flex min-h-screen flex-col">
+      <div className="mx-auto w-full max-w-page flex-1 space-y-3 lg:space-y-4 p-3 pt-[calc(var(--navbar-h)+0.75rem)] lg:p-4 lg:pt-[calc(var(--navbar-h)+1rem)]">
+        {/* ── Hero ───────────────────────────────────────────────────────── */}
+        <section className={`${card} grid items-center gap-3 lg:gap-4 lg:grid-cols-2`}>
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-brand-500/15 px-3 py-1 text-sm font-semibold text-brand-600">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-brand-500" />
+              AI-powered personalised learning
             </span>
-          </h1>
-
-          <p className="text-2xl font-black text-brand-600 mb-8 uppercase tracking-[0.2em] animate-fade-in delay-200">
-            AI that adapts to you
-          </p>
-
-          <p className="text-xl text-surface-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-            AdaptUAI is the only tutor that analyzes{' '}
-            <strong className="text-surface-800">how you think</strong>, adapts to your learning style,
-            and gets <em>smarter</em> the more you use it. 🦉
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link
-              href="/auth/signup"
-              className="px-8 py-4 bg-brand-500 hover:bg-brand-600 text-white font-black text-lg rounded-xl shadow-button border-b-4 border-brand-700 hover:border-brand-700 active:translate-y-[2px] active:shadow-button-press transition-all"
-            >
-              🚀 Start Learning Free
-            </Link>
-            <Link
-              href="/auth/login"
-              className="px-8 py-4 bg-surface-50 hover:bg-surface-100 text-surface-700 font-bold text-lg rounded-xl border-2 border-surface-200 hover:border-surface-300 transition-all shadow-sm"
-            >
-              Log in →
-            </Link>
+            <h1 className="mt-4 text-3xl font-bold leading-tight text-surface-900 sm:text-4xl lg:text-5xl">
+              Learn anything with an AI tutor that adapts to <span className="text-brand-500">you</span>
+            </h1>
+            <p className="mt-4 text-base leading-relaxed text-surface-500 sm:text-lg">
+              AdaptUAI understands <strong className="font-semibold text-surface-900">how you think</strong>, matches your learning style
+              and gets smarter the more you use it. Ask by typing, by voice or with a photo. 🦉
+            </p>
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+              <Link href="/auth/signup" className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-brand-500 px-5 font-semibold text-white transition hover:brightness-110">
+                Start learning free <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="/auth/login" className="inline-flex h-11 items-center justify-center rounded-lg bg-surface-100 px-5 font-semibold text-surface-900 transition-colors hover:bg-surface-200">
+                Log in
+              </Link>
+            </div>
+            <p className="mt-3 text-sm text-surface-500">No credit card required · Free to start</p>
           </div>
 
-          <p className="text-sm text-surface-400 mt-4 font-medium">
-            No credit card required · Free to start
-          </p>
-        </div>
-
-        {/* Hero illustration */}
-        <div className="mt-16 max-w-3xl mx-auto animate-float">
-          <div className="bg-surface-50 rounded-3xl shadow-2xl border border-surface-200 overflow-hidden">
-            {/* Fake browser chrome */}
-            <div className="flex items-center gap-2 px-4 py-3 bg-surface-100 border-b border-surface-200">
-              <div className="w-3 h-3 rounded-full bg-coral-400" />
-              <div className="w-3 h-3 rounded-full bg-accent-400" />
-              <div className="w-3 h-3 rounded-full bg-brand-400" />
-              <div className="ml-4 flex-1 bg-surface-200 rounded-full h-5 max-w-xs" />
+          {/* Chat preview */}
+          <div className="overflow-hidden rounded-lg border border-surface-200 bg-background">
+            <div className="flex items-center gap-2 border-b border-surface-200 bg-surface-50 px-3 py-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500">🦉</span>
+              <div>
+                <p className="text-sm font-semibold text-surface-900">AdaptUAI Tutor</p>
+                <p className="text-xs text-brand-600">Ready to teach</p>
+              </div>
             </div>
-            {/* Chat preview */}
-            <div className="p-6 space-y-4">
-              <div className="flex items-end gap-2 justify-end">
-                <div className="bg-brand-500 text-white px-4 py-2.5 rounded-3xl rounded-br-sm text-sm font-medium max-w-xs">
+            <div className="space-y-3 p-3 sm:p-4">
+              <div className="flex justify-end">
+                <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-brand-500 px-3.5 py-2 text-sm text-white">
                   How does the JavaScript event loop work? 🤔
-                </div>
-                <div className="w-7 h-7 bg-brand-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                  ME
                 </div>
               </div>
               <div className="flex items-end gap-2">
-                <div className="w-7 h-7 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  🦉
-                </div>
-                <div className="bg-surface-100 px-4 py-2.5 rounded-3xl rounded-bl-sm text-sm text-surface-800 max-w-sm">
-                  Great question! 🌟 The event loop is what allows JavaScript to be{' '}
-                  <strong>non-blocking</strong> even though it runs on a single thread. Think of it
-                  like a restaurant — the chef (JS engine) can take orders while food is still
-                  cooking! Here&apos;s how it works step by step...
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm">🦉</span>
+                <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-surface-50 px-3.5 py-2 text-sm text-surface-900 shadow-card">
+                  Great question! 🌟 The event loop lets JavaScript stay <strong>non-blocking</strong> on a single thread. Think of
+                  a chef taking new orders while food is still cooking. Here&apos;s how it works, step by step…
                 </div>
               </div>
-              <div className="flex items-center gap-1 ml-9">
-                {[0, 1, 2].map((i) => (
-                  <span
-                    key={i}
-                    className="w-2 h-2 bg-surface-300 rounded-full animate-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
-                ))}
+              <div className="flex items-center gap-2 rounded-full bg-surface-50 p-1.5 pl-2 shadow-card">
+                <Camera className="h-5 w-5 text-surface-500" />
+                <span className="flex-1 truncate text-sm text-surface-400">Ask anything…</span>
+                <Mic className="h-5 w-5 text-surface-500" />
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500 text-white"><ArrowRight className="h-4 w-4" /></span>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Stats ─────────────────────────────────────────────────────────── */}
-      <section className="py-12 border-y border-surface-200 bg-surface-50/60 backdrop-blur-sm">
-        <div className="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8">
+        {/* ── Stats ──────────────────────────────────────────────────────── */}
+        <section className={`${card} grid grid-cols-2 gap-4 md:grid-cols-4`}>
           {stats.map((s) => (
             <div key={s.label} className="text-center">
-              <div className="text-4xl font-black text-brand-600 mb-1">{s.value}</div>
-              <div className="text-sm font-semibold text-surface-500">{s.label}</div>
+              <div className="text-2xl font-bold text-brand-500 sm:text-3xl">{s.value}</div>
+              <div className="text-sm text-surface-500">{s.label}</div>
             </div>
           ))}
-        </div>
-      </section>
+        </section>
 
-      {/* ── Features ──────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-full mx-auto">
-        <div className="text-center mb-14">
-          <h2 className="text-4xl font-black text-surface-900 mb-4">
-            Why AdaptUAI is different
-          </h2>
-          <p className="text-lg text-surface-500 max-w-xl mx-auto">
-            We don&apos;t just answer questions — we understand <em>how</em> you learn.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((f) => {
-            const colorMap = {
-              purple: 'from-purple-50 to-white border-purple-100 dark:from-purple-900/20 dark:to-surface-50/50 dark:border-purple-500/20',
-              accent: 'from-accent-50 to-white border-accent-100 dark:from-accent-900/20 dark:to-surface-50/50 dark:border-accent-500/20',
-              ocean: 'from-ocean-50 to-white border-ocean-100 dark:from-ocean-900/20 dark:to-surface-50/50 dark:border-ocean-500/20',
-              brand: 'from-brand-50 to-white border-brand-100 dark:from-brand-900/20 dark:to-surface-50/50 dark:border-brand-500/20',
-              coral: 'from-coral-50 to-white border-coral-100 dark:from-coral-900/20 dark:to-surface-50/50 dark:border-coral-500/20',
-              surface: 'from-surface-50 to-white border-surface-100 dark:from-surface-100/20 dark:to-surface-50/50 dark:border-surface-200/20',
-            };
-
-            return (
-              <div
-                key={f.title}
-                className={`p-2 lg:p-6 rounded-xl lg:rounded-3xl border bg-gradient-to-br ${colorMap[f.color]} hover:-translate-y-1 hover:shadow-card-hover transition-all duration-200 group`}
-              >
-                <div className={`w-12 h-12 ${f.iconBg} rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform`}>
-                  {f.icon}
+        {/* ── Features ───────────────────────────────────────────────────── */}
+        <section className={card}>
+          <h2 className="text-2xl font-bold text-surface-900 sm:text-3xl"><AccentLast>Why AdaptUAI is different</AccentLast></h2>
+          <p className="mt-1 text-surface-500">We don&apos;t just answer questions. We understand how you learn.</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {features.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex gap-3 rounded-lg border border-surface-200 p-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500/15 text-brand-600">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-semibold text-surface-900">{title}</h3>
+                  <p className="mt-0.5 text-sm leading-relaxed text-surface-500">{desc}</p>
                 </div>
-                <h3 className="text-lg font-black text-surface-900 mb-2">{f.title}</h3>
-                <p className="text-sm text-surface-600 leading-relaxed">{f.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ── How it works ──────────────────────────────────────────────────── */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-surface-100/80 backdrop-blur-sm">
-        <div className="container mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-4xl font-black text-surface-900 mb-4">How it works</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { step: '1', icon: '✍️', title: 'Sign up', desc: 'Create your free account in 30 seconds. No credit card needed.' },
-              { step: '2', icon: '💬', title: 'Ask anything', desc: 'Chat with your AI tutor. Ask questions, explore topics, get explanations.' },
-              { step: '3', icon: '🎯', title: 'AI adapts to you', desc: 'The more you chat, the more personalized the AI becomes to your exact learning style.' },
-            ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="w-16 h-16 bg-brand-500 text-white rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-4 shadow-glow">
-                  {item.step}
-                </div>
-                <div className="text-3xl mb-3">{item.icon}</div>
-                <h3 className="text-xl font-black text-surface-900 mb-2">{item.title}</h3>
-                <p className="text-surface-600">{item.desc}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── CTA ───────────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4 text-center">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-5xl mb-6 animate-float inline-block">🦉</div>
-          <h1 className="text-6xl sm:text-7xl font-black leading-[1.1] mb-6 tracking-tight animate-slide-up">
-            <span className="text-surface-900">AdaptU</span><span className="text-brand-500">AI</span>
-          </h1>
-          <p className="text-2xl font-bold text-brand-600 mb-8 uppercase tracking-[0.2em] animate-fade-in delay-200">
-            AI that adapts to you
-          </p>
-          <p className="text-lg text-surface-500 mb-8">
-            Join thousands of learners who use AdaptUAI every day.
-          </p>
-          <Link
-            href="/auth/signup"
-            className="inline-flex items-center gap-2 px-10 py-5 bg-brand-500 hover:bg-brand-600 text-white font-black text-xl rounded-3xl shadow-button border-b-4 border-brand-700 hover:translate-y-[1px] hover:shadow-button-press transition-all"
-          >
-            🚀 Get Started Free
+        {/* ── How it works ───────────────────────────────────────────────── */}
+        <section className={card}>
+          <h2 className="text-2xl font-bold text-surface-900 sm:text-3xl"><AccentLast>How it works</AccentLast></h2>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {steps.map((s, i) => (
+              <div key={s.title} className="flex gap-3 rounded-lg bg-surface-100 p-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-500 font-bold text-white">{i + 1}</span>
+                <div>
+                  <h3 className="font-semibold text-surface-900">{s.title}</h3>
+                  <p className="mt-0.5 text-sm text-surface-500">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── CTA ────────────────────────────────────────────────────────── */}
+        <section className={`${card} flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left`}>
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-500 text-3xl">🦉</span>
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-surface-900 sm:text-2xl"><AccentLast>Ready to learn smarter?</AccentLast></h2>
+            <p className="text-surface-500">Join learners who use AdaptUAI every day.</p>
+          </div>
+          <Link href="/auth/signup" className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-brand-500 px-5 font-semibold text-white transition hover:brightness-110">
+            Get started free <ArrowRight className="h-4 w-4" />
           </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 border-t border-surface-200 text-center text-sm text-surface-400 font-medium">
-        © {new Date().getFullYear()} AdaptUAI · Built with 🦉 and AI
-      </footer>
+        </section>
+      </div>
+      <Footer />
     </div>
   );
 }

@@ -10,7 +10,13 @@ import { calculateProfile, summarizeMetrics } from '@/lib/userProfile';
 import { generateCompletion } from '@/lib/ai';
 import Transaction from '@/models/Transaction';
 
+import { uploadImage } from '@/lib/cloudinary';
+
 export const dynamic = 'force-dynamic';
+
+// The chat box shrinks photos to <=1280px JPEG before sending, so ~2 MB of base64 is plenty.
+const IMAGE_DATA_URL = /^data:image\/(jpeg|jpg|png);base64,[A-Za-z0-9+/=]+$/;
+const MAX_IMAGE_CHARS = 2_800_000;
 
 export async function POST(request) {
   try {
@@ -23,9 +29,21 @@ export async function POST(request) {
     await dbConnect();
 
     const body = await request.json();
-    const { message, sessionId, messageHistory = [], behaviorMetrics = null } = body;
+    const { sessionId, messageHistory = [], behaviorMetrics = null } = body;
+    let message = typeof body.message === 'string' ? body.message : '';
 
-    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    // Optional photo: a JPG/PNG data URL (the browser shrinks it to <=1280px first).
+    let imageForModel = null;
+    if (body.image) {
+      const dataUrl = String(body.image);
+      if (!IMAGE_DATA_URL.test(dataUrl) || dataUrl.length > MAX_IMAGE_CHARS) {
+        return NextResponse.json({ error: 'Attach a JPG or PNG image under 2 MB.' }, { status: 400 });
+      }
+      imageForModel = dataUrl;
+      if (!message.trim()) message = 'Explain this image and solve the question in it.';
+    }
+
+    if (!message || message.trim().length === 0) {
       return NextResponse.json({ error: 'Message is required.' }, { status: 400 });
     }
 
@@ -82,16 +100,38 @@ export async function POST(request) {
 
     // ── Prepare message history for OpenAI ──────────────────────────────────
     // messageHistory: array of {role, content} from client (last N messages)
+    // Keep the photo in Cloudinary so the chat can show it later; the model then reads it by URL.
+    // If the upload fails the model still gets the image inline, it just is not saved.
+    let savedImage;
+    if (imageForModel) {
+      try {
+        const uploaded = await uploadImage(imageForModel, 'adaptuai/chats');
+        savedImage = uploaded.secure_url;
+        imageForModel = savedImage;
+      } catch (uploadError) {
+        console.error('[Chat route] Image upload failed:', uploadError.message);
+      }
+    }
+
+    const history = (Array.isArray(messageHistory) ? messageHistory : [])
+      .filter((m) => (m?.role === 'user' || m?.role === 'assistant') && typeof m.content === 'string')
+      .slice(-12) // last 12 messages for context
+      .map((m) => ({ role: m.role, content: m.content }));
     const openAIMessages = [
-      ...messageHistory.slice(-12), // last 12 messages for context
-      { role: 'user', content: message.trim() },
+      ...history,
+      {
+        role: 'user',
+        content: imageForModel
+          ? [{ type: 'text', text: message.trim() }, { type: 'image_url', image_url: { url: imageForModel } }]
+          : message.trim(),
+      },
     ];
 
     // ── Add user message to chat doc ─────────────────────────────────────────
     chat.addMessage('user', message.trim(), {
       responseTimeMs: behaviorMetrics?.responseTimeMs,
       isRetry: behaviorMetrics?.isRetry || false,
-    });
+    }, savedImage);
 
     // ── Stream AI response ───────────────────────────────────────────────────
     const stream = generateStreamingCompletion(systemPrompt, openAIMessages);

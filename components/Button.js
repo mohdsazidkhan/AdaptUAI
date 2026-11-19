@@ -2,26 +2,21 @@
 
 import clsx from 'clsx';
 
+// Facebook-style flat buttons: brand for the main action, grey for secondary, red only for danger.
 const variants = {
-  primary:
-    'bg-brand-500 hover:bg-brand-600 text-white border-brand-700 shadow-button active:shadow-button-press',
-  secondary:
-    'bg-ocean-500 hover:bg-ocean-600 text-white border-ocean-700 shadow-button active:shadow-button-press',
-  accent:
-    'bg-accent-400 hover:bg-accent-500 active:bg-accent-600 text-surface-900 shadow-button hover:shadow-button-press active:translate-y-[2px] border-b-4 border-accent-600',
-  ghost:
-    'bg-transparent text-surface-500 hover:bg-surface-100 hover:text-surface-700',
-  danger:
-    'bg-coral-500 hover:bg-coral-600 text-white border-coral-700 shadow-button active:shadow-button-press',
-  outline:
-    'bg-transparent hover:bg-brand-50 active:bg-brand-100 text-brand-600 border-2 border-brand-400 hover:border-brand-500',
+  primary: 'bg-brand-500 text-white hover:brightness-110',
+  secondary: 'bg-surface-100 text-surface-900 hover:bg-surface-200',
+  accent: 'bg-brand-500 text-white hover:brightness-110',
+  ghost: 'bg-transparent text-surface-500 hover:bg-surface-100 hover:text-surface-900',
+  danger: 'bg-coral-500 text-white hover:brightness-110',
+  outline: 'bg-brand-500/10 text-brand-600 hover:bg-brand-500/15',
 };
 
 const sizes = {
-  sm: 'px-4 py-2 text-sm rounded-xl',
-  md: 'px-6 py-3 text-base rounded-xl',
-  lg: 'px-8 py-4 text-lg rounded-xl',
-  xl: 'px-10 py-5 text-xl rounded-3xl',
+  sm: 'h-9 px-3 text-sm rounded-lg',
+  md: 'h-10 px-4 text-[15px] rounded-lg',
+  lg: 'h-11 px-5 text-base rounded-lg',
+  xl: 'h-12 px-6 text-lg rounded-lg',
 };
 
 export default function Button({
@@ -42,11 +37,11 @@ export default function Button({
       onClick={onClick}
       disabled={disabled || loading}
       className={clsx(
-        'inline-flex items-center justify-center gap-2 font-bold transition-all duration-150 select-none',
+        'inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 select-none',
         variants[variant] || variants.primary,
         sizes[size] || sizes.md,
         fullWidth && 'w-full',
-        (disabled || loading) && 'opacity-60 cursor-not-allowed pointer-events-none shadow-none border-b-2 translate-y-0',
+        (disabled || loading) && 'opacity-50 cursor-not-allowed pointer-events-none',
         className
       )}
       {...props}

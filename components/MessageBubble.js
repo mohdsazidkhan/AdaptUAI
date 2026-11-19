@@ -57,11 +57,11 @@ export default function MessageBubble({ message, compact = false }) {
       {!compact && (
         <div className="flex-shrink-0 mb-1">
           {isUser ? (
-            <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white font-bold text-xs shadow-sm shadow-brand-500/20">
+            <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white font-bold text-xs">
               YOU
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-ocean-500 flex items-center justify-center shadow-sm shadow-ocean-500/20">
+            <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center">
               <span className="text-base">🦉</span>
             </div>
           )}
@@ -71,13 +71,21 @@ export default function MessageBubble({ message, compact = false }) {
       {/* Bubble */}
       <div className={`max-w-[85%] md:max-w-[70%] ${isUser ? 'items-end' : 'items-start'} flex flex-col gap-1.5 group`}>
         <div
-          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm transition-all duration-200 ${isUser
-              ? 'bg-brand-500 text-white rounded-tr-sm border-brand-600 shadow-md shadow-brand-500/20'
-              : 'bg-surface-50 dark:bg-surface-100 text-surface-900 rounded-tl-sm border border-surface-200 dark:border-surface-200/20 hover:border-brand-200'
+          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed transition-all duration-200 ${isUser
+              ? 'bg-brand-500 text-white rounded-tr-sm'
+              : 'bg-surface-100 text-surface-900 rounded-tl-sm'
             }`}
         >
           {isUser ? (
-            <p className="whitespace-pre-wrap break-words font-medium">{message.content}</p>
+            <>
+              {message.image && (
+                <a href={message.image.startsWith('data:') ? undefined : message.image} target="_blank" rel="noopener noreferrer">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={message.image} alt="Attached image" className="mb-2 max-h-48 w-auto rounded-lg bg-white/10 object-contain" />
+                </a>
+              )}
+              <p className="whitespace-pre-wrap break-words font-medium">{message.content}</p>
+            </>
           ) : (
             <div className="prose dark:prose-invert prose-sm max-w-none prose-headings:text-surface-900 prose-p:text-surface-800 prose-code:bg-surface-100 prose-code:rounded prose-code:px-1 prose-pre:bg-surface-900 prose-pre:text-brand-300 prose-strong:text-surface-900 prose-a:text-brand-600">
               {!message.content || message.content.trim() === '' ? (
@@ -95,7 +103,7 @@ export default function MessageBubble({ message, compact = false }) {
         <div className={`flex items-center gap-3 px-1 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
           {/* Timestamp */}
           {message.timestamp && (
-            <span className="text-[10px] text-surface-400 font-bold uppercase tracking-tighter">
+            <span className="text-xs text-surface-400 font-bold uppercase">
               {formatTime(message.timestamp)}
             </span>
           )}
@@ -109,7 +117,7 @@ export default function MessageBubble({ message, compact = false }) {
                 className="p-1 text-surface-400 hover:text-brand-500 transition-colors"
                 aria-label="Copy"
               >
-                {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                {copied ? <Check size={12} className="text-brand-600" /> : <Copy size={12} />}
               </button>
               <div className="w-px h-2.5 bg-surface-200" />
               <button 
