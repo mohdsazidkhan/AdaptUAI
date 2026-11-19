@@ -129,4 +129,8 @@ ChatSchema.statics.getRecentByUser = function (userId, limit = 10) {
 ChatSchema.index({ userId: 1, updatedAt: -1 });
 ChatSchema.index({ userId: 1, sessionId: 1 }, { unique: true });
 
+// Dev only: after this file changes, drop the cached model so the new schema is used
+// (otherwise new fields are silently dropped until the server restarts).
+if (process.env.NODE_ENV !== 'production' && mongoose.models.Chat) delete mongoose.models.Chat;
+
 export default mongoose.models.Chat || mongoose.model('Chat', ChatSchema);

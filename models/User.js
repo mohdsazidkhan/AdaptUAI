@@ -169,4 +169,8 @@ UserSchema.methods.addTopic = async function (topic) {
   }
 };
 
+// Dev only: after this file changes, drop the cached model so the new schema is used
+// (otherwise new fields are silently dropped until the server restarts).
+if (process.env.NODE_ENV !== 'production' && mongoose.models.User) delete mongoose.models.User;
+
 export default mongoose.models.User || mongoose.model('User', UserSchema);

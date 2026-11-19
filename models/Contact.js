@@ -16,4 +16,8 @@ const ContactSchema = new mongoose.Schema(
 
 ContactSchema.index({ createdAt: -1 });
 
+// Dev only: after this file changes, drop the cached model so the new schema is used
+// (otherwise new fields are silently dropped until the server restarts).
+if (process.env.NODE_ENV !== 'production' && mongoose.models.Contact) delete mongoose.models.Contact;
+
 export default mongoose.models.Contact || mongoose.model('Contact', ContactSchema);

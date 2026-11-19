@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Transaction from '@/models/Transaction';
+import Notification from '@/models/Notification';
 import { getAuthUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -70,6 +71,19 @@ export async function POST(request) {
       ...(reference ? { reference } : {}),
       ...(rupees != null ? { rupees } : {}),
     });
+
+    // Tell the learner (navbar bell). A failure here must not undo the recharge.
+    try {
+      await Notification.create({
+        userId: user._id,
+        type: 'recharge',
+        title: rupees != null ? `₹${rupees} recharge successful` : 'AU recharge successful',
+        body: `+${au} AU tokens added. New balance: ${user.au} AU`,
+        link: '/user/transactions',
+      });
+    } catch (notifyError) {
+      console.error('[recharge] Notification failed:', notifyError.message);
+    }
 
     return NextResponse.json({ success: true, au: user.au, transaction });
   } catch (error) {

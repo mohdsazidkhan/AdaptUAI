@@ -155,7 +155,16 @@ export default function Navbar({ user }) {
                 <SlidersHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             )}
-            {isAdmin && <NotificationBell />}
+            {user && (isAdmin ? (
+              <NotificationBell />
+            ) : (
+              <NotificationBell
+                endpoint="/user/notifications"
+                seeAll={{ href: '/user/transactions', label: 'See transaction history' }}
+                emptyText="Recharges and account updates will show up here."
+                onNew={() => router.refresh()}
+              />
+            ))}
             <button type="button" onClick={toggleTheme} className={roundBtn} aria-label="Toggle theme" title="Toggle theme">
               {theme === 'dark' ? <Sun className="h-4 w-4 sm:h-5 sm:w-5" /> : <Moon className="h-4 w-4 sm:h-5 sm:w-5" />}
             </button>

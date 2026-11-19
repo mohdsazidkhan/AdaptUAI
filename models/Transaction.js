@@ -41,4 +41,8 @@ TransactionSchema.index({ userId: 1, createdAt: -1 });
 // Look up a payment reference quickly so the same UPI payment is not credited twice.
 TransactionSchema.index({ reference: 1 }, { sparse: true });
 
+// Dev only: after this file changes, drop the cached model so the new schema is used
+// (otherwise new fields are silently dropped until the server restarts).
+if (process.env.NODE_ENV !== 'production' && mongoose.models.Transaction) delete mongoose.models.Transaction;
+
 export default mongoose.models.Transaction || mongoose.model('Transaction', TransactionSchema);

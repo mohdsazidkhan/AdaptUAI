@@ -2,33 +2,53 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Mail, CheckCheck } from 'lucide-react';
+import { Bell, Mail, CheckCheck, Coins } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import api from '@/lib/api';
 
 export const NOTIFICATIONS_CHANGED = 'adaptuai:notifications-changed';
 const POLL_MS = 60 * 1000;
 
+// Icon + colour per notification type.
+const TYPE_ICON = {
+  contact: { icon: Mail, cls: 'bg-brand-500/15 text-brand-600' },
+  recharge: { icon: Coins, cls: 'bg-accent-500/15 text-accent-600' },
+};
+
 /**
- * Admin navbar bell: unread count badge + Facebook-style dropdown of the latest notifications.
+ * Navbar bell (admins and learners): unread count badge + Facebook-style dropdown of the latest notifications.
+ *   endpoint  '/admin/notifications' or '/user/notifications'
+ *   seeAll    { href, label } link under the list
+ *   onNew     called when the unread count goes up (e.g. refresh the AU balance after a recharge)
  * Refreshes every minute, when the tab becomes visible again, when the dropdown opens, and when
  * another part of the app fires the NOTIFICATIONS_CHANGED event (e.g. a contact marked read).
  */
-export default function NotificationBell({ className = '' }) {
+export default function NotificationBell({
+  className = '',
+  endpoint = '/admin/notifications',
+  seeAll = { href: '/admin/contacts', label: 'See all contact messages' },
+  emptyText = 'New contact messages will show up here.',
+  onNew,
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([]);
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(false);
   const ref = useRef(null);
+  const lastUnread = useRef(null);
 
   const load = useCallback(async () => {
     try {
-      const data = await api.get('/admin/notifications?limit=15');
+      const data = await api.get(`${endpoint}?limit=15`);
+      const count = data.unread || 0;
+      if (lastUnread.current != null && count > lastUnread.current) onNew?.();
+      lastUnread.current = count;
       setItems(data.notifications || []);
-      setUnread(data.unread || 0);
+      setUnread(count);
     } catch { /* keep the last known state */ }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endpoint]);
 
   useEffect(() => {
     load();
@@ -64,7 +84,8 @@ export default function NotificationBell({ className = '' }) {
     if (!n.isRead) {
       setItems((list) => list.map((x) => (x._id === n._id ? { ...x, isRead: true } : x)));
       setUnread((u) => Math.max(u - 1, 0));
-      api.patch('/admin/notifications', { id: n._id }).catch(() => {});
+      lastUnread.current = Math.max((lastUnread.current || 1) - 1, 0);
+      api.patch(endpoint, { id: n._id }).catch(() => {});
     }
     if (n.link) router.push(n.link);
   };
@@ -72,7 +93,8 @@ export default function NotificationBell({ className = '' }) {
   const markAll = async () => {
     setItems((list) => list.map((x) => ({ ...x, isRead: true })));
     setUnread(0);
-    try { await api.patch('/admin/notifications', { all: true }); } catch { load(); }
+    lastUnread.current = 0;
+    try { await api.patch(endpoint, { all: true }); } catch { load(); }
   };
 
   const badge = unread > 99 ? '99+' : unread;
@@ -113,18 +135,20 @@ export default function NotificationBell({ className = '' }) {
               <div className="flex flex-col items-center gap-2 px-3 py-8 text-center">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-100 text-surface-500"><Bell className="h-6 w-6" /></span>
                 <p className="font-semibold text-surface-900">No notifications yet</p>
-                <p className="text-sm text-surface-500">New contact messages will show up here.</p>
+                <p className="text-sm text-surface-500">{emptyText}</p>
               </div>
             ) : (
-              items.map((n) => (
+              items.map((n) => {
+                const { icon: TypeIcon, cls } = TYPE_ICON[n.type] || TYPE_ICON.contact;
+                return (
                 <button
                   key={n._id}
                   type="button"
                   onClick={() => openItem(n)}
                   className="flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-surface-100"
                 >
-                  <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-500/15 text-brand-600">
-                    <Mail className="h-5 w-5" />
+                  <span className={`relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${cls}`}>
+                    <TypeIcon className="h-5 w-5" />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className={`block text-sm text-surface-900 ${n.isRead ? '' : 'font-semibold'}`}>{n.title}</span>
@@ -135,17 +159,18 @@ export default function NotificationBell({ className = '' }) {
                   </span>
                   {!n.isRead && <span className="h-3 w-3 shrink-0 rounded-full bg-brand-500" aria-label="Unread" />}
                 </button>
-              ))
+                );
+              })
             )}
           </div>
 
           <div className="border-t border-surface-200 p-1.5">
             <button
               type="button"
-              onClick={() => { setOpen(false); router.push('/admin/contacts'); }}
+              onClick={() => { setOpen(false); router.push(seeAll.href); }}
               className="w-full rounded-lg py-2 text-sm font-semibold text-brand-600 hover:bg-surface-100"
             >
-              See all contact messages
+              {seeAll.label}
             </button>
           </div>
         </div>

@@ -6,6 +6,9 @@ import { getAuthUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
+// Admin notifications have no recipient user (learner notifications carry their userId).
+const ADMIN_INBOX = { userId: null };
+
 async function requireAdmin(request) {
   const user = await getAuthUser(request);
   return user?.role === 'admin' ? user : null;
@@ -18,8 +21,8 @@ export async function GET(request) {
     await dbConnect();
     const limit = Math.min(Math.max(parseInt(new URL(request.url).searchParams.get('limit'), 10) || 15, 1), 50);
     const [notifications, unread] = await Promise.all([
-      Notification.find({}).sort({ createdAt: -1 }).limit(limit).lean(),
-      Notification.countDocuments({ isRead: false }),
+      Notification.find(ADMIN_INBOX).sort({ createdAt: -1 }).limit(limit).lean(),
+      Notification.countDocuments({ ...ADMIN_INBOX, isRead: false }),
     ]);
     return NextResponse.json({ success: true, notifications, unread });
   } catch (error) {
@@ -35,13 +38,13 @@ export async function PATCH(request) {
     const { id, all } = await request.json().catch(() => ({}));
     await dbConnect();
     if (all) {
-      await Notification.updateMany({ isRead: false }, { isRead: true });
+      await Notification.updateMany({ ...ADMIN_INBOX, isRead: false }, { isRead: true });
     } else if (mongoose.isValidObjectId(id)) {
-      await Notification.findByIdAndUpdate(id, { isRead: true });
+      await Notification.updateOne({ _id: id, ...ADMIN_INBOX }, { isRead: true });
     } else {
       return NextResponse.json({ error: 'Give an id or all: true' }, { status: 400 });
     }
-    const unread = await Notification.countDocuments({ isRead: false });
+    const unread = await Notification.countDocuments({ ...ADMIN_INBOX, isRead: false });
     return NextResponse.json({ success: true, unread });
   } catch (error) {
     console.error('[PATCH /api/admin/notifications] Error:', error);
