@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Users, Eye, Trash2, X, RefreshCw } from 'lucide-react';
+import { Users, Eye, Trash2, X, RefreshCw, Coins } from 'lucide-react';
 import { toast } from 'react-toastify';
 import api from '@/lib/api';
 import { avatarFor } from '@/lib/navItems';
 import { PageHeader, SearchField, Pill, IconButton, fmtDate, fmtDateTime } from '@/components/admin/ui';
 import DataView, { SelectField, ViewToggle, Pagination } from '@/components/admin/DataView';
 import { useAdminList, useViewMode } from '@/components/admin/useAdminList';
+import RechargeModal from '@/components/admin/RechargeModal';
 
 const SORTS = [
   { value: 'newest', label: 'Newest' },
@@ -39,47 +40,28 @@ const RANGES = [
   { value: '90d', label: 'Last 90 days' },
 ];
 
-// Uncontrolled number box: saves on blur / Enter. Module-level so re-renders never remount it while typing.
-function AuField({ user, onSave }) {
-  return (
-    <input
-      type="number"
-      min={0}
-      defaultValue={user.au}
-      key={`${user._id}-${user.au}`}
-      aria-label={`AU balance for ${user.name}`}
-      onClick={(e) => e.stopPropagation()}
-      onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
-      onBlur={(e) => onSave(user, e.target.value)}
-      className="h-9 w-20 rounded-lg border border-transparent bg-surface-100 px-2 text-center text-sm font-semibold text-surface-900 outline-none focus:border-brand-500"
-    />
-  );
-}
 
 export default function AdminUsers() {
   const list = useAdminList('/admin/users', { sort: 'newest', style: 'all', balance: 'all', range: 'all' });
   const [view, setView] = useViewMode('admin-users');
   const [selectedUser, setSelectedUser] = useState(null);
+  const [rechargeUser, setRechargeUser] = useState(null);
   const users = list.data?.users || [];
   const total = list.data?.pagination?.total ?? 0;
 
   useEffect(() => {
-    if (!selectedUser) return undefined;
+    if (!selectedUser || rechargeUser) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') setSelectedUser(null); };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [selectedUser]);
+  }, [selectedUser, rechargeUser]);
 
-  const handleUpdateAU = async (user, raw) => {
-    const newAU = parseInt(raw, 10);
-    if (Number.isNaN(newAU) || newAU < 0 || newAU === user.au) return;
-    try {
-      await api.patch('/admin/users', { userId: user._id, au: newAU });
-      list.setData((d) => ({ ...d, users: d.users.map((u) => (u._id === user._id ? { ...u, au: newAU } : u)) }));
-      toast.success(`AU updated for ${user.name}`);
-    } catch {
-      toast.error('Failed to update AU');
-    }
+
+  const afterRecharge = (newBalance) => {
+    const id = rechargeUser._id;
+    list.setData((d) => ({ ...d, users: d.users.map((u) => (u._id === id ? { ...u, au: newBalance } : u)) }));
+    setSelectedUser((s) => (s && s._id === id ? { ...s, au: newBalance } : s));
+    setRechargeUser(null);
   };
 
   const handleDeleteUser = async (user) => {
@@ -109,7 +91,7 @@ export default function AdminUsers() {
       ),
     },
     { key: 'level', header: 'Level', render: (u) => <Pill tone="brand">Level {u.level || 1}</Pill> },
-    { key: 'au', header: 'AU balance', align: 'center', render: (u) => <AuField user={u} onSave={handleUpdateAU} /> },
+    { key: 'au', header: 'AU balance', align: 'center', render: (u) => <span className="font-semibold text-surface-900">{u.au ?? 0} AU</span> },
     { key: 'style', header: 'Learning style', render: (u) => <span className="capitalize">{u.mindsetProfile?.learningStyle || '–'}</span> },
     { key: 'joined', header: 'Joined', className: 'whitespace-nowrap text-surface-500', render: (u) => fmtDate(u.createdAt) },
     { key: 'active', header: 'Last active', className: 'whitespace-nowrap text-surface-500', render: (u) => fmtDateTime(u.lastActiveDate) },
@@ -117,6 +99,7 @@ export default function AdminUsers() {
       key: 'actions', header: 'Actions', actions: true, align: 'right',
       render: (u) => (
         <div className="flex justify-end gap-1.5">
+          <IconButton icon={Coins} label="Recharge AU" tip="top" onClick={() => setRechargeUser(u)} />
           <IconButton icon={Eye} label="View profile" tip="top" onClick={() => setSelectedUser(u)} />
           <IconButton icon={Trash2} label="Delete user" tip="top" danger onClick={() => handleDeleteUser(u)} />
         </div>
@@ -216,7 +199,10 @@ export default function AdminUsers() {
                   <div className="flex flex-wrap gap-1.5">{selectedUser.weakAreas.map((t) => <Pill key={t} tone="coral">{t}</Pill>)}</div>
                 </div>
               )}
-              <div className="flex justify-end border-t border-surface-200 pt-3">
+              <div className="flex flex-wrap justify-end gap-2 border-t border-surface-200 pt-3">
+                <button type="button" onClick={() => setRechargeUser(selectedUser)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand-500 px-3 text-sm font-semibold text-white transition hover:brightness-110">
+                  <Coins className="h-4 w-4" /> Recharge AU
+                </button>
                 <button type="button" onClick={() => handleDeleteUser(selectedUser)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-coral-500/15 px-3 text-sm font-semibold text-coral-600 transition hover:bg-coral-500/25">
                   <Trash2 className="h-4 w-4" /> Delete user
                 </button>
@@ -225,6 +211,8 @@ export default function AdminUsers() {
           </div>
         </div>
       )}
+
+      {rechargeUser && <RechargeModal user={rechargeUser} onClose={() => setRechargeUser(null)} onDone={afterRecharge} />}
     </div>
   );
 }

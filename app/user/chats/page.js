@@ -55,7 +55,7 @@ export default function ChatHistoryPage() {
           </span>
           <div className="min-w-0">
             <p className="truncate font-semibold text-surface-900">{c.title || 'Untitled chat'}</p>
-            {c.preview && <p className="truncate text-xs text-surface-500">{c.preview}</p>}
+            {c.preview && <p className="truncate text-xs text-surface-500">{c.preview.replace(/[*_`#>]+/g, '').trim()}</p>}
           </div>
         </div>
       ),

@@ -142,7 +142,7 @@ export default function DataView({ view, columns, rows, rowKey, loading, empty, 
     return (
       <ul className={`divide-y divide-surface-200 ${dim}`}>
         {rows.map((row) => (
-          <li key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined} className={`flex flex-wrap items-center gap-x-4 gap-y-2 p-3 transition-colors hover:bg-surface-100 sm:p-4 ${clickable} ${rowClassName?.(row) || ''}`}>
+          <li key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined} className={`flex flex-wrap [&_.truncate]:line-clamp-3 [&_.truncate]:whitespace-normal [&_.truncate]:break-words items-center gap-x-4 gap-y-2 p-3 transition-colors hover:bg-surface-100 sm:p-4 ${clickable} ${rowClassName?.(row) || ''}`}>
             <div className="min-w-[200px] flex-1">{primary.render(row)}</div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               {meta.map((c) => (
@@ -162,13 +162,13 @@ export default function DataView({ view, columns, rows, rowKey, loading, empty, 
   return (
     <div className={`grid gap-3 p-3 sm:grid-cols-2 sm:p-4 xl:grid-cols-3 ${dim}`}>
       {rows.map((row) => (
-        <article key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined} className={`flex flex-col gap-3 rounded-lg border border-surface-200 p-3 transition-colors hover:bg-surface-100 ${clickable} ${rowClassName?.(row) || ''}`}>
+        <article key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined} className={`flex min-w-0 flex-col gap-3 overflow-hidden rounded-lg border [&_.truncate]:line-clamp-3 [&_.truncate]:whitespace-normal [&_.truncate]:break-words border-surface-200 p-3 transition-colors hover:bg-surface-100 ${clickable} ${rowClassName?.(row) || ''}`}>
           {primary.render(row)}
           <dl className="grid grid-cols-2 gap-x-3 gap-y-2">
             {meta.map((c) => (
               <div key={c.key} className="min-w-0">
                 <dt className="text-xs text-surface-500">{c.header}</dt>
-                <dd className="truncate text-sm text-surface-900">{c.render(row)}</dd>
+                <dd className="break-words text-sm text-surface-900">{c.render(row)}</dd>
               </div>
             ))}
           </dl>
