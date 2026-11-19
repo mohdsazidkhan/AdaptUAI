@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -16,9 +16,10 @@ function normalizeMath(text) {
     .replace(/\\\[([\s\S]+?)\\\]/g, (_, m) => `\n$$\n${m.trim()}\n$$\n`)
     .replace(/\\\(([\s\S]+?)\\\)/g, (_, m) => `$${m.trim()}$`);
 }
-import { Copy, Check, Share2, RotateCcw, Square, Pencil } from 'lucide-react';
+import { Copy, Check, Share2, RotateCcw, Square, Pencil, Volume2 } from 'lucide-react';
 import WaitingWord from './WaitingWord';
 import { toast } from 'react-toastify';
+import { canSpeak, speak, stopSpeaking, useSpeakingId } from '@/lib/speech';
 
 function formatTime(date) {
   if (!date) return '';
@@ -41,6 +42,18 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
   };
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
+  // Read aloud: the answer's timestamp is its id (ChatBox uses the same id to auto-read a new answer).
+  // Old saved messages without a timestamp fall back to their database id.
+  const speakId = message.timestamp ? new Date(message.timestamp).getTime() : message._id || message.id || null;
+  const speakingId = useSpeakingId();
+  const isSpeaking = speakId !== null && speakingId === speakId;
+  const [speechOk, setSpeechOk] = useState(false);
+  useEffect(() => setSpeechOk(canSpeak()), []);
+  const canListen = speechOk && !isUser && !message.isError && !message._streamingId && !!message.content?.trim();
+  const toggleListen = () => {
+    if (isSpeaking) stopSpeaking();
+    else if (!speak(speakId, message.content)) toast.error('Your browser cannot read this aloud.');
+  };
 
   if (isSystem) return null;
 
@@ -197,6 +210,21 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
               className="inline-flex h-8 items-center gap-1.5 rounded-full bg-brand-500 px-3 text-xs font-semibold text-white transition hover:brightness-110"
             >
               <RotateCcw className="h-3.5 w-3.5" /> Retry
+            </button>
+          )}
+
+          {/* Read the answer aloud: always visible so learners find it */}
+          {canListen && (
+            <button
+              type="button"
+              onClick={toggleListen}
+              aria-pressed={isSpeaking}
+              aria-label={isSpeaking ? 'Stop reading' : 'Listen to answer'}
+              title={isSpeaking ? 'Stop reading' : 'Listen to answer'}
+              className={`inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold transition-colors ${isSpeaking ? 'bg-brand-500 text-white hover:brightness-110' : 'bg-surface-100 text-surface-600 hover:bg-surface-200 hover:text-brand-600'}`}
+            >
+              {isSpeaking ? <Square className="h-3 w-3 fill-current" /> : <Volume2 className="h-3.5 w-3.5" />}
+              {isSpeaking ? 'Stop' : 'Listen'}
             </button>
           )}
 

@@ -7,7 +7,8 @@ import { TypingIndicator } from './Loader';
 import { AUPopup } from './AUBadge';
 import api from '@/lib/api';
 import { toast } from 'react-toastify';
-import { ImagePlus, Mic, X, Send, SquarePen, Square, MoreVertical, Share2, Copy, Download, FileText, ArrowLeft } from 'lucide-react';
+import { ImagePlus, Mic, X, Send, SquarePen, Square, MoreVertical, Share2, Copy, Download, FileText, ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { canSpeak, speak, stopSpeaking } from '@/lib/speech';
 import Link from 'next/link';
 
 const DEBOUNCE_MS = 300;
@@ -74,6 +75,28 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       if (saved && MODE_CHIPS.some((m) => m.id === saved)) setMode(saved);
     } catch { /* storage unavailable */ }
   }, []);
+  // Read every answer aloud (saved on this device). Questions asked by voice are always answered aloud.
+  const [readAloud, setReadAloud] = useState(false);
+  const [speechOk, setSpeechOk] = useState(false);
+  const readAloudRef = useRef(false);
+  const voiceUsedRef = useRef(false);
+  useEffect(() => {
+    setSpeechOk(canSpeak());
+    try {
+      const on = localStorage.getItem('adaptuai-read-aloud') === '1';
+      setReadAloud(on);
+      readAloudRef.current = on;
+    } catch { /* storage unavailable */ }
+  }, []);
+  const toggleReadAloud = () => {
+    const on = !readAloud;
+    setReadAloud(on);
+    readAloudRef.current = on;
+    if (!on) stopSpeaking();
+    try { localStorage.setItem('adaptuai-read-aloud', on ? '1' : '0'); } catch { /* storage unavailable */ }
+    toast.info(on ? 'Answers will be read aloud' : 'Read aloud is off', { autoClose: 1500 });
+  };
+
   const chooseMode = (id) => {
     setMode(id);
     try { localStorage.setItem('adaptuai-mode', id); } catch { /* storage unavailable */ }
@@ -155,6 +178,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       abortControllerRef.current?.abort();
       clearTimeout(debounceRef.current);
       recognitionRef.current?.abort();
+      stopSpeaking();
     };
   }, []);
 
@@ -181,6 +205,9 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
     if (!trimmed || isStreaming) return;
 
     recognitionRef.current?.abort();
+    stopSpeaking();
+    const viaVoice = voiceUsedRef.current;
+    voiceUsedRef.current = false;
     setError('');
     setInput('');
     setImage(null);
@@ -195,9 +222,10 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
 
     // Create placeholder for streaming response
     const streamingId = Date.now();
+    const answerAt = new Date(); // also the answer's read-aloud id (see MessageBubble)
     setMessages((prev) => [
       ...prev,
-      { role: 'assistant', content: '', timestamp: new Date(), _streamingId: streamingId },
+      { role: 'assistant', content: '', timestamp: answerAt, _streamingId: streamingId },
     ]);
 
     const retryInfo = { text: trimmed, photo };
@@ -317,6 +345,9 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           m._streamingId === streamingId ? { ...m, _streamingId: undefined } : m
         )
       );
+
+      // Read the answer aloud when the learner asked by voice or turned Read aloud on.
+      if (viaVoice || readAloudRef.current) speak(answerAt.getTime(), accumulatedText);
 
       // Show AU popup with current cost
       const tokenCost = Number(process.env.NEXT_PUBLIC_EACH_CHAT_AU_TOKEN) || 10;
@@ -466,6 +497,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
   const startVoice = async () => {
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Recognition || isStreaming || listening) return;
+    stopSpeaking(); // do not let the tutor's voice be picked up by the mic
     // Ask for the microphone first (the browser shows its Allow / Block prompt); the test stream is closed straight away.
     if (navigator.mediaDevices?.getUserMedia) {
       try {
@@ -499,6 +531,7 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
       setListening(false);
       recognitionRef.current = null;
       // Nothing is sent here: the words stay in the box so the user can check or fix them, then press Send.
+      if (spoken) voiceUsedRef.current = true;
       if (!failed && !spoken) toast.error("Didn't catch that. Please try again.");
       else if (spoken) setTimeout(() => {
         const el = inputRef.current;
@@ -599,6 +632,8 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
 
   const handleNewChat = () => {
     abortControllerRef.current?.abort();
+    stopSpeaking();
+    voiceUsedRef.current = false;
     setSessionId(uuidv4());
     setMessages([
       {
@@ -660,6 +695,26 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           >
             <SquarePen className="h-4 w-4" /> <span className="hidden sm:inline">New chat</span>
           </button>
+
+          {speechOk && (
+            <div className="group relative">
+              <button
+                type="button"
+                onClick={toggleReadAloud}
+                aria-pressed={readAloud}
+                aria-label={readAloud ? 'Read aloud is on' : 'Read answers aloud'}
+                className={`flex h-9 w-9 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-500 ${readAloud ? 'bg-brand-500 text-white hover:brightness-110' : 'bg-surface-100 text-surface-900 hover:bg-surface-200'}`}
+              >
+                {readAloud ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              </button>
+              <span
+                role="tooltip"
+                className="pointer-events-none absolute right-1/2 top-full z-30 mt-1.5 hidden translate-x-1/2 whitespace-nowrap rounded-md bg-surface-900 px-2 py-1 text-xs font-medium text-surface-50 opacity-0 shadow-menu transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 lg:block"
+              >
+                {readAloud ? 'Read aloud: on' : 'Read answers aloud'}
+              </span>
+            </div>
+          )}
 
           {/* Desktop: the export actions as direct icon buttons with a tooltip */}
           <div className="hidden items-center gap-1.5 lg:flex">
@@ -847,7 +902,10 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
           <textarea
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (!e.target.value.trim()) voiceUsedRef.current = false;
+            }}
             onKeyDown={handleKeyDown}
             placeholder={listening ? 'Listening… speak now' : MODE_CHIPS.find((c) => c.id === mode)?.placeholder || 'Ask anything…'}
             rows={1}
