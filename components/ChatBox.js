@@ -83,7 +83,10 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
   useEffect(() => {
     setSpeechOk(canSpeak());
     try {
-      const on = localStorage.getItem('adaptuai-read-aloud') === '1';
+      // Auto-read new answers by default. Keep an explicit saved choice if the learner
+      // has already changed the speaker toggle on this device.
+      const saved = localStorage.getItem('adaptuai-read-aloud');
+      const on = saved === null || saved === '1';
       setReadAloud(on);
       readAloudRef.current = on;
     } catch { /* storage unavailable */ }
@@ -491,8 +494,8 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
     }
   };
 
-  // ---- Voice: the browser's own speech-to-text (Chrome, Edge, Safari, Android). Free and instant;
-  // the spoken words fill the box while talking; the user checks them and presses Send.
+  // ---- Voice: the browser's own speech-to-text (Chrome, Edge, Safari, Android). Send the
+  // finalized transcript automatically when recognition ends.
   const stopVoice = () => recognitionRef.current?.stop();
   const startVoice = async () => {
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -530,17 +533,11 @@ export default function ChatBox({ user, initialSessionId = null, onSuccess }) {
     recognition.onend = () => {
       setListening(false);
       recognitionRef.current = null;
-      // Nothing is sent here: the words stay in the box so the user can check or fix them, then press Send.
-      if (spoken) voiceUsedRef.current = true;
       if (!failed && !spoken) toast.error("Didn't catch that. Please try again.");
-      else if (spoken) setTimeout(() => {
-        const el = inputRef.current;
-        if (!el) return;
-        el.focus();
-        el.setSelectionRange(el.value.length, el.value.length);
-        el.style.height = 'auto';
-        el.style.height = `${Math.min(el.scrollHeight, 144)}px`;
-      }, 0);
+      else if (!failed && spoken) {
+        voiceUsedRef.current = true;
+        sendMessage(before ? `${before} ${spoken}` : spoken, false, image);
+      }
     };
     recognitionRef.current = recognition;
     setListening(true);
