@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -19,7 +19,8 @@ function normalizeMath(text) {
 import { Copy, Check, Share2, RotateCcw, Square, Pencil, Volume2 } from 'lucide-react';
 import WaitingWord from './WaitingWord';
 import { toast } from 'react-toastify';
-import { canSpeak, speak, stopSpeaking, useSpeakingId } from '@/lib/speech';
+import { canSpeak, speak, stopSpeaking, useSpeakingId, onSpeechProgress } from '@/lib/speech';
+import { createSpeechHighlighter } from '@/lib/speechHighlight';
 
 function formatTime(date) {
   if (!date) return '';
@@ -50,6 +51,14 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
   const [speechOk, setSpeechOk] = useState(false);
   useEffect(() => setSpeechOk(canSpeak()), []);
   const canListen = speechOk && !isUser && !message.isError && !message._streamingId && !!message.content?.trim();
+  // While this answer is read aloud, highlight the sentence and word being spoken.
+  const contentRef = useRef(null);
+  useEffect(() => {
+    if (!isSpeaking) return undefined;
+    const highlighter = createSpeechHighlighter(contentRef.current);
+    const off = onSpeechProgress((p) => highlighter.update(p && p.id === speakId ? p : null));
+    return () => { off(); highlighter.clear(); };
+  }, [isSpeaking, speakId]);
   const toggleListen = () => {
     if (isSpeaking) stopSpeaking();
     else if (!speak(speakId, message.content)) toast.error('Your browser cannot read this aloud.');
@@ -150,7 +159,7 @@ export default function MessageBubble({ message, compact = false, onRetry, onSto
               <p className="whitespace-pre-wrap break-words font-medium">{message.content}</p>
             </>
           ) : (
-            <div className="prose dark:prose-invert prose-sm max-w-none prose-headings:text-surface-900 prose-p:text-surface-800 prose-code:bg-surface-50 prose-code:rounded prose-code:px-1 prose-code:before:content-none prose-code:after:content-none prose-pre:bg-[#0d1117] prose-pre:text-[#e6edf3] prose-pre:overflow-x-auto [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_.katex-display]:overflow-x-auto [&_.katex-display]:py-1 prose-strong:text-surface-900 prose-a:text-brand-600">
+            <div ref={contentRef} className="prose dark:prose-invert prose-sm max-w-none prose-headings:text-surface-900 prose-p:text-surface-800 prose-code:bg-surface-50 prose-code:rounded prose-code:px-1 prose-code:before:content-none prose-code:after:content-none prose-pre:bg-[#0d1117] prose-pre:text-[#e6edf3] prose-pre:overflow-x-auto [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_.katex-display]:overflow-x-auto [&_.katex-display]:py-1 prose-strong:text-surface-900 prose-a:text-brand-600">
               {!message.content || message.content.trim() === '' ? (
                 message.cancelled ? (
                   <p className="not-prose text-surface-500">You stopped this answer.</p>

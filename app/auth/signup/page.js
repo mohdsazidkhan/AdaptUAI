@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/Button';
 import AuthShell, { authInput } from '@/components/AuthShell';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -85,10 +86,9 @@ export default function SignupPage() {
           </div>
           <div>
             <label className="sr-only" htmlFor="password">Password</label>
-            <input
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               required
               autoComplete="new-password"
               value={formData.password}

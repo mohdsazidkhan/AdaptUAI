@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Button from '@/components/Button';
 import AuthShell, { authInput } from '@/components/AuthShell';
+import PasswordInput from '@/components/PasswordInput';
 import { PageLoader } from '@/components/Loader';
 
 function LoginContent() {
@@ -79,10 +80,9 @@ function LoginContent() {
           </div>
           <div>
             <label className="sr-only" htmlFor="password">Password</label>
-            <input
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               required
               autoComplete="current-password"
               value={formData.password}

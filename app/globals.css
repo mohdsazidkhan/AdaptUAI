@@ -285,3 +285,11 @@ main.app-content > * > :last-child {
 .dark .prose code {
   color: rgb(var(--brand-600)) !important;
 }
+
+/* Read aloud (lib/speechHighlight.js): the sentence and the word being spoken */
+::highlight(speak-line) {
+  background-color: rgb(var(--brand-500) / 0.14);
+}
+::highlight(speak-word) {
+  background-color: rgb(var(--brand-500) / 0.45);
+}
